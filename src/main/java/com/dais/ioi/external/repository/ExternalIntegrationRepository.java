@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 
 
 @Repository
-public interface ActionRepository
+public interface ExternalIntegrationRepository
       extends BaseAuditRepository<IntegrationEntity, UUID>
 {
 
