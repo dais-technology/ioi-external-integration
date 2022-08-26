@@ -119,6 +119,8 @@ dependencies {
     compile( 'com.dais:commons-spring-security-jwt-autoconfiguration:2.1.5' )
     compile( 'com.dais:commons-microservice-exceptions:1.0.0' )
     implementation( "com.dais:commons-spring-data-jpa-autoconfiguration:0.0.1" )
+    compile( 'com.dais:ioi-plugin-service-domain:0.0.148' )
+    compile( 'com.dais:ioi-policy-service-domain:0.0.304' )
 
 
 
