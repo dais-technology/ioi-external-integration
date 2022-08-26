@@ -1,0 +1,83 @@
+# Default values for the service.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 2
+revisionHistoryLimit: 2
+namespace: dev
+
+# Used to enforce spinnaker/helm always restart the pods upon deployments
+execution:
+  buildTime: ""
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  public: false
+  enabled: true
+  port: 8080
+  annotations: { }
+  path: /
+  readinessEndpoint: /actuator/health
+  livenessEndpoint: /actuator/health
+  hosts:
+    - ioi-external-integration.service.dev.dais.com
+  tls: [ ]
+
+resources: { }
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+# limits:
+#  cpu: 100m
+#  memory: 128Mi
+# requests:
+#  cpu: 100m
+#  memory: 128Mi
+
+nodeSelector: { }
+
+tolerations: [ ]
+
+affinity: { }
+clusterSecretsName: common
+clusterSecrets:
+  - server.port
+  - cognito.issuer-urls
+  - dais.admin.clientId
+  - dais.admin.userPoolId
+  - dais.admin.username
+  - dais.admin.password
+  - user-management.ribbon.listOfServers
+secretName: ioi-external-integration
+
+Persistence:
+  Enabled: true
+  ExistingClaim: efs
+  Annotations: { }
+  AccessMode: ReadWriteOnce
+  volumes:
+  mounts:
+
+serviceSecrets:
+  - dais.admin.auth.type
+  - spring.datasource.url
+  - spring.datasource.username
+  - spring.datasource.password
+  - spring.jpa.properties.hibernate.show_sql
+  - spring.jpa.hibernate.ddl-auto
+  - dais.redis.url
+  - dais.redis.port
+
+
+environmentVariables:
+  - name: SPRING_ENVIRONMENT_PROFILE
+    value: k8s
+newRelic:
+  enabled: true
+
+javaOptions:
+  options: "-Xms2048m -Xmx4096m"
