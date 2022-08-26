@@ -1,1 +1,1 @@
-# ioi-service-template
+# ioi-external-integration

@@ -1,0 +1,5 @@
+spring:
+  cloud:
+    secrets:
+      enabled: true
+      directory: /run/secrets # this is the default and can be omitted
