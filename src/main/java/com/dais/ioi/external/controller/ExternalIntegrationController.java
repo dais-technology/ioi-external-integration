@@ -3,13 +3,11 @@ package com.dais.ioi.external.controller;
 import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.domain.api.ExternalIntegrationAPi;
-import com.dais.ioi.external.domain.dto.ExternalInputDto;
 import com.dais.ioi.external.service.ExternalIntegrationService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import javax.validation.Valid;
 
 
@@ -23,12 +21,6 @@ public class ExternalIntegrationController implements ExternalIntegrationAPi
 
      public TriggerResponseDto fire( @Valid final FiredTriggerDto firedTriggerDto )
     {
-        externalIntegrationService.process( firedTriggerDto );
-
-       // return externalIntegrationService.fire( firedTriggerDto );
-
-      return  TriggerResponseDto.builder().build();
-
-
+        return externalIntegrationService.process( firedTriggerDto );
     }
 }

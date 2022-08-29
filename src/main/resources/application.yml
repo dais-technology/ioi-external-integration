@@ -2,14 +2,11 @@ server.port: 8182
 
 spring:
   application.name: ioi-external-integration
-
   profiles.active: local
-
   cloud.secrets.directory: spring.cloud.secrets.directory
 
   jpa:
     databasePlatform: org.hibernate.dialect.PostgreSQLDialect
-
     hibernate.ddl-auto: validate
 
     properties:
@@ -26,7 +23,6 @@ logging.level:
   com.dais.ioi.scheduler.config.client: WARN
   com.dais.ioi.scheduler.job.listeners: TRACE
 
-
 feign:
   hystrix.enabled: false
   client.config.default.logger-level: basic
@@ -34,6 +30,5 @@ feign:
 dais:
 
   cors.allow-origin: "*"
-
   jwt.endpointMatchersToIgnore: /swagger-ui.html
 

@@ -1,10 +1,8 @@
 package com.dais.ioi.external.service;
 
 import com.dais.ioi.action.domain.dto.FiredTriggerDto;
-import com.dais.ioi.external.domain.dto.ExternalInputDto;
-
-
+import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 public interface ExternalIntegrationService
 {
-    public void process( FiredTriggerDto firedTriggerDto );
+    public TriggerResponseDto process( FiredTriggerDto firedTriggerDto );
 }

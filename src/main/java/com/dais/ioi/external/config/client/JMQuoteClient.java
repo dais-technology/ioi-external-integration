@@ -15,29 +15,31 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import java.net.URI;
+
 
 @FeignClient(
       name = "jm-quote",
-      url = "${jm.api.url}"
+      url = "jm-api-url"
 )
 @Service
 public interface JMQuoteClient
 {
-  /*  @RequestMapping( value = "${jm.api.quickquote.uri}",
+    @RequestMapping(
                      method = RequestMethod.POST,
                      headers = { "Content-Type=application/json" } )
     @ResponseStatus( HttpStatus.OK )
-    QuickQuoteResult getQuickQuote(
-          @RequestHeader( HttpHeader.AUTHORIZATION ) String bearer,
-          @RequestHeader( "Ocp-Apim-Subscription-Key" ) String subscripionKey,
-          @RequestBody final QuickQuoteRequest quickQuoteRequest );
+    QuickQuoteResult getQuickQuote( URI baseUrl,
+                                    @RequestHeader( HttpHeader.AUTHORIZATION ) String bearer,
+                                    @RequestHeader( "Ocp-Apim-Subscription-Key" ) String subscripionKey,
+                                    @RequestBody final QuickQuoteRequest quickQuoteRequest );
 
-    @RequestMapping( value = "${jm.api.addquote.uri}",
+    @RequestMapping(
                      method = RequestMethod.POST,
                      headers = { "Content-Type=application/json" } )
     @ResponseStatus( HttpStatus.OK )
-    AddQuoteResult addQuote(
+    AddQuoteResult addQuote(URI baseUrl,
           @RequestHeader( HttpHeader.AUTHORIZATION ) String bearer,
           @RequestHeader( "Ocp-Apim-Subscription-Key" ) String subscripionKey,
-          @RequestBody final AddQuoteRequest quickQuoteRequest );*/
+          @RequestBody final AddQuoteRequest quickQuoteRequest );
 }

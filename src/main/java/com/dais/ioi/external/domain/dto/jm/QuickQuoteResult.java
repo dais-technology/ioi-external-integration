@@ -26,7 +26,6 @@ public class QuickQuoteResult
 
     public ArrayList<ItemWiseRateInfo> itemWiseRateInfo;
 
-
     @Data
     @Builder
     @NoArgsConstructor
