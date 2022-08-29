@@ -69,6 +69,9 @@ serviceSecrets:
   - spring.datasource.password
   - spring.jpa.properties.hibernate.show_sql
   - spring.jpa.hibernate.ddl-auto
+  - jm.auth.url
+  - jm.api.url
+  - jm.api.subscriptionKey
 
 environmentVariables:
   - name: SPRING_ENVIRONMENT_PROFILE
