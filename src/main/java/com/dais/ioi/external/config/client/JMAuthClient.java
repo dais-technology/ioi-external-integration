@@ -17,7 +17,6 @@ import java.net.URI;
 )
 public interface JMAuthClient
 {
-
     @RequestMapping(
                      method = RequestMethod.POST,
                      headers = { "Content-Type=application/x-www-form-urlencoded" } )

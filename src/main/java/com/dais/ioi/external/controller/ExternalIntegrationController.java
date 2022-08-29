@@ -18,7 +18,6 @@ import javax.validation.Valid;
 public class ExternalIntegrationController implements ExternalIntegrationAPi
 {
     private final ExternalIntegrationService externalIntegrationService;
-
      public TriggerResponseDto fire( @Valid final FiredTriggerDto firedTriggerDto )
     {
         return externalIntegrationService.process( firedTriggerDto );

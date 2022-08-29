@@ -11,5 +11,4 @@ public interface IntegrationRepository
       extends BaseAuditRepository<IntegrationEntity, UUID>
 {
     IntegrationEntity findAllByOrganizationId( final UUID lineId );
-
 }

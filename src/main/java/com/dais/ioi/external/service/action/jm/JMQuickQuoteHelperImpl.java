@@ -27,6 +27,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.net.URI;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -77,11 +78,12 @@ public class JMQuickQuoteHelperImpl
                                     .pipelineId( ap.triggerEntity.getPipeline().getId() )
                                     .quotingOrganizationId( ap.triggerEntity.getPipeline().getOrganizationId() )
                                     .triggerRequestId( ap.triggerResponse.getTriggerRequestId() )
-                                    .quoteTimestamp( OffsetDateTime.now() )
                                     .bundleId( ap.firedTrigger.getBundleId() )
                                     .lineId( ap.line.getId() )
-                                    .source( ap.firedTrigger.getSource() )
-                                    .clientOrganizationId( ap.firedTrigger.getSource().getOrganizationId() )*/
+                                    )*/
+                                    .quoteTimestamp( OffsetDateTime.now() )
+                                    .source( firedTriggerDto.getSource() )
+                                    .clientOrganizationId( firedTriggerDto.getSource().getOrganizationId() )
                                     .type( QuoteType.QUOTE )
                                     .clientId( triggerSpec.getClientId() )
                                     .requestId( requestId )
@@ -90,7 +92,9 @@ public class JMQuickQuoteHelperImpl
                                     .metadata( Collections.singletonMap( "totalTaxesAndSurcharges", (Double) quickQuoteResult.getTotalTaxesAndSurcharges() ) )
                                     .build();
 
-        triggerResponseDto.getMetadata().put( "ap.actionEntity.getId().toString()", newQuote );
+        triggerResponseDto.getMetadata().put( requestId.toString(),  newQuote );
+
+        triggerResponseDto.setTriggerRequestId( requestId );
 
         return triggerResponseDto;
     }
