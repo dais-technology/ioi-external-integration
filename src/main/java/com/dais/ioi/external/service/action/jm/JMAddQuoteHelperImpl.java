@@ -45,8 +45,6 @@ public class JMAddQuoteHelperImpl
     @Autowired
     JMAuthClient jmAuthClient;
 
-    @Value( "${jm.api.subscriptionKey}" )
-    String jmSubscriptionKey;
 
     @Autowired
     private ObjectMapper objectMapper;

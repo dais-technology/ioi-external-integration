@@ -2,7 +2,15 @@ package com.dais.ioi.external.service.action.jm;
 
 import com.dais.common.ioi.dto.answer.ClientAnswerDto;
 import com.dais.common.ioi.dto.answer.ClientLoopIterationDto;
-
+import com.dais.ioi.action.domain.dto.FiredTriggerDto;
+import com.dais.ioi.action.domain.dto.internal.spec.QuoteRequestSpecDto;
+import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
+import com.dais.ioi.external.config.client.JMQuoteClient;
+import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
+import com.dais.ioi.external.domain.dto.jm.QuickQuoteRequest;
+import com.dais.ioi.external.domain.dto.jm.QuickQuoteResult;
+import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
+import com.dais.ioi.external.repository.ExternalIntegrationRepository;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
 import com.dais.ioi.quote.domain.dto.enums.AmountType;
 import com.dais.ioi.quote.domain.dto.enums.QuoteType;
@@ -14,12 +22,11 @@ import com.dais.ioi.quote.domain.dto.pub.PubPremiumDto;
 import com.dais.ioi.quote.domain.dto.pub.PubQuoteDetailsDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,47 +36,54 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-
+import static com.dais.ioi.external.service.action.jm.JMUtils.getValue;
 
 @Service
 public class JMQuickQuoteHelperImpl
 {
- /*   @Autowired
-    JMQuoteClient jmQuoteClient;
-
-    @Value( "${jm.api.subscriptionKey}" )
-    String jmSubscriptionKey;
+  @Autowired
+  JMQuoteClient jmQuoteClient;
 
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private ExternalIntegrationRepository externalIntegrationRepository;
 
-    public void processQuickQuote( ActionPayload ap,
-                                   JMAuthResult jmAuthResult )
+
+    public TriggerResponseDto processQuickQuote( FiredTriggerDto firedTriggerDto,
+                                   JMAuthResult jmAuthResult,
+                                                 ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
     {
-        final UUID requestId = null == ap.requestId ? UUID.randomUUID() : ap.requestId;
+        final UUID requestId = null == firedTriggerDto.getTriggerRequestId() ? UUID.randomUUID() : firedTriggerDto.getTriggerRequestId();
 
-        QuoteRequestSpecDto triggerSpec = objectMapper.convertValue( ap.firedTrigger.getPayload(), QuoteRequestSpecDto.class );
-
-        ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( ap.actionEntity.getSpec(), ActionJMSQuoteSpecDto.class );
+        QuoteRequestSpecDto triggerSpec = objectMapper.convertValue( firedTriggerDto.getPayload(), QuoteRequestSpecDto.class );
 
         QuickQuoteRequest quickQuoteRequest = createQuickQuoteRequest( triggerSpec.getIntake(), actionJMSQuoteSpecDto );
 
-        QuickQuoteResult quickQuoteResult = jmQuoteClient.getQuickQuote( "Bearer " + jmAuthResult.getAccess_token(), jmSubscriptionKey, quickQuoteRequest );
+        URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getQuickQuoteUrl());
+
+        QuickQuoteResult quickQuoteResult = jmQuoteClient.getQuickQuote( determinedBasePathUri,
+                                                                         "Bearer " + jmAuthResult.getAccess_token(),
+                                                                         actionJMSQuoteSpecDto.getApiSubscriptionkey(),
+                                                                         quickQuoteRequest );
 
         // Map to the ioi generic quote DTO
         PubQuoteDetailsDto quoteDetails = getQuoteDetails( quickQuoteResult );
 
+        TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
+
         QuoteDto newQuote = QuoteDto.builder()
-                                    .actionId( ap.actionEntity.getId() )
+                                /*    .actionId( ap.actionEntity.getId() )
                                     .pipelineId( ap.triggerEntity.getPipeline().getId() )
                                     .quotingOrganizationId( ap.triggerEntity.getPipeline().getOrganizationId() )
                                     .triggerRequestId( ap.triggerResponse.getTriggerRequestId() )
-                                    .quoteTimestamp( OffsetDateTime.now() )
                                     .bundleId( ap.firedTrigger.getBundleId() )
                                     .lineId( ap.line.getId() )
-                                    .source( ap.firedTrigger.getSource() )
-                                    .clientOrganizationId( ap.firedTrigger.getSource().getOrganizationId() )
+                                    )*/
+                                    .quoteTimestamp( OffsetDateTime.now() )
+                                    .source( firedTriggerDto.getSource() )
+                                    .clientOrganizationId( firedTriggerDto.getSource().getOrganizationId() )
                                     .type( QuoteType.QUOTE )
                                     .clientId( triggerSpec.getClientId() )
                                     .requestId( requestId )
@@ -78,7 +92,11 @@ public class JMQuickQuoteHelperImpl
                                     .metadata( Collections.singletonMap( "totalTaxesAndSurcharges", (Double) quickQuoteResult.getTotalTaxesAndSurcharges() ) )
                                     .build();
 
-        ap.triggerResponse.getMetadata().put( ap.actionEntity.getId().toString(), newQuote );
+        triggerResponseDto.getMetadata().put( requestId.toString(),  newQuote );
+
+        triggerResponseDto.setTriggerRequestId( requestId );
+
+        return triggerResponseDto;
     }
 
 
@@ -200,5 +218,5 @@ public class JMQuickQuoteHelperImpl
             coverages.add( pubCoverageBuilder.build() );
         }
         return coverages;
-    }*/
+    }
 }

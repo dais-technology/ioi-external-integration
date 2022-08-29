@@ -8,18 +8,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import java.net.URI;
+
 
 @FeignClient(
       name = "jm-auth",
-      url = "${jm.auth.url}"
+      url = "jm-auth-url"
 )
 public interface JMAuthClient
 {
-
-    @RequestMapping( value = "${jm.auth.uri}",
+    @RequestMapping(
                      method = RequestMethod.POST,
                      headers = { "Content-Type=application/x-www-form-urlencoded" } )
     @ResponseStatus( HttpStatus.OK )
-    JMAuthResult getToken(
-          @RequestBody final String params );
+    JMAuthResult getToken( URI baseUrl,
+                           @RequestBody final String params );
 }

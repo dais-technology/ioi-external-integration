@@ -15,7 +15,6 @@ import java.util.Date;
 @Builder
 public class AddQuoteResult
 {
-
     public String quoteId;
 
     public int statusCode;

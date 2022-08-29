@@ -1,9 +1,11 @@
 package com.dais.ioi.external.service;
 
 import com.dais.ioi.action.domain.dto.FiredTriggerDto;
+import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.domain.dto.IntegrationDto;
 import com.dais.ioi.external.entity.IntegrationEntity;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
+import com.dais.ioi.external.service.action.jm.JMQuoteServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ma.glasnost.orika.MapperFacade;
@@ -25,6 +27,9 @@ public class ExternalIntegrationServiceImpl
     private final MapperFacade mapperFacade;
 
 
+    @Autowired
+    private JMQuoteServiceImpl jmsQuoteService;
+
     @Override
     public IntegrationDto create( final IntegrationDto integrationDto )
     {
@@ -35,8 +40,8 @@ public class ExternalIntegrationServiceImpl
 
 
     @Override
-    public void process( final FiredTriggerDto firedTriggerDto )
+    public TriggerResponseDto process( final FiredTriggerDto firedTriggerDto )
     {
-        //  actionRepository.findByLineId( UUID.fromString( "" ) );
+        return jmsQuoteService.fire( firedTriggerDto );
     }
 }

@@ -11,5 +11,5 @@ import org.springframework.stereotype.Repository;
 public interface ExternalIntegrationRepository
       extends BaseAuditRepository<IntegrationEntity, UUID>
 {
-
+public IntegrationEntity getIntegrationEntitiesByOrganizationId(UUID lineId);
 }

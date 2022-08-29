@@ -29,12 +29,9 @@ public class ExternalIntegrationController
     }
 
 
-    public TriggerResponseDto fire( @Valid final FiredTriggerDto firedTriggerDto )
+   public TriggerResponseDto fire( @Valid final FiredTriggerDto firedTriggerDto )
     {
-        externalIntegrationService.process( firedTriggerDto );
+       return externalIntegrationService.process( firedTriggerDto );
 
-        // return externalIntegrationService.fire( firedTriggerDto );
-
-        return TriggerResponseDto.builder().build();
     }
 }
