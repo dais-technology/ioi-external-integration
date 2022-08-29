@@ -27,6 +27,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.net.URI;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -88,6 +89,7 @@ public class JMQuickQuoteHelperImpl
                                     .clientId( triggerSpec.getClientId() )
                                     .requestId( requestId )
                                     .bindable( false )
+                                    .effectiveDate( LocalDate.now()    )
                                     .quoteDetails( quoteDetails )
                                     .metadata( Collections.singletonMap( "totalTaxesAndSurcharges", (Double) quickQuoteResult.getTotalTaxesAndSurcharges() ) )
                                     .build();
