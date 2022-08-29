@@ -2,7 +2,13 @@ package com.dais.ioi.external.service;
 
 import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
+import com.dais.ioi.external.domain.dto.IntegrationDto;
+import org.springframework.scheduling.Trigger;
+
+
 public interface ExternalIntegrationService
 {
-    public TriggerResponseDto process( FiredTriggerDto firedTriggerDto );
+    IntegrationDto create( final IntegrationDto integrationDto );
+
+    TriggerResponseDto process( FiredTriggerDto firedTriggerDto );
 }

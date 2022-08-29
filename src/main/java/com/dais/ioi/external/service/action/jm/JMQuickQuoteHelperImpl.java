@@ -10,7 +10,7 @@ import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
 import com.dais.ioi.external.domain.dto.jm.QuickQuoteRequest;
 import com.dais.ioi.external.domain.dto.jm.QuickQuoteResult;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
-import com.dais.ioi.external.repository.IntegrationRepository;
+import com.dais.ioi.external.repository.ExternalIntegrationRepository;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
 import com.dais.ioi.quote.domain.dto.enums.AmountType;
 import com.dais.ioi.quote.domain.dto.enums.QuoteType;
@@ -48,7 +48,7 @@ public class JMQuickQuoteHelperImpl
     private ObjectMapper objectMapper;
 
     @Autowired
-    private IntegrationRepository integrationRepository;
+    private ExternalIntegrationRepository externalIntegrationRepository;
 
 
     public TriggerResponseDto processQuickQuote( FiredTriggerDto firedTriggerDto,

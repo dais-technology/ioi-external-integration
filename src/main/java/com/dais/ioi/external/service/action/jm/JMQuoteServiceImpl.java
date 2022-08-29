@@ -6,7 +6,7 @@ import com.dais.ioi.external.config.client.JMAuthClient;
 import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
 import com.dais.ioi.external.entity.IntegrationEntity;
-import com.dais.ioi.external.repository.IntegrationRepository;
+import com.dais.ioi.external.repository.ExternalIntegrationRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,10 +27,10 @@ public class JMQuoteServiceImpl
     @Autowired
     JMQuickQuoteHelperImpl jmQuickQuoteHelper;
     @Autowired
-    private IntegrationRepository integrationRepository;
+    private ExternalIntegrationRepository externalIntegrationRepository;
      public TriggerResponseDto fire( final FiredTriggerDto ap )
     {
-        IntegrationEntity entity =  integrationRepository.findAllByOrganizationId( ap.getLineId() );
+        IntegrationEntity entity =  externalIntegrationRepository.getIntegrationEntitiesByOrganizationId( ap.getLineId() );
 
         ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( entity.getSpec(), ActionJMSQuoteSpecDto.class );
 

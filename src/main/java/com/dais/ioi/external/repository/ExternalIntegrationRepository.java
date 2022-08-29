@@ -1,14 +1,15 @@
 package com.dais.ioi.external.repository;
 
 import com.dais.common.persistence.repository.base.BaseAuditRepository;
-import com.dais.ioi.external.entity.IntegrationEntity;
+  import com.dais.ioi.external.entity.IntegrationEntity;
 import org.springframework.stereotype.Repository;
-import java.util.UUID;
+
+ import java.util.UUID;
 
 
 @Repository
-public interface IntegrationRepository
+public interface ExternalIntegrationRepository
       extends BaseAuditRepository<IntegrationEntity, UUID>
 {
-    IntegrationEntity findAllByOrganizationId( final UUID lineId );
+public IntegrationEntity getIntegrationEntitiesByOrganizationId(UUID lineId);
 }
