@@ -64,7 +64,6 @@ Persistence:
   mounts:
 
 serviceSecrets:
-  - dais.admin.auth.type
   - spring.datasource.url
   - spring.datasource.username
   - spring.datasource.password
