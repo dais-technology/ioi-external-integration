@@ -156,7 +156,7 @@ public class JMQuickQuoteHelperImpl
                   getValue( () -> intake.get( actionJMSQuoteSpecDto.getZip() ).getAnswer(), "" )
             );
 
-            processQuickQuoteIterations( quickQuoteRequest, getValue( () -> intake.get( "items" ).getIterations(), null ), actionJMSQuoteSpecDto );
+            processQuickQuoteIterations( quickQuoteRequest, getValue( () -> intake.get( actionJMSQuoteSpecDto.getItemLoop() ).getIterations(), null ), actionJMSQuoteSpecDto );
 
             return quickQuoteRequest;
         }
