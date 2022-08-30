@@ -72,6 +72,7 @@ serviceSecrets:
   - jm.auth.url
   - jm.api.url
   - jm.api.subscriptionKey
+  - ioi-action-service.ribbon.listOfServers
 
 environmentVariables:
   - name: SPRING_ENVIRONMENT_PROFILE
