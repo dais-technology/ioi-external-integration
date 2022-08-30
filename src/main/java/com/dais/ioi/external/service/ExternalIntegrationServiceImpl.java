@@ -40,7 +40,7 @@ public class ExternalIntegrationServiceImpl
 
 
     @Override
-    public TriggerResponseDto process( final FiredTriggerDto firedTriggerDto )
+    public TriggerResponseDto process( final FiredTriggerDto firedTriggerDto ) throws Exception
     {
         return jmsQuoteService.fire( firedTriggerDto );
     }

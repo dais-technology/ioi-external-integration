@@ -1,6 +1,8 @@
 package com.dais.ioi.external.config;
 
+import feign.Logger;
 import feign.RequestInterceptor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
@@ -19,7 +21,8 @@ import javax.servlet.http.HttpServletRequest;
  */
 @Configuration
 @EnableFeignClients( basePackages = "com.dais.ioi.external.config.client" )
-@ComponentScan(basePackages = { "com.dais.ioi.template" })
+@ComponentScan(basePackages = { "com.dais.ioi.external.config.client" })
+@Slf4j
 public class FeignClientsConfig
 {
     @Bean
@@ -27,7 +30,6 @@ public class FeignClientsConfig
     {
         return builder.build();
     }
-
 
     @Bean
     RequestInterceptor jwtInterceptor()
