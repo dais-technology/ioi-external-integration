@@ -23,6 +23,8 @@ import com.dais.ioi.quote.domain.dto.pub.PubQuoteDetailsDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -36,6 +38,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.dais.ioi.external.service.action.jm.JMUtils.getValue;
 
@@ -54,7 +57,7 @@ public class JMQuickQuoteHelperImpl
 
     public TriggerResponseDto processQuickQuote( FiredTriggerDto firedTriggerDto,
                                    JMAuthResult jmAuthResult,
-                                                 ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
+                                                 ActionJMSQuoteSpecDto actionJMSQuoteSpecDto ) throws Exception
     {
         final UUID requestId = null == firedTriggerDto.getTriggerRequestId() ? UUID.randomUUID() : firedTriggerDto.getTriggerRequestId();
 
@@ -68,6 +71,13 @@ public class JMQuickQuoteHelperImpl
                                                                          "Bearer " + jmAuthResult.getAccess_token(),
                                                                          actionJMSQuoteSpecDto.getApiSubscriptionkey(),
                                                                          quickQuoteRequest );
+
+
+       if ( getValue( ()-> quickQuoteResult.getErrorMessages().size(),0 ) > 0) {
+          String errorMessage = quickQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
+           throw new Exception(errorMessage);
+
+       }
 
         // Map to the ioi generic quote DTO
         PubQuoteDetailsDto quoteDetails = getQuoteDetails( quickQuoteResult );
@@ -156,7 +166,7 @@ public class JMQuickQuoteHelperImpl
                   getValue( () -> intake.get( actionJMSQuoteSpecDto.getZip() ).getAnswer(), "" )
             );
 
-            processQuickQuoteIterations( quickQuoteRequest, getValue( () -> intake.get( "items" ).getIterations(), null ), actionJMSQuoteSpecDto );
+            processQuickQuoteIterations( quickQuoteRequest, getValue( () -> intake.get( actionJMSQuoteSpecDto.getItemLoop() ).getIterations(), new ArrayList<>() ), actionJMSQuoteSpecDto );
 
             return quickQuoteRequest;
         }
