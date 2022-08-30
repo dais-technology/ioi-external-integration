@@ -15,7 +15,7 @@ import javax.validation.Valid;
 
 @Slf4j
 @RestController
-@RequestMapping( "/pub/v1/external" )
+@RequestMapping( "/external" )
 @AllArgsConstructor
 public class ExternalIntegrationController
       implements ExternalIntegrationApi
