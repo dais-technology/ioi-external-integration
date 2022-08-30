@@ -39,6 +39,8 @@ public class ActionJMSQuoteSpecDto
 
     private String itemValue;
 
+    private String itemLoop;
+
     //Add quote fields
     private String primaryContactFirstName;
 
