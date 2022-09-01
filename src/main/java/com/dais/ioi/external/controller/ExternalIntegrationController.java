@@ -34,4 +34,17 @@ public class ExternalIntegrationController
        return externalIntegrationService.process( firedTriggerDto );
 
     }
+
+    //TODO: figure out the submit and create input output
+    @Override
+    public TriggerResponseDto submit(FiredTriggerDto firedTriggerDto)
+    {
+        return externalIntegrationService.submitApplication(firedTriggerDto);
+    }
+
+    @Override
+    public TriggerResponseDto create(FiredTriggerDto firedTriggerDto) throws IllegalAccessException
+    {
+        return externalIntegrationService.createAccount(firedTriggerDto);
+    }
 }

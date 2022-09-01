@@ -11,4 +11,8 @@ public interface ExternalIntegrationService
     IntegrationDto create( final IntegrationDto integrationDto );
 
     TriggerResponseDto process( FiredTriggerDto firedTriggerDto );
+
+    TriggerResponseDto submitApplication( FiredTriggerDto firedTriggerDto );
+
+    TriggerResponseDto createAccount( FiredTriggerDto firedTriggerDto );
 }

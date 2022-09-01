@@ -24,6 +24,20 @@ public interface ExternalIntegrationApi
           throws IllegalAccessException;
 
     @ResponseStatus( HttpStatus.OK )
+    @RequestMapping( value = "/submit/application",
+            method = RequestMethod.POST )
+    @ApiOperation( value = "Submit application" )
+    TriggerResponseDto submit( @RequestBody @Valid final FiredTriggerDto firedTriggerDto )
+            throws IllegalAccessException;
+
+    @ResponseStatus( HttpStatus.OK )
+    @RequestMapping( value = "/create/account",
+            method = RequestMethod.POST )
+    @ApiOperation( value = "create account" )
+    TriggerResponseDto create( @RequestBody @Valid final FiredTriggerDto firedTriggerDto )
+            throws IllegalAccessException;
+
+    @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/save",
                      method = RequestMethod.POST )
     @ApiOperation( value = "create an Integration Record" )

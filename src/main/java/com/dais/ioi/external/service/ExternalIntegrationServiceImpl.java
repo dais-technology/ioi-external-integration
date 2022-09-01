@@ -5,7 +5,9 @@ import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.domain.dto.IntegrationDto;
 import com.dais.ioi.external.entity.IntegrationEntity;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
+import com.dais.ioi.external.service.action.jm.JMCreateAccountServiceImpl;
 import com.dais.ioi.external.service.action.jm.JMQuoteServiceImpl;
+import com.dais.ioi.external.service.action.jm.JMSubmitApplicationServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ma.glasnost.orika.MapperFacade;
@@ -30,6 +32,12 @@ public class ExternalIntegrationServiceImpl
     @Autowired
     private JMQuoteServiceImpl jmsQuoteService;
 
+    @Autowired
+    private JMSubmitApplicationServiceImpl jmSubmitApplication;
+
+    @Autowired
+    private JMCreateAccountServiceImpl createAccountService;
+
     @Override
     public IntegrationDto create( final IntegrationDto integrationDto )
     {
@@ -43,5 +51,15 @@ public class ExternalIntegrationServiceImpl
     public TriggerResponseDto process( final FiredTriggerDto firedTriggerDto )
     {
         return jmsQuoteService.fire( firedTriggerDto );
+    }
+
+    @Override
+    public TriggerResponseDto submitApplication(FiredTriggerDto firedTriggerDto) {
+        return jmSubmitApplication.submit(firedTriggerDto);
+    }
+
+    @Override
+    public TriggerResponseDto createAccount(FiredTriggerDto firedTriggerDto) {
+        return createAccountService.createAccount(firedTriggerDto);
     }
 }
