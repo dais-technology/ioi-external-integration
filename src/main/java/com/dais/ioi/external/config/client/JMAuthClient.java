@@ -1,5 +1,6 @@
 package com.dais.ioi.external.config.client;
 
+import com.dais.ioi.external.config.FeignClientsConfig;
 import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.HttpStatus;
