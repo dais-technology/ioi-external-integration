@@ -33,7 +33,7 @@ public interface ExternalIntegrationApi
     @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/hubspot",
                      method = RequestMethod.POST )
-    @ApiOperation( value = "create an Integration Record" )
+    @ApiOperation( value = "make a track call to hubspot" )
     void trackEvent( @RequestBody @Valid final
                      HubspotTrackRequest request );
 }
