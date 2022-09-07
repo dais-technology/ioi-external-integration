@@ -4,9 +4,9 @@ import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.domain.api.ExternalIntegrationApi;
 import com.dais.ioi.external.domain.dto.IntegrationDto;
+import com.dais.ioi.external.domain.dto.hubspot.HubspotTrackRequest;
 import com.dais.ioi.external.service.ExternalIntegrationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import feign.FeignException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -28,12 +28,21 @@ public class ExternalIntegrationController
 
     private final ObjectMapper objectMapper;
 
+
     public IntegrationDto save( final IntegrationDto integrationDto )
     {
         return externalIntegrationService.create( integrationDto );
     }
 
-   public TriggerResponseDto fire( @Valid final FiredTriggerDto firedTriggerDto )
+
+    @Override
+    public void trackEvent( final HubspotTrackRequest request )
+    {
+        externalIntegrationService.hubspotTrack( request );
+    }
+
+
+    public TriggerResponseDto fire( @Valid final FiredTriggerDto firedTriggerDto )
     {
         TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
         try
@@ -42,17 +51,15 @@ public class ExternalIntegrationController
 
             triggerResponseDto = externalIntegrationService.process( firedTriggerDto );
 
-            log.info("Responded with {} ", objectMapper.writeValueAsString( triggerResponseDto ));
-
+            log.info( "Responded with {} ", objectMapper.writeValueAsString( triggerResponseDto ) );
         }
 
         catch ( Exception e )
         {
             e.printStackTrace();
-            throw new ResponseStatusException( HttpStatus.BAD_REQUEST, e.getMessage());
+            throw new ResponseStatusException( HttpStatus.BAD_REQUEST, e.getMessage() );
         }
 
         return triggerResponseDto;
-
     }
 }
