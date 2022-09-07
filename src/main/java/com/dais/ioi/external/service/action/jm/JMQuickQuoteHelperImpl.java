@@ -23,8 +23,6 @@ import com.dais.ioi.quote.domain.dto.pub.PubQuoteDetailsDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -87,11 +85,11 @@ public class JMQuickQuoteHelperImpl
         QuoteDto newQuote = QuoteDto.builder()
                                 /*    .actionId( ap.actionEntity.getId() )
                                     .pipelineId( ap.triggerEntity.getPipeline().getId() )
-                                    .quotingOrganizationId( ap.triggerEntity.getPipeline().getOrganizationId() )
                                     .triggerRequestId( ap.triggerResponse.getTriggerRequestId() )
                                     .bundleId( ap.firedTrigger.getBundleId() )
                                     .lineId( ap.line.getId() )
                                     )*/
+                                    .clientOrganizationId( firedTriggerDto.getSource().getOrganizationId() )
                                     .quoteTimestamp( OffsetDateTime.now() )
                                     .source( firedTriggerDto.getSource() )
                                     .clientOrganizationId( firedTriggerDto.getSource().getOrganizationId() )
@@ -156,14 +154,9 @@ public class JMQuickQuoteHelperImpl
         QuickQuoteRequest quickQuoteRequest = QuickQuoteRequest.builder().build();
         try
         {
-            quickQuoteRequest.setCounty(
-                  getValue( () -> intake.get( actionJMSQuoteSpecDto.getCounty() ).getAnswer(), "" )
-            );
-            quickQuoteRequest.setState(
-                  getValue( () -> intake.get( actionJMSQuoteSpecDto.getState() ).getAnswer(), "" )
-            );
+
             quickQuoteRequest.setPostalCode(
-                  getValue( () -> intake.get( actionJMSQuoteSpecDto.getZip() ).getAnswer(), "" )
+                  getValue( () -> intake.get( actionJMSQuoteSpecDto.getZip() ).getAnswer().substring( 0,5), "" )
             );
 
             processQuickQuoteIterations( quickQuoteRequest, getValue( () -> intake.get( actionJMSQuoteSpecDto.getItemLoop() ).getIterations(), new ArrayList<>() ), actionJMSQuoteSpecDto );
