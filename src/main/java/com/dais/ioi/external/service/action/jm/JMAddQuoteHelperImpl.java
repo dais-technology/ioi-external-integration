@@ -338,6 +338,8 @@ public class JMAddQuoteHelperImpl
 
         externalDataBuilder.externalQuoteId( addQuoteResult.getQuoteId() );
 
+       quoteBuilder.externalData( externalDataBuilder.build() );
+
         PubQuoteDetailsDto quoteDetailsDto = quoteBuilder.build();
 
         return quoteDetailsDto;
