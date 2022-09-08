@@ -2,6 +2,7 @@ package com.dais.ioi.external.service.action.jm;
 
 import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
+import com.dais.ioi.external.config.client.IOIQuoteClient;
 import com.dais.ioi.external.config.client.JMApplicationClient;
 import com.dais.ioi.external.config.client.JMAuthClient;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
@@ -10,6 +11,8 @@ import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
 import com.dais.ioi.external.entity.IntegrationEntity;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
+import com.dais.ioi.quote.domain.dto.QuoteDto;
+import com.dais.ioi.quote.domain.dto.TriggerQuotesDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.dais.ioi.external.service.action.jm.JMAuth.getAuth;
@@ -29,9 +33,10 @@ import static com.dais.ioi.external.service.action.jm.JMAuth.getAuth;
 public class JMSubmitApplicationServiceImpl {
     @Autowired
     JMAuthClient jmAuthClient;
-
     @Autowired
     JMApplicationClient jmApplicationClient;
+    @Autowired
+    private IOIQuoteClient ioiQuoteClient;
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
@@ -57,10 +62,22 @@ public class JMSubmitApplicationServiceImpl {
         //TODO: figure out the input. I just assumed here its in payload
         final Map<String, ?> payload = firedTriggerDto.getPayload();
         final UUID quoteId = UUID.fromString((String) payload.get("quoteId"));
-        final BigDecimal totalAmount = (BigDecimal) payload.get("totalAmount");
+
+        final TriggerQuotesDto triggerQuotesDto = ioiQuoteClient.getQuotes(firedTriggerDto.getTriggerRequestId(), false);
+        final Optional<QuoteDto> ioiQuote = triggerQuotesDto.getQuoted().stream().filter(quoteDto -> quoteDto.getRequestId().equals(quoteId)).findFirst();
+
+        final UUID jmQuoteId;
+        final BigDecimal totalAmount;
+
+        if(!ioiQuote.isPresent()){
+            throw new RuntimeException("Quote not found");
+        } else {
+            jmQuoteId = UUID.fromString(ioiQuote.get().getQuoteDetails().getExternalData().getExternalQuoteId());
+            totalAmount = ioiQuote.get().getQuoteDetails().getPremium().getAmount();
+        }
 
         final SubmitApplicationRequest applicationRequest = SubmitApplicationRequest.builder()
-                .quoteId(quoteId)
+                .quoteId(jmQuoteId)
                 .totalAmount(totalAmount)
                 .build();
 
