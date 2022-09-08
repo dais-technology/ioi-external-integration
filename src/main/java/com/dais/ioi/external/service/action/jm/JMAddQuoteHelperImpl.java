@@ -29,6 +29,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.net.URI;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -91,22 +92,20 @@ public class JMAddQuoteHelperImpl
                                     .pipelineId( firedTriggerDto.triggerEntity.getPipeline().getId() )
                                     .quotingOrganizationId( firedTriggerDto.triggerEntity.getPipeline().getOrganizationId() )
                                     .triggerRequestId( firedTriggerDto.triggerResponse.getTriggerRequestId() )
-                                    .quoteTimestamp( OffsetDateTime.now() )
                                     .bundleId( firedTriggerDto.firedTrigger.getBundleId() )
                                     .lineId( firedTriggerDto.line.getId() )
-                                    .source( firedTriggerDto.firedTrigger.getSource() )
-                                    .clientOrganizationId( firedTriggerDto.firedTrigger.getSource().getOrganizationId() )*/
+                                    .source( firedTriggerDto.firedTrigger.getSource() )*/
+                                    .clientOrganizationId( firedTriggerDto.getSource().getOrganizationId() )
                                     .quoteTimestamp( OffsetDateTime.now() )
                                     .source( firedTriggerDto.getSource() )
                                     .clientOrganizationId( firedTriggerDto.getSource().getOrganizationId() )
                                     .type( QuoteType.QUOTE )
                                     .clientId( triggerSpec.getClientId() )
-                                    //      .requestId( requestId )
-                                    //      .effectiveDate( effectiveDate )
-                                         .bindable( true )
+                                    .requestId( requestId )
+                                    .effectiveDate( LocalDate.now()    )
+                                    .bindable( true )
                                     .quoteDetails( quoteDetails )
                                     .metadata( Collections.singletonMap( "ratePlans", addQuoteResult.getPaymentPlans() ) )
-                                    //      .messages( messages )
                                     .build();
 
         triggerResponseDto.getMetadata().put( requestId.toString(),  newQuote );
@@ -337,6 +336,8 @@ public class JMAddQuoteHelperImpl
         PubExternalDataDto.PubExternalDataDtoBuilder externalDataBuilder = PubExternalDataDto.builder();
 
         externalDataBuilder.externalQuoteId( addQuoteResult.getQuoteId() );
+
+       quoteBuilder.externalData( externalDataBuilder.build() );
 
         PubQuoteDetailsDto quoteDetailsDto = quoteBuilder.build();
 
