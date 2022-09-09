@@ -7,6 +7,7 @@ import com.dais.ioi.external.domain.dto.IntegrationDto;
 import com.dais.ioi.external.domain.dto.hubspot.HubspotTrackRequest;
 import com.dais.ioi.external.service.ExternalIntegrationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.FeignException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -52,6 +53,10 @@ public class ExternalIntegrationController
             triggerResponseDto = externalIntegrationService.process( firedTriggerDto );
 
             log.info( "Responded with {} ", objectMapper.writeValueAsString( triggerResponseDto ) );
+        }
+
+        catch ( FeignException e) {
+            throw new ResponseStatusException( HttpStatus.BAD_REQUEST, new String(e.content()) );
         }
 
         catch ( Exception e )

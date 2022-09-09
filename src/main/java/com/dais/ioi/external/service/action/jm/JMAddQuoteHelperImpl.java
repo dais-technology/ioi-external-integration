@@ -165,7 +165,7 @@ public class JMAddQuoteHelperImpl
               getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactResAddrState() ).getAnswer(), "" )
         );
         residentialAddress.setPostalCode(
-              getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactResAddrPostalCode() ).getAnswer(), "" )
+            JMUtils.formatZipCode(   getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactResAddrPostalCode() ).getAnswer(), "" ) )
         );
 
         primaryContact.setResidentialAddress( residentialAddress );
@@ -225,6 +225,7 @@ public class JMAddQuoteHelperImpl
                                            ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
     {
         ArrayList<AddQuoteRequest.JeweleryItem> jeweleryItems = new ArrayList<>();
+        int itemNumber = 1;
         for ( ClientLoopIterationDto clientLoopIterationDto : iterations )
         {
             AddQuoteRequest.JeweleryItem item = new AddQuoteRequest.JeweleryItem();
@@ -237,7 +238,7 @@ public class JMAddQuoteHelperImpl
 
             item.setItemNumber(
 
-                  1
+                  itemNumber
                   // Integer.parseInt( getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemId() ).getAnswer(), 0 ).toString() )
             );
             item.setItemValue(
@@ -293,12 +294,13 @@ public class JMAddQuoteHelperImpl
                   getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrState() ).getAnswer(), "" )
             );
             primaryWearerResidentialAddress.setPostalCode(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrPostalCode() ).getAnswer(), "" )
+                JMUtils.formatZipCode(    getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrPostalCode() ).getAnswer(), "" ) )
             );
 
             primaryWearer.setResidentialAddress( primaryWearerResidentialAddress );
             item.setPrimaryWearer( primaryWearer );
             jeweleryItems.add( item );
+            itemNumber++;
         }
         addQuoteRequest.setJeweleryItems( jeweleryItems );
     }

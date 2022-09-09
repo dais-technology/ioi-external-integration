@@ -156,7 +156,7 @@ public class JMQuickQuoteHelperImpl
         {
 
             quickQuoteRequest.setPostalCode(
-                  getValue( () -> intake.get( actionJMSQuoteSpecDto.getZip() ).getAnswer().substring( 0,5), "" )
+                  JMUtils.formatZipCode(  getValue( () -> intake.get( actionJMSQuoteSpecDto.getZip() ).getAnswer(), "" ) )
             );
 
             processQuickQuoteIterations( quickQuoteRequest, getValue( () -> intake.get( actionJMSQuoteSpecDto.getItemLoop() ).getIterations(), new ArrayList<>() ), actionJMSQuoteSpecDto );
