@@ -4,6 +4,7 @@ import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.domain.dto.IntegrationDto;
 import com.dais.ioi.external.domain.dto.hubspot.HubspotTrackRequest;
+import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,7 +36,7 @@ public interface ExternalIntegrationApi
     @RequestMapping( value = "/create/account",
             method = RequestMethod.POST )
     @ApiOperation( value = "create account" )
-    TriggerResponseDto create( @RequestBody @Valid final FiredTriggerDto firedTriggerDto )
+    CreateAccountResponse create(@RequestBody @Valid final FiredTriggerDto firedTriggerDto )
             throws IllegalAccessException;
 
     @ResponseStatus( HttpStatus.OK )

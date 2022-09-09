@@ -25,7 +25,7 @@ public interface IOIQuoteClient {
                                @RequestParam(name = "includeRawData",
                                    defaultValue = "false") boolean includeRawData);
 
-    @RequestMapping( value = "/client/{clientId}",
+    @RequestMapping( value = "/pub/v1/quotes/client/{clientId}",
         method = RequestMethod.POST )
     @ApiOperation( value = "Get client quotes. It returns quotes for multiple lines, if request line is bundle. " )
     List<ProductQuoteDto> getProductQuotes(@PathVariable final UUID clientId,

@@ -4,6 +4,7 @@ import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.domain.dto.IntegrationDto;
 import com.dais.ioi.external.domain.dto.hubspot.HubspotTrackRequest;
+import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 
 
 public interface ExternalIntegrationService
@@ -17,5 +18,5 @@ public interface ExternalIntegrationService
 
     TriggerResponseDto submitApplication( FiredTriggerDto firedTriggerDto );
 
-    TriggerResponseDto createAccount( FiredTriggerDto firedTriggerDto );
+    CreateAccountResponse createAccount(FiredTriggerDto firedTriggerDto );
 }

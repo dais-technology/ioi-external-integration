@@ -4,6 +4,7 @@ import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.domain.dto.IntegrationDto;
 import com.dais.ioi.external.domain.dto.hubspot.HubspotTrackRequest;
+import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.entity.IntegrationEntity;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
 import com.dais.ioi.external.service.action.jm.JMCreateAccountServiceImpl;
@@ -72,7 +73,7 @@ public class ExternalIntegrationServiceImpl
     }
 
     @Override
-    public TriggerResponseDto createAccount(FiredTriggerDto firedTriggerDto) {
+    public CreateAccountResponse createAccount(FiredTriggerDto firedTriggerDto) {
         return createAccountService.createAccount(firedTriggerDto);
     }
 }

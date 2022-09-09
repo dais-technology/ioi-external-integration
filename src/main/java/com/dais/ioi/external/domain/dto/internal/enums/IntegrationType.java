@@ -4,5 +4,7 @@ public enum IntegrationType
 {
     JM_QUICKQUOTE,
     JM_ADDQUOTE,
-    HUBSPOT_TRACK
+    HUBSPOT_TRACK,
+    JM_CREATE_ACCOUNT,
+    JM_SUBMIT_APPLICATION
 }

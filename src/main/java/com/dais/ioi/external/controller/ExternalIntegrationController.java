@@ -5,6 +5,7 @@ import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.domain.api.ExternalIntegrationApi;
 import com.dais.ioi.external.domain.dto.IntegrationDto;
 import com.dais.ioi.external.domain.dto.hubspot.HubspotTrackRequest;
+import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.service.ExternalIntegrationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
@@ -63,7 +64,6 @@ public class ExternalIntegrationController
         return triggerResponseDto;
     }
 
-    //TODO: figure out the submit and create input output
     @Override
     public TriggerResponseDto submit(FiredTriggerDto firedTriggerDto)
     {
@@ -71,7 +71,7 @@ public class ExternalIntegrationController
     }
 
     @Override
-    public TriggerResponseDto create(FiredTriggerDto firedTriggerDto) throws IllegalAccessException
+    public CreateAccountResponse create(FiredTriggerDto firedTriggerDto) throws IllegalAccessException
     {
         return externalIntegrationService.createAccount(firedTriggerDto);
     }
