@@ -18,7 +18,6 @@ public class JMUtils
         }
         catch ( NullPointerException ex )
         {
-            ex.printStackTrace();
             return defaultValue;
         }
     }

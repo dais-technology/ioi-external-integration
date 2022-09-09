@@ -239,7 +239,6 @@ public class JMAddQuoteHelperImpl
             item.setItemNumber(
 
                   itemNumber
-                  // Integer.parseInt( getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemId() ).getAnswer(), 0 ).toString() )
             );
             item.setItemValue(
                   Integer.parseInt( getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemValue() ).getAnswer(), "" ).toString() )
