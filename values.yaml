@@ -73,6 +73,7 @@ serviceSecrets:
   - jm.api.url
   - jm.api.subscriptionKey
   - ioi-action-service.ribbon.listOfServers
+  - track-hubspot.ribbon.listOfServers
   - ioi-quote-service.ribbon.listOfServers
 
 environmentVariables:

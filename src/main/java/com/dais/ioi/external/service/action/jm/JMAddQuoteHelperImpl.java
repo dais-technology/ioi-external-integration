@@ -2,11 +2,14 @@ package com.dais.ioi.external.service.action.jm;
 
 import com.dais.common.ioi.dto.answer.ClientAnswerDto;
 import com.dais.common.ioi.dto.answer.ClientLoopIterationDto;
-// import com.dais.ioi.action.model.ActionPayload;
-import com.dais.ioi.external.config.client.JMAuthClient;
+import com.dais.ioi.action.domain.dto.FiredTriggerDto;
+import com.dais.ioi.action.domain.dto.internal.spec.QuoteRequestSpecDto;
+import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
+import com.dais.ioi.external.config.client.JMQuoteClient;
 import com.dais.ioi.external.domain.dto.jm.AddQuoteRequest;
 import com.dais.ioi.external.domain.dto.jm.AddQuoteResult;
 import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
+import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
 import com.dais.ioi.quote.domain.dto.enums.AmountType;
 import com.dais.ioi.quote.domain.dto.enums.QuoteType;
@@ -16,14 +19,17 @@ import com.dais.ioi.quote.domain.dto.pub.PubCoveragesDto;
 import com.dais.ioi.quote.domain.dto.pub.PubExternalDataDto;
 import com.dais.ioi.quote.domain.dto.pub.PubPremiumDto;
 import com.dais.ioi.quote.domain.dto.pub.PubQuoteDetailsDto;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.net.URI;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,61 +37,82 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.dais.ioi.external.service.action.jm.JMUtils.getValue;
 
 
 
 @Service
+@Slf4j
 public class JMAddQuoteHelperImpl
 {
-  //  @Autowired
-  //  JMQuoteClient jmQuoteClient;
-
     @Autowired
-    JMAuthClient jmAuthClient;
-
+    JMQuoteClient jmQuoteClient;
 
     @Autowired
     private ObjectMapper objectMapper;
 
-/*
-    public void processAddQuote( ActionPayload ap,
-                                 JMAuthResult jmAuthResult )
-    {
-        QuoteRequestSpecDto triggerSpec = objectMapper.convertValue( ap.firedTrigger.getPayload(), QuoteRequestSpecDto.class );
 
-        ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( ap.actionEntity.getSpec(), ActionJMSQuoteSpecDto.class );
+    public TriggerResponseDto processAddQuote( FiredTriggerDto firedTriggerDto,
+                                 JMAuthResult jmAuthResult ,
+                                 ActionJMSQuoteSpecDto actionJMSQuoteSpecDto)
+          throws  Exception
+    {
+
+        final UUID requestId = null == firedTriggerDto.getTriggerRequestId() ? UUID.randomUUID() : firedTriggerDto.getTriggerRequestId();
+
+        QuoteRequestSpecDto triggerSpec = objectMapper.convertValue( firedTriggerDto.getPayload(), QuoteRequestSpecDto.class );
 
         AddQuoteRequest addQuoteRequest = createAddQuoteRequest( triggerSpec.getIntake(), actionJMSQuoteSpecDto );
 
-        AddQuoteResult addQuoteResult = jmQuoteClient.addQuote( "Bearer " + jmAuthResult.getAccess_token(), jmSubscriptionKey, addQuoteRequest );
+        URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getAddQuoteUrl());
+
+        log.info(objectMapper.writeValueAsString( addQuoteRequest ));
+
+        AddQuoteResult addQuoteResult = jmQuoteClient.addQuote( determinedBasePathUri,
+                                                                "Bearer " + jmAuthResult.getAccess_token(),
+                                                                actionJMSQuoteSpecDto.getApiSubscriptionkey(),
+                                                                addQuoteRequest );
+
+        if ( getValue( ()-> addQuoteResult.getErrorMessages().size(),0 ) > 0) {
+            String errorMessage = addQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
+            throw new Exception(errorMessage);
+
+        }
 
         PubQuoteDetailsDto quoteDetails = getQuoteDetails( addQuoteResult );
 
+        TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
+
+
         QuoteDto newQuote = QuoteDto.builder()
-                                    .actionId( ap.actionEntity.getId() )
-                                    .pipelineId( ap.triggerEntity.getPipeline().getId() )
-                                    .quotingOrganizationId( ap.triggerEntity.getPipeline().getOrganizationId() )
-                                    .triggerRequestId( ap.triggerResponse.getTriggerRequestId() )
+                                  /*  .actionId( firedTriggerDto.actionEntity.getId() )
+                                    .pipelineId( firedTriggerDto.triggerEntity.getPipeline().getId() )
+                                    .quotingOrganizationId( firedTriggerDto.triggerEntity.getPipeline().getOrganizationId() )
+                                    .triggerRequestId( firedTriggerDto.triggerResponse.getTriggerRequestId() )
+                                    .bundleId( firedTriggerDto.firedTrigger.getBundleId() )
+                                    .lineId( firedTriggerDto.line.getId() )
+                                    .source( firedTriggerDto.firedTrigger.getSource() )*/
+                                    .clientOrganizationId( firedTriggerDto.getSource().getOrganizationId() )
                                     .quoteTimestamp( OffsetDateTime.now() )
-                                    .bundleId( ap.firedTrigger.getBundleId() )
-                                    .lineId( ap.line.getId() )
-                                    .source( ap.firedTrigger.getSource() )
-                                    .clientOrganizationId( ap.firedTrigger.getSource().getOrganizationId() )
+                                    .source( firedTriggerDto.getSource() )
+                                    .clientOrganizationId( firedTriggerDto.getSource().getOrganizationId() )
                                     .type( QuoteType.QUOTE )
                                     .clientId( triggerSpec.getClientId() )
-                                    //      .requestId( requestId )
-                                    //      .effectiveDate( effectiveDate )
-                                    //      .bindable( spec.isRatable() )
+                                    .requestId( requestId )
+                                    .effectiveDate( LocalDate.now()    )
+                                    .bindable( true )
                                     .quoteDetails( quoteDetails )
                                     .metadata( Collections.singletonMap( "ratePlans", addQuoteResult.getPaymentPlans() ) )
-
-                                    //  .metadata( paymentPlans )
-                                    //      .messages( messages )
                                     .build();
 
-        ap.triggerResponse.getMetadata().put( ap.actionEntity.getId().toString(), newQuote );
+        triggerResponseDto.getMetadata().put( requestId.toString(),  newQuote );
+
+        triggerResponseDto.setTriggerRequestId( requestId );
+
+        return triggerResponseDto;
     }
 
 
@@ -147,7 +174,7 @@ public class JMAddQuoteHelperImpl
 
         processUnderWriting( addQuoteRequest, intake, actionJMSQuoteSpecDto );
 
-        processAddQuoteIteration( addQuoteRequest, intake.get( "items" ).getIterations(), actionJMSQuoteSpecDto );
+        processAddQuoteIteration( addQuoteRequest, intake.get( actionJMSQuoteSpecDto.getItemLoop()).getIterations(), actionJMSQuoteSpecDto );
 
         return addQuoteRequest;
     }
@@ -157,32 +184,39 @@ public class JMAddQuoteHelperImpl
                                       LinkedHashMap<String, ClientAnswerDto> intake,
                                       ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
     {
-        addQuoteRequest.setUnderwritingQuestions( new ArrayList<>() );
+
+        AddQuoteRequest.UnderwritingInfo underwritingInfo = new AddQuoteRequest.UnderwritingInfo();
+        underwritingInfo.setUnderwritingQuestions( new ArrayList<>() );
+        underwritingInfo.setLossHistoryEvents( new ArrayList<>() );
 
         AddQuoteRequest.UnderwritingQuestion felony = new AddQuoteRequest.UnderwritingQuestion();
         felony.setKey( actionJMSQuoteSpecDto.getFelonyConviction() );
         felony.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getFelonyConviction() ).getAnswer(), "" ) );
-        addQuoteRequest.getUnderwritingQuestions().add( felony );
+        underwritingInfo.getUnderwritingQuestions().add( felony );
 
         AddQuoteRequest.UnderwritingQuestion lostWithin7Years = new AddQuoteRequest.UnderwritingQuestion();
         lostWithin7Years.setKey( actionJMSQuoteSpecDto.getLostWithin7Years() );
         lostWithin7Years.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getLostWithin7Years() ).getAnswer(), "" ) );
-        addQuoteRequest.getUnderwritingQuestions().add( lostWithin7Years );
+        underwritingInfo.getUnderwritingQuestions().add( lostWithin7Years );
 
         AddQuoteRequest.UnderwritingQuestion misdemeanor = new AddQuoteRequest.UnderwritingQuestion();
         misdemeanor.setKey( actionJMSQuoteSpecDto.getMisdemeanorConviction() );
         misdemeanor.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getMisdemeanorConviction() ).getAnswer(), "" ) );
-        addQuoteRequest.getUnderwritingQuestions().add( misdemeanor );
+        underwritingInfo.getUnderwritingQuestions().add( misdemeanor );
 
         AddQuoteRequest.UnderwritingQuestion crimeForProfit = new AddQuoteRequest.UnderwritingQuestion();
         crimeForProfit.setKey( actionJMSQuoteSpecDto.getCrimeForProfit() );
         crimeForProfit.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCrimeForProfit() ).getAnswer(), "" ) );
-        addQuoteRequest.getUnderwritingQuestions().add( crimeForProfit );
+        underwritingInfo.getUnderwritingQuestions().add( crimeForProfit );
 
         AddQuoteRequest.UnderwritingQuestion cancelledCoverage = new AddQuoteRequest.UnderwritingQuestion();
         cancelledCoverage.setKey( actionJMSQuoteSpecDto.getCanceledOrDeniedCoverage() );
         cancelledCoverage.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCanceledOrDeniedCoverage() ).getAnswer(), "" ) );
-        addQuoteRequest.getUnderwritingQuestions().add( cancelledCoverage );
+        underwritingInfo.getUnderwritingQuestions().add( cancelledCoverage );
+
+        addQuoteRequest.setUnderwritingInfo( underwritingInfo );
+
+
     }
 
 
@@ -303,6 +337,8 @@ public class JMAddQuoteHelperImpl
 
         externalDataBuilder.externalQuoteId( addQuoteResult.getQuoteId() );
 
+       quoteBuilder.externalData( externalDataBuilder.build() );
+
         PubQuoteDetailsDto quoteDetailsDto = quoteBuilder.build();
 
         return quoteDetailsDto;
@@ -343,5 +379,5 @@ public class JMAddQuoteHelperImpl
             coverages.add( pubCoverageBuilder.build() );
         }
         return coverages;
-    }*/
+    }
 }

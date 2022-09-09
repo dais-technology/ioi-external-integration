@@ -36,6 +36,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.dais.ioi.external.service.action.jm.JMUtils.getValue;
 
@@ -54,7 +55,7 @@ public class JMQuickQuoteHelperImpl
 
     public TriggerResponseDto processQuickQuote( FiredTriggerDto firedTriggerDto,
                                    JMAuthResult jmAuthResult,
-                                                 ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
+                                                 ActionJMSQuoteSpecDto actionJMSQuoteSpecDto ) throws Exception
     {
         final UUID requestId = null == firedTriggerDto.getTriggerRequestId() ? UUID.randomUUID() : firedTriggerDto.getTriggerRequestId();
 
@@ -69,6 +70,13 @@ public class JMQuickQuoteHelperImpl
                                                                          actionJMSQuoteSpecDto.getApiSubscriptionkey(),
                                                                          quickQuoteRequest );
 
+
+       if ( getValue( ()-> quickQuoteResult.getErrorMessages().size(),0 ) > 0) {
+          String errorMessage = quickQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
+           throw new Exception(errorMessage);
+
+       }
+
         // Map to the ioi generic quote DTO
         PubQuoteDetailsDto quoteDetails = getQuoteDetails( quickQuoteResult );
 
@@ -77,11 +85,11 @@ public class JMQuickQuoteHelperImpl
         QuoteDto newQuote = QuoteDto.builder()
                                 /*    .actionId( ap.actionEntity.getId() )
                                     .pipelineId( ap.triggerEntity.getPipeline().getId() )
-                                    .quotingOrganizationId( ap.triggerEntity.getPipeline().getOrganizationId() )
                                     .triggerRequestId( ap.triggerResponse.getTriggerRequestId() )
                                     .bundleId( ap.firedTrigger.getBundleId() )
                                     .lineId( ap.line.getId() )
                                     )*/
+                                    .clientOrganizationId( firedTriggerDto.getSource().getOrganizationId() )
                                     .quoteTimestamp( OffsetDateTime.now() )
                                     .source( firedTriggerDto.getSource() )
                                     .clientOrganizationId( firedTriggerDto.getSource().getOrganizationId() )
@@ -146,17 +154,12 @@ public class JMQuickQuoteHelperImpl
         QuickQuoteRequest quickQuoteRequest = QuickQuoteRequest.builder().build();
         try
         {
-            quickQuoteRequest.setCounty(
-                  getValue( () -> intake.get( actionJMSQuoteSpecDto.getCounty() ).getAnswer(), "" )
-            );
-            quickQuoteRequest.setState(
-                  getValue( () -> intake.get( actionJMSQuoteSpecDto.getState() ).getAnswer(), "" )
-            );
+
             quickQuoteRequest.setPostalCode(
-                  getValue( () -> intake.get( actionJMSQuoteSpecDto.getZip() ).getAnswer(), "" )
+                  getValue( () -> intake.get( actionJMSQuoteSpecDto.getZip() ).getAnswer().substring( 0,5), "" )
             );
 
-            processQuickQuoteIterations( quickQuoteRequest, getValue( () -> intake.get( actionJMSQuoteSpecDto.getItemLoop() ).getIterations(), null ), actionJMSQuoteSpecDto );
+            processQuickQuoteIterations( quickQuoteRequest, getValue( () -> intake.get( actionJMSQuoteSpecDto.getItemLoop() ).getIterations(), new ArrayList<>() ), actionJMSQuoteSpecDto );
 
             return quickQuoteRequest;
         }

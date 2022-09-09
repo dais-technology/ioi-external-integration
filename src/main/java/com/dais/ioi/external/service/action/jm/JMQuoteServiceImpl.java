@@ -5,6 +5,7 @@ import com.dais.ioi.action.domain.dto.internal.InboundResponseDataDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.config.client.IOIActionClient;
 import com.dais.ioi.external.config.client.JMAuthClient;
+import com.dais.ioi.external.domain.dto.internal.enums.IntegrationType;
 import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
 import com.dais.ioi.external.entity.IntegrationEntity;
@@ -32,11 +33,14 @@ public class JMQuoteServiceImpl
     JMQuickQuoteHelperImpl jmQuickQuoteHelper;
 
     @Autowired
+    JMAddQuoteHelperImpl jmAddQuoteHelper;
+
+    @Autowired
     IOIActionClient ioiActionClient;
 
     @Autowired
     private ExternalIntegrationRepository externalIntegrationRepository;
-     public TriggerResponseDto fire( final FiredTriggerDto ap )
+     public TriggerResponseDto fire( final FiredTriggerDto ap ) throws Exception
     {
         IntegrationEntity entity =  externalIntegrationRepository.getIntegrationEntitiesByOrganizationId( ap.getLineId() );
 
@@ -54,9 +58,17 @@ public class JMQuoteServiceImpl
 
         JMAuthResult jmAuthResult = jmAuthClient.getToken(determinedBasePathUri, authTokenRequest );
 
+        TriggerResponseDto triggerResponseDto;
 
+        if ( entity.getType().equals( IntegrationType.JM_ADDQUOTE) ) {
 
-        TriggerResponseDto triggerResponseDto = jmQuickQuoteHelper.processQuickQuote( ap, jmAuthResult, actionJMSQuoteSpecDto );
+            triggerResponseDto  = jmAddQuoteHelper.processAddQuote( ap, jmAuthResult, actionJMSQuoteSpecDto );
+
+        }
+        else {
+            triggerResponseDto =  jmQuickQuoteHelper.processQuickQuote( ap, jmAuthResult, actionJMSQuoteSpecDto );
+
+        }
         InboundResponseDataDto inboundResponseDataDto = new InboundResponseDataDto();
         inboundResponseDataDto.setRequestId( triggerResponseDto.getTriggerRequestId() );
 
