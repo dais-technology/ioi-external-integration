@@ -46,7 +46,7 @@ public class JMSubmitApplicationServiceImpl {
 
     private SubmitApplicationResponse processSubmitApplication(final SubmitApplicationRequest submitApplicationRequest, final JMAuthResult jmAuthResult, final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto) {
 
-        final URI uri = URI.create( actionJMSQuoteSpecDto.getQuickQuoteUrl() );
+        final URI uri = URI.create( actionJMSQuoteSpecDto.getSubmitApplicationUrl() );
 
         return jmApplicationClient.submitApplication(uri,
                 "Bearer " + jmAuthResult.getAccess_token(),

@@ -24,7 +24,6 @@ import java.net.URI;
 public interface JMApplicationClient
 {
     @RequestMapping(
-//            value = "/submit/application",
             method = RequestMethod.POST,
             headers = { "Content-Type=application/json" } )
     @ResponseStatus( HttpStatus.OK )
@@ -34,7 +33,6 @@ public interface JMApplicationClient
                                                 @RequestBody final SubmitApplicationRequest submitApplicationRequest );
 
     @RequestMapping(
-//            value = "/create/account",
             method = RequestMethod.POST,
             headers = { "Content-Type=application/json" } )
     @ResponseStatus( HttpStatus.OK )

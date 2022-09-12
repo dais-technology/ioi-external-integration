@@ -47,7 +47,6 @@ public class JMCreateAccountServiceImpl {
     private CreateAccountResponse processAccountCreation(final CreateAccountRequest createAccountRequest, final JMAuthResult jmAuthResult, final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto) {
 
         final URI uri = URI.create(actionJMSQuoteSpecDto.getCreateAccountUrl());
-//        final URI uri = URI.create("https://test-api.jewelersmutual.com/api/quoteandapplication-t8/v3/account/create");
 
         return jmApplicationClient.createAccount(uri,
             "Bearer " + jmAuthResult.getAccess_token(),
