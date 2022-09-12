@@ -44,7 +44,10 @@ public class JMQuoteServiceImpl
     private ExternalIntegrationRepository externalIntegrationRepository;
      public TriggerResponseDto fire( final FiredTriggerDto ap ) throws Exception
     {
-        IntegrationEntity entity =  externalIntegrationRepository.getIntegrationEntitiesByOrganizationId( ap.getLineId() );
+
+       String externalIntegrationType = (String) ap.getPayload().get( "externalIntegrationType");
+
+        IntegrationEntity entity = externalIntegrationRepository.getIntegrationEntityByOrganizationIdAndType( ap.getLineId(), IntegrationType.valueOf( externalIntegrationType )  );
 
         ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( entity.getSpec(), ActionJMSQuoteSpecDto.class );
 
