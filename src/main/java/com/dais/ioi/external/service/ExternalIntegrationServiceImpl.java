@@ -4,7 +4,10 @@ import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.domain.dto.IntegrationDto;
 import com.dais.ioi.external.domain.dto.hubspot.HubspotTrackRequest;
+import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
+import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
+import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import com.dais.ioi.external.entity.IntegrationEntity;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
 import com.dais.ioi.external.service.action.jm.JMCreateAccountServiceImpl;
@@ -17,6 +20,8 @@ import ma.glasnost.orika.MapperFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 
 @Slf4j
@@ -68,12 +73,12 @@ public class ExternalIntegrationServiceImpl
     }
 
     @Override
-    public TriggerResponseDto submitApplication(FiredTriggerDto firedTriggerDto) {
-        return jmSubmitApplication.submit(firedTriggerDto);
+    public SubmitApplicationResponse submitApplication(final SubmitApplicationRequest submitApplicationRequest, final UUID orgId ) {
+        return jmSubmitApplication.submit( submitApplicationRequest, orgId );
     }
 
     @Override
-    public CreateAccountResponse createAccount(FiredTriggerDto firedTriggerDto) {
-        return createAccountService.createAccount(firedTriggerDto);
+    public CreateAccountResponse createAccount( final CreateAccountRequest createAccountRequest, final UUID orgId ) {
+        return createAccountService.createAccount(createAccountRequest, orgId );
     }
 }

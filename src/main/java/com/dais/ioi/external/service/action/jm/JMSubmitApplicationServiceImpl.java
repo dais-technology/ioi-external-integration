@@ -1,28 +1,21 @@
 package com.dais.ioi.external.service.action.jm;
 
-import com.dais.ioi.action.domain.dto.FiredTriggerDto;
-import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
-import com.dais.ioi.external.config.client.IOIQuoteClient;
 import com.dais.ioi.external.config.client.JMApplicationClient;
 import com.dais.ioi.external.config.client.JMAuthClient;
-import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
+import com.dais.ioi.external.domain.dto.internal.enums.IntegrationType;
 import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
+import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
 import com.dais.ioi.external.entity.IntegrationEntity;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
-import com.dais.ioi.quote.domain.dto.QuoteDto;
-import com.dais.ioi.quote.domain.dto.TriggerQuotesDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.net.URI;
-import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 import static com.dais.ioi.external.service.action.jm.JMAuth.getAuth;
@@ -36,56 +29,28 @@ public class JMSubmitApplicationServiceImpl {
     @Autowired
     JMApplicationClient jmApplicationClient;
     @Autowired
-    private IOIQuoteClient ioiQuoteClient;
-    @Autowired
     private ObjectMapper objectMapper;
     @Autowired
     private ExternalIntegrationRepository externalIntegrationRepository;
 
-    //TODO: figure out the input output for this
-    public TriggerResponseDto submit(final FiredTriggerDto ap) {
+    public SubmitApplicationResponse submit(final SubmitApplicationRequest submitApplicationRequest, final UUID orgId ) {
 
-        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntitiesByOrganizationId(ap.getLineId());
+        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByOrganizationIdAndType(orgId, IntegrationType.JM_CREATE_ACCOUNT); // TODO check should tis be lineId or orgId
 
         final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue(integrationEntity.getSpec(), ActionJMSQuoteSpecDto.class);
 
         final JMAuthResult jmAuthResult = getAuth(actionJMSQuoteSpecDto, jmAuthClient);
 
-        //Not sure if we need this response DTO
-        SubmitApplicationResponse response = processSubmitApplication(ap, jmAuthResult, actionJMSQuoteSpecDto);
-
-        return null;
+        return processSubmitApplication(submitApplicationRequest, jmAuthResult, actionJMSQuoteSpecDto);
     }
 
-    private SubmitApplicationResponse processSubmitApplication(final FiredTriggerDto firedTriggerDto, final JMAuthResult jmAuthResult, final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto) {
-
-        //TODO: figure out the input. I just assumed here its in payload
-        final Map<String, ?> payload = firedTriggerDto.getPayload();
-        final UUID quoteId = UUID.fromString((String) payload.get("quoteId"));
-
-        final TriggerQuotesDto triggerQuotesDto = ioiQuoteClient.getQuotes(firedTriggerDto.getTriggerRequestId(), false);
-        final Optional<QuoteDto> ioiQuote = triggerQuotesDto.getQuoted().stream().filter(quoteDto -> quoteDto.getRequestId().equals(quoteId)).findFirst();
-
-        final UUID jmQuoteId;
-        final BigDecimal totalAmount;
-
-        if(!ioiQuote.isPresent()){
-            throw new RuntimeException("Quote not found");
-        } else {
-            jmQuoteId = UUID.fromString(ioiQuote.get().getQuoteDetails().getExternalData().getExternalQuoteId());
-            totalAmount = ioiQuote.get().getQuoteDetails().getPremium().getAmount();
-        }
-
-        final SubmitApplicationRequest applicationRequest = SubmitApplicationRequest.builder()
-                .quoteId(jmQuoteId)
-                .totalAmount(totalAmount)
-                .build();
+    private SubmitApplicationResponse processSubmitApplication(final SubmitApplicationRequest submitApplicationRequest, final JMAuthResult jmAuthResult, final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto) {
 
         final URI uri = URI.create( actionJMSQuoteSpecDto.getQuickQuoteUrl() );
 
         return jmApplicationClient.submitApplication(uri,
                 "Bearer " + jmAuthResult.getAccess_token(),
                 actionJMSQuoteSpecDto.getApiSubscriptionkey(),
-                applicationRequest);
+            submitApplicationRequest);
     }
 }

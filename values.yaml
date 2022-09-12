@@ -74,7 +74,6 @@ serviceSecrets:
   - jm.api.subscriptionKey
   - ioi-action-service.ribbon.listOfServers
   - track-hubspot.ribbon.listOfServers
-  - ioi-quote-service.ribbon.listOfServers
 
 environmentVariables:
   - name: SPRING_ENVIRONMENT_PROFILE
