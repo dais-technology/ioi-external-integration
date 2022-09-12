@@ -1,0 +1,20 @@
+{
+  "field1": "Value1",
+  "nested": {
+    "field2": "Value2",
+    "collection1": [
+      "collectionValue1",
+      "collectionValue2"
+    ],
+    "collection2": [
+      {
+        "collectionEntry1Field1":"collectionEntry1Value1",
+        "collecitonEntry1Field2": "collectionEntry1Value2"
+      },
+      {
+        "collectionEntry2Field1":"collectionEntry2Value1",
+        "collecitonEntry2Field2": "collectionEntry2Value2"
+      }
+    ]
+  }
+}
