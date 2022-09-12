@@ -5,6 +5,10 @@ import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.domain.api.ExternalIntegrationApi;
 import com.dais.ioi.external.domain.dto.IntegrationDto;
 import com.dais.ioi.external.domain.dto.hubspot.HubspotTrackRequest;
+import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
+import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
+import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
+import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import com.dais.ioi.external.service.ExternalIntegrationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
@@ -16,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
+import java.util.UUID;
 
 
 @Slf4j
@@ -66,5 +71,17 @@ public class ExternalIntegrationController
         }
 
         return triggerResponseDto;
+    }
+
+    @Override
+    public SubmitApplicationResponse submit(final SubmitApplicationRequest submitApplicationRequest, final UUID orgId )
+    {
+        return externalIntegrationService.submitApplication( submitApplicationRequest, orgId );
+    }
+
+    @Override
+    public CreateAccountResponse create( final CreateAccountRequest createAccountRequest, final UUID orgId)  throws IllegalAccessException
+    {
+        return externalIntegrationService.createAccount( createAccountRequest, orgId );
     }
 }

@@ -15,8 +15,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.net.URI;
+
 import java.util.Map;
+
+import static com.dais.ioi.external.service.action.jm.JMAuth.getAuth;
 
 
 @Service
@@ -46,17 +48,7 @@ public class JMQuoteServiceImpl
 
         ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( entity.getSpec(), ActionJMSQuoteSpecDto.class );
 
-        final String authTokenRequest = String.join( "&",
-                                                     "grant_type=password",
-                                                     "scope=partyAPI offline_access",
-                                                     "username=" + actionJMSQuoteSpecDto.getUserName() ,
-                                                     "client_id=" + actionJMSQuoteSpecDto.getClientId() ,
-                                                     "client_secret=" + actionJMSQuoteSpecDto.getClientSecret() ,
-                                                     "password=" +  actionJMSQuoteSpecDto.getClientPassword() ) ;
-
-        URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getAuthUrl());
-
-        JMAuthResult jmAuthResult = jmAuthClient.getToken(determinedBasePathUri, authTokenRequest );
+        final JMAuthResult jmAuthResult = getAuth(actionJMSQuoteSpecDto, jmAuthClient);
 
         TriggerResponseDto triggerResponseDto;
 
