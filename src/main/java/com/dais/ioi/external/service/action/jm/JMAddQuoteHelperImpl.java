@@ -249,6 +249,9 @@ public class JMAddQuoteHelperImpl
             item.setItemPossession(
                   getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemPossession() ).getAnswer(), "" ).toString()
             );
+            // Remove after questions answered
+            item.setItemDamage( "no" );
+            item.setItemPossession( "no" );
             //
             AddQuoteRequest.PrimaryWearer primaryWearer = new AddQuoteRequest.PrimaryWearer();
 
