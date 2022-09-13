@@ -31,6 +31,7 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -136,6 +137,9 @@ public class JMQuickQuoteHelperImpl
 
             pubCoverages.add( pubCoveragesBuilder.build() );
         } );
+
+        Collections.sort( pubCoverages, Comparator.comparingDouble( s -> Double.parseDouble( s.getCoverages().get( 0).getDetails().get( "itemId" ).get(0).getAmount() )));
+
         quoteBuilder.coverageTypes( pubCoverages );
 
         PubExternalDataDto.PubExternalDataDtoBuilder externalDataBuilder = PubExternalDataDto.builder();
@@ -143,6 +147,8 @@ public class JMQuickQuoteHelperImpl
         externalDataBuilder.externalQuoteId( (String) quickQuoteResult.getExternalOrderNumber() );
 
         PubQuoteDetailsDto quoteDetailsDto = quoteBuilder.build();
+
+
 
         return quoteDetailsDto;
     }
@@ -176,13 +182,16 @@ public class JMQuickQuoteHelperImpl
     {
         ArrayList<QuickQuoteRequest.JeweleryItem> jeweleryItems = new ArrayList<>();
 
+        int itemId = 1;
+
         for ( ClientLoopIterationDto iteration : iterations )
         {
             QuickQuoteRequest.JeweleryItem item = new QuickQuoteRequest.JeweleryItem();
-            item.setItemId( getValue( () -> iteration.getAnswers().get( actionJMSQuoteSpecDto.getItemId() ).getAnswer(), "" ) );
+            item.setItemId( ( String.valueOf( itemId )) ) ;
             item.setItemValue( getValue( () -> Integer.parseInt( iteration.getAnswers().get( actionJMSQuoteSpecDto.getItemValue() ).getAnswer() ), 0 ) );
             item.setJeweleryType( getValue( () -> iteration.getAnswers().get( actionJMSQuoteSpecDto.getItemType() ).getAnswer(), "" ) );
             jeweleryItems.add( item );
+            itemId++;
         }
 
         quickQuoteRequest.setJeweleryItems( jeweleryItems );
@@ -222,6 +231,8 @@ public class JMQuickQuoteHelperImpl
             pubCoverageBuilder.details( details );
             coverages.add( pubCoverageBuilder.build() );
         }
+        Collections.sort( coverages, Comparator.comparingDouble( s -> Double.parseDouble( s.getDetails().get( "deductible").get( 0 ).getAmount()) ));
+
         return coverages;
     }
 }
