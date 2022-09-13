@@ -48,6 +48,7 @@ public class ExternalIntegrationController
     }
 
 
+    @Override
     public TriggerResponseDto fire( @Valid final FiredTriggerDto firedTriggerDto )
     {
         TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
@@ -73,6 +74,8 @@ public class ExternalIntegrationController
         return triggerResponseDto;
     }
 
+
+    @Override
     public TriggerResponseDto fireSynchronous( @Valid final FiredTriggerDto firedTriggerDto )
     {
         TriggerResponseDto triggerResponseDto = new TriggerResponseDto();

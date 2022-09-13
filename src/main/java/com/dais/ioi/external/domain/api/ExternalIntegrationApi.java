@@ -31,6 +31,13 @@ public interface ExternalIntegrationApi
           throws IllegalAccessException;
 
     @ResponseStatus( HttpStatus.OK )
+    @RequestMapping( value = "/process-synchronous",
+                     method = RequestMethod.POST )
+    @ApiOperation( value = "Process external data request" )
+    TriggerResponseDto fireSynchronous( @RequestBody @Valid final FiredTriggerDto firedTriggerDto )
+          throws IllegalAccessException;
+
+    @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/submit/application/{orgId}",
             method = RequestMethod.POST )
     @ApiOperation( value = "Submit application" )
