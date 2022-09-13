@@ -1,0 +1,7 @@
+{
+  "field1": "$.field1",
+  "field2": "$.nested.field2",
+  "collection1Values": "$.nested.collection1",
+  "collection2ValuesField1": "$.nested.collection2[*].collection2EntryField1",
+  "collection2ValuesField2": "$.nested.collection2[*].collection2EntryField2"
+}

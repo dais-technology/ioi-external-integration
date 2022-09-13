@@ -8,12 +8,12 @@
     ],
     "collection2": [
       {
-        "collectionEntry1Field1":"collectionEntry1Value1",
-        "collecitonEntry1Field2": "collectionEntry1Value2"
+        "collection2EntryField1": "collection2Entry1Value1",
+        "collection2EntryField2": "collection2Entry1Value2"
       },
       {
-        "collectionEntry2Field1":"collectionEntry2Value1",
-        "collecitonEntry2Field2": "collectionEntry2Value2"
+        "collection2EntryField1": "collection2Entry2Value1",
+        "collection2EntryField2": "collection2Entry2Value2"
       }
     ]
   }

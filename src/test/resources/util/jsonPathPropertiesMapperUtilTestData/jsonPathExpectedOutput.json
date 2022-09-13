@@ -1,0 +1,10 @@
+{
+  "field1": "Value1",
+  "field2": "Value2",
+  "collection1Values_1": "collectionValue1",
+  "collection1Values_2": "collectionValue2",
+  "collection2ValuesField1_1": "collection2Entry1Value1",
+  "collection2ValuesField1_2": "collection2Entry2Value1",
+  "collection2ValuesField2_1": "collection2Entry1Value2",
+  "collection2ValuesField2_2": "collection2Entry2Value2"
+}
