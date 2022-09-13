@@ -109,4 +109,8 @@ public class ActionJMSQuoteSpecDto
     private String crimeForProfit;
 
     private String canceledOrDeniedCoverage;
+
+    private String itemDamage;
+
+    private String itemPossession;
 }
