@@ -19,7 +19,6 @@ import com.dais.ioi.quote.domain.dto.pub.PubCoveragesDto;
 import com.dais.ioi.quote.domain.dto.pub.PubExternalDataDto;
 import com.dais.ioi.quote.domain.dto.pub.PubPremiumDto;
 import com.dais.ioi.quote.domain.dto.pub.PubQuoteDetailsDto;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,6 +85,11 @@ public class JMAddQuoteHelperImpl
 
         TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
 
+        HashMap<String, Object> metaDatamap = new HashMap<>();
+        metaDatamap.put( "ratePlans", addQuoteResult.getPaymentPlans() );
+        metaDatamap.put( "isUnderwritingNeeded" ,addQuoteResult.isUnderwritingNeeded());
+        metaDatamap.put( "isCoverageAvailable" ,addQuoteResult.isCoverageAvailable());
+
 
         QuoteDto newQuote = QuoteDto.builder()
                                   /*  .actionId( firedTriggerDto.actionEntity.getId() )
@@ -105,7 +109,7 @@ public class JMAddQuoteHelperImpl
                                     .effectiveDate( LocalDate.now()    )
                                     .bindable( true )
                                     .quoteDetails( quoteDetails )
-                                    .metadata( Collections.singletonMap( "ratePlans", addQuoteResult.getPaymentPlans() ) )
+                                    .metadata( metaDatamap)
                                     .build();
 
         triggerResponseDto.getMetadata().put( requestId.toString(),  newQuote );
@@ -237,7 +241,6 @@ public class JMAddQuoteHelperImpl
             );
 
             item.setItemNumber(
-
                   itemNumber
             );
             item.setItemValue(
@@ -251,7 +254,6 @@ public class JMAddQuoteHelperImpl
             );
             // Remove after questions answered
             item.setItemDamage( "no" );
-            item.setItemPossession( "no" );
             //
             AddQuoteRequest.PrimaryWearer primaryWearer = new AddQuoteRequest.PrimaryWearer();
 
