@@ -46,7 +46,7 @@ public class HubSpotServiceImpl
     {
         try
         {
-            IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByOrganizationIdAndType( request.getOrganizationId(), IntegrationType.HUBSPOT_TRACK );
+            IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByOrganizationIdAndType( request.getLineId(), IntegrationType.HUBSPOT_TRACK );
             HubspotTrackSpec spec = mapper.convertValue( integrationEntity.getSpec(), HubspotTrackSpec.class );
             String mappingsAsString = spec.getMappings();
             Map<String, String> mappings = mapper.readValue( mappingsAsString, Map.class );

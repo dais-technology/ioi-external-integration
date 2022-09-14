@@ -15,7 +15,7 @@ import java.util.UUID;
 @Builder
 public class HubspotTrackRequest
 {
-    private UUID organizationId;
+    private UUID lineId;
 
     private Map<String, ?> input;
 }
