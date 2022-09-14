@@ -254,6 +254,7 @@ public class JMAddQuoteHelperImpl
             );
             // Remove after questions answered
             item.setItemDamage( "no" );
+            item.setItemPossession( "yes" );
             //
             AddQuoteRequest.PrimaryWearer primaryWearer = new AddQuoteRequest.PrimaryWearer();
 
