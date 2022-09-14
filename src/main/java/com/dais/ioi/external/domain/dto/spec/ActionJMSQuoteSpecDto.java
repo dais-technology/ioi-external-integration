@@ -24,6 +24,8 @@ public class ActionJMSQuoteSpecDto
 
     private String addQuoteUrl;
 
+    private String updateQuoteUrl;
+
     private String submitApplicationUrl;
 
     private String createAccountUrl;
@@ -113,4 +115,6 @@ public class ActionJMSQuoteSpecDto
     private String itemDamage;
 
     private String itemPossession;
+
+    private String deductible;
 }
