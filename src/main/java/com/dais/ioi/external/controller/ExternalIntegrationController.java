@@ -41,6 +41,12 @@ public class ExternalIntegrationController
     }
 
 
+    public IntegrationDto saveOrUpdate( final IntegrationDto integrationDto )
+    {
+        return externalIntegrationService.createOrUpdate( integrationDto );
+    }
+
+
     @Override
     public void trackEvent( final HubspotTrackRequest request )
     {
@@ -61,8 +67,9 @@ public class ExternalIntegrationController
             log.info( "Responded with {} ", objectMapper.writeValueAsString( triggerResponseDto ) );
         }
 
-        catch ( FeignException e) {
-            throw new ResponseStatusException( HttpStatus.BAD_REQUEST, new String(e.content()) );
+        catch ( FeignException e )
+        {
+            throw new ResponseStatusException( HttpStatus.BAD_REQUEST, new String( e.content() ) );
         }
 
         catch ( Exception e )
@@ -102,14 +109,19 @@ public class ExternalIntegrationController
         return triggerResponseDto;
     }
 
+
     @Override
-    public SubmitApplicationResponse submit(final SubmitApplicationRequest submitApplicationRequest, final UUID orgId )
+    public SubmitApplicationResponse submit( final SubmitApplicationRequest submitApplicationRequest,
+                                             final UUID orgId )
     {
         return externalIntegrationService.submitApplication( submitApplicationRequest, orgId );
     }
 
+
     @Override
-    public CreateAccountResponse create( final CreateAccountRequest createAccountRequest, final UUID orgId)  throws IllegalAccessException
+    public CreateAccountResponse create( final CreateAccountRequest createAccountRequest,
+                                         final UUID orgId )
+          throws IllegalAccessException
     {
         return externalIntegrationService.createAccount( createAccountRequest, orgId );
     }

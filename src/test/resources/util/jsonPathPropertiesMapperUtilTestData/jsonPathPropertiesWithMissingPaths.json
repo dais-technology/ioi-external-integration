@@ -1,0 +1,6 @@
+{
+  "field1": "$.field1",
+  "field2": "$.nested.field2",
+  "missingField1": "$.notThere",
+  "missingField2": "$.nested.notThere"
+}
