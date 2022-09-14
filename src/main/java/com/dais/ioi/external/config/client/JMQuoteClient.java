@@ -42,4 +42,14 @@ public interface JMQuoteClient
           @RequestHeader( HttpHeader.AUTHORIZATION ) String bearer,
           @RequestHeader( "Ocp-Apim-Subscription-Key" ) String subscripionKey,
           @RequestBody final AddQuoteRequest quickQuoteRequest );
+
+    @RequestMapping(
+          method = RequestMethod.POST,
+          headers = { "Content-Type=application/json" } )
+    @ResponseStatus( HttpStatus.OK )
+    AddQuoteResult updateQuote(URI baseUrl,
+                            @RequestHeader( HttpHeader.AUTHORIZATION ) String bearer,
+                            @RequestHeader( "Ocp-Apim-Subscription-Key" ) String subscripionKey,
+                            @RequestBody final AddQuoteRequest updateQuoteRequest );
+
 }

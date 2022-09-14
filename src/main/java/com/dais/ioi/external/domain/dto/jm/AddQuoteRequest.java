@@ -32,6 +32,9 @@ public class AddQuoteRequest {
     @JsonProperty("ApplicationTakenBy")
     public Object applicationTakenBy;
     public UnderwritingInfo underwritingInfo;
+    @JsonProperty("deductibleOptions")
+
+    public ArrayList<DeductibleOption> deductibleOptions;
 
     @Data
     @NoArgsConstructor
@@ -152,6 +155,21 @@ public static class UnderwritingQuestion{
     @JsonProperty("Value")
     public Object value;
 }
+
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class DeductibleOption
+    {
+        @JsonProperty("itemNumber")
+        public int itemNumber;
+        @JsonProperty("deductible")
+        public Double deductible;
+    }
+
+
 
 }
 

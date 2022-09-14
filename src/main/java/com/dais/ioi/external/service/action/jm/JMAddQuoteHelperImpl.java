@@ -81,12 +81,34 @@ public class JMAddQuoteHelperImpl
 
         }
 
+        addQuoteRequest.setQuoteId( addQuoteResult.getQuoteId() );
+
+        determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl());
+
+        AddQuoteResult updQuoteResult = jmQuoteClient.updateQuote( determinedBasePathUri,
+                                                                "Bearer " + jmAuthResult.getAccess_token(),
+                                                                actionJMSQuoteSpecDto.getApiSubscriptionkey(),
+                                                                addQuoteRequest );
+
+        if ( getValue( ()-> updQuoteResult.getErrorMessages().size(),0 ) > 0) {
+            String errorMessage = updQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
+            throw new Exception(errorMessage);
+
+        }
+
         PubQuoteDetailsDto quoteDetails = getQuoteDetails( addQuoteResult );
+
+        PubPremiumDto.PubPremiumDtoBuilder premiumBuilder = PubPremiumDto.builder();
+
+        premiumBuilder.amount( new BigDecimal( (Double) addQuoteResult.ratingInfo.getTotalPremium() ).round( new MathContext( 2, RoundingMode.HALF_EVEN ) ) );
+
+        quoteDetails.getPremium().setAmount(  BigDecimal.valueOf( updQuoteResult.getPaymentPlans().get( 0 ).getDownPaymentAmount() ).round( new MathContext( 2, RoundingMode.HALF_EVEN )  ) );
+
 
         TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
 
         HashMap<String, Object> metaDatamap = new HashMap<>();
-        metaDatamap.put( "ratePlans", addQuoteResult.getPaymentPlans() );
+        metaDatamap.put( "ratePlans", updQuoteResult.getPaymentPlans() );
         metaDatamap.put( "isUnderwritingNeeded" ,addQuoteResult.isUnderwritingNeeded());
         metaDatamap.put( "isCoverageAvailable" ,addQuoteResult.isCoverageAvailable());
 
@@ -230,9 +252,12 @@ public class JMAddQuoteHelperImpl
     {
         ArrayList<AddQuoteRequest.JeweleryItem> jeweleryItems = new ArrayList<>();
         int itemNumber = 1;
+        ArrayList<AddQuoteRequest.DeductibleOption> deductibleOptions = new ArrayList<>();
         for ( ClientLoopIterationDto clientLoopIterationDto : iterations )
         {
             AddQuoteRequest.JeweleryItem item = new AddQuoteRequest.JeweleryItem();
+
+
             item.setJeweleryType(
                   getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemType() ).getAnswer(), "" ).toString()
             );
@@ -308,11 +333,25 @@ public class JMAddQuoteHelperImpl
                 JMUtils.formatZipCode(    getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrPostalCode() ).getAnswer(), "" ) )
             );
 
+            AddQuoteRequest.DeductibleOption deductibleOption = new AddQuoteRequest.DeductibleOption();
+
+            deductibleOption.setDeductible(
+                  Double.parseDouble(  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getDeductible() ).getAnswer(), "0" ) )
+            );
+
+            deductibleOption.setItemNumber(
+                 itemNumber
+            );
+
+            deductibleOptions.add( deductibleOption );
+
+
             primaryWearer.setResidentialAddress( primaryWearerResidentialAddress );
             item.setPrimaryWearer( primaryWearer );
             jeweleryItems.add( item );
             itemNumber++;
         }
+        addQuoteRequest.setDeductibleOptions( deductibleOptions );
         addQuoteRequest.setJeweleryItems( jeweleryItems );
     }
 
@@ -361,7 +400,6 @@ public class JMAddQuoteHelperImpl
     private List<PubCoverageDto> getPubCoverages( AddQuoteResult.ItemRateDetail itemRateDetail,
                                                   String itemId )
     {
-        //   String type = (String) rateInfo.getJeweleryType();
         PubCoveragesDto.PubCoveragesDtoBuilder builder = PubCoveragesDto.builder();
         builder.type( "todo" );
 
