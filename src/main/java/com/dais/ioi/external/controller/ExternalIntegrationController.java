@@ -54,6 +54,7 @@ public class ExternalIntegrationController
     }
 
 
+    @Override
     public TriggerResponseDto fire( @Valid final FiredTriggerDto firedTriggerDto )
     {
         TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
@@ -72,6 +73,34 @@ public class ExternalIntegrationController
         }
 
         catch ( Exception e )
+        {
+            e.printStackTrace();
+            throw new ResponseStatusException( HttpStatus.BAD_REQUEST, e.getMessage() );
+        }
+
+        return triggerResponseDto;
+    }
+
+
+    @Override
+    public TriggerResponseDto fireSynchronous( @Valid final FiredTriggerDto firedTriggerDto )
+    {
+        TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
+
+        try
+        {
+            log.info( "Received {}", objectMapper.writeValueAsString( firedTriggerDto ) ); // TODO should be removed or set to not log in prod
+
+            triggerResponseDto = externalIntegrationService.processSynchronous( firedTriggerDto );
+
+            log.info( "Responded with {} ", objectMapper.writeValueAsString( triggerResponseDto ) ); // TODO should be removed or set to not log in prod
+        }
+
+        catch ( final FeignException e) {
+            throw new ResponseStatusException( HttpStatus.BAD_REQUEST, new String(e.content()) );
+        }
+
+        catch ( final Exception e )
         {
             e.printStackTrace();
             throw new ResponseStatusException( HttpStatus.BAD_REQUEST, e.getMessage() );

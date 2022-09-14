@@ -21,6 +21,9 @@ public interface ExternalIntegrationService
     TriggerResponseDto process( FiredTriggerDto firedTriggerDto )
           throws Exception;
 
+    TriggerResponseDto processSynchronous( final FiredTriggerDto firedTriggerDto )
+          throws Exception;
+
     void hubspotTrack( final HubspotTrackRequest request );
 
     SubmitApplicationResponse submitApplication( final SubmitApplicationRequest submitApplicationRequest,

@@ -50,6 +50,10 @@ public static class JeweleryItem{
     public int itemValue;
     @JsonProperty("ItemNumber")
     public int itemNumber;
+    @JsonProperty("ItemDamage")
+    private String itemDamage;
+    @JsonProperty("ItemPossession")
+    private String itemPossession;
     @JsonProperty("PrimaryWearer")
     public PrimaryWearer primaryWearer;
 }
