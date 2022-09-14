@@ -32,23 +32,31 @@ public interface ExternalIntegrationApi
 
     @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/submit/application/{orgId}",
-            method = RequestMethod.POST )
+                     method = RequestMethod.POST )
     @ApiOperation( value = "Submit application" )
-    SubmitApplicationResponse submit( @RequestBody @Valid final SubmitApplicationRequest submitApplicationRequest, @PathVariable final UUID orgId )
-            throws IllegalAccessException;
+    SubmitApplicationResponse submit( @RequestBody @Valid final SubmitApplicationRequest submitApplicationRequest,
+                                      @PathVariable final UUID orgId )
+          throws IllegalAccessException;
 
     @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/create/account/{orgId}",
-            method = RequestMethod.POST )
+                     method = RequestMethod.POST )
     @ApiOperation( value = "create account" )
-    CreateAccountResponse create( @RequestBody @Valid final CreateAccountRequest createAccountRequest, @PathVariable final UUID orgId )
-            throws IllegalAccessException;
+    CreateAccountResponse create( @RequestBody @Valid final CreateAccountRequest createAccountRequest,
+                                  @PathVariable final UUID orgId )
+          throws IllegalAccessException;
 
     @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/save",
                      method = RequestMethod.POST )
     @ApiOperation( value = "create an Integration Record" )
     IntegrationDto save( @RequestBody @Valid final IntegrationDto integrationDto );
+
+    @ResponseStatus( HttpStatus.OK )
+    @RequestMapping( value = "/save",
+                     method = RequestMethod.PUT )
+    @ApiOperation( value = "create an Integration Record" )
+    IntegrationDto saveOrUpdate( @RequestBody @Valid final IntegrationDto integrationDto );
 
     @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/hubspot",

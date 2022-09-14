@@ -16,12 +16,16 @@ public interface ExternalIntegrationService
 {
     IntegrationDto create( final IntegrationDto integrationDto );
 
+    IntegrationDto createOrUpdate( final IntegrationDto integrationDto );
+
     TriggerResponseDto process( FiredTriggerDto firedTriggerDto )
           throws Exception;
 
     void hubspotTrack( final HubspotTrackRequest request );
 
-    SubmitApplicationResponse submitApplication(final SubmitApplicationRequest submitApplicationRequest, final UUID orgId );
+    SubmitApplicationResponse submitApplication( final SubmitApplicationRequest submitApplicationRequest,
+                                                 final UUID orgId );
 
-    CreateAccountResponse createAccount( final CreateAccountRequest createAccountRequest, final UUID orgId );
+    CreateAccountResponse createAccount( final CreateAccountRequest createAccountRequest,
+                                         final UUID orgId );
 }

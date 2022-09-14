@@ -17,5 +17,5 @@ public class HubspotTrackRequest
 {
     private UUID organizationId;
 
-    private Map<String, String> parameters;
+    private Map<String, ?> input;
 }

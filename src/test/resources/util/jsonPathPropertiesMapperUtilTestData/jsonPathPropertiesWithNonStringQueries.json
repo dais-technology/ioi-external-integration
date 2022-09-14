@@ -1,0 +1,6 @@
+{
+  "field1": "$.field1",
+  "field2": "$.nested.field2",
+  "invalidField1": "$.nested",
+  "invalidField2": "$.nested.collection2"
+}

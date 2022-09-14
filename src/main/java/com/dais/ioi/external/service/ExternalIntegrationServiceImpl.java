@@ -12,15 +12,18 @@ import com.dais.ioi.external.entity.IntegrationEntity;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
 import com.dais.ioi.external.service.action.jm.JMCreateAccountServiceImpl;
 import com.dais.ioi.external.service.action.jm.JMQuoteServiceImpl;
-import com.dais.ioi.external.service.hubspot.HubSpotService;
 import com.dais.ioi.external.service.action.jm.JMSubmitApplicationServiceImpl;
+import com.dais.ioi.external.service.hubspot.HubSpotService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ma.glasnost.orika.MapperFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Objects;
 import java.util.UUID;
 
 
@@ -49,12 +52,30 @@ public class ExternalIntegrationServiceImpl
     @Autowired
     private JMCreateAccountServiceImpl createAccountService;
 
+
     @Override
     public IntegrationDto create( final IntegrationDto integrationDto )
     {
         IntegrationEntity integrationEntity = mapperFacade.map( integrationDto, IntegrationEntity.class );
         externalIntegrationRepository.save( integrationEntity );
         return mapperFacade.map( integrationEntity, IntegrationDto.class );
+    }
+
+
+    @Override
+    public IntegrationDto createOrUpdate( final IntegrationDto integrationDto )
+    {
+        if ( !Objects.isNull( integrationDto.getId() ) )
+        {
+            final IntegrationEntity entity = externalIntegrationRepository.findById( integrationDto.getId() ).orElseThrow( () -> new ResponseStatusException( HttpStatus.NOT_FOUND ) );
+            mapperFacade.map( integrationDto, entity );
+            externalIntegrationRepository.save( entity );
+            return mapperFacade.map( entity, IntegrationDto.class );
+        }
+        else
+        {
+            return create( integrationDto );
+        }
     }
 
 
@@ -72,13 +93,19 @@ public class ExternalIntegrationServiceImpl
         hubSpotService.trackEvent( request );
     }
 
+
     @Override
-    public SubmitApplicationResponse submitApplication(final SubmitApplicationRequest submitApplicationRequest, final UUID orgId ) {
+    public SubmitApplicationResponse submitApplication( final SubmitApplicationRequest submitApplicationRequest,
+                                                        final UUID orgId )
+    {
         return jmSubmitApplication.submit( submitApplicationRequest, orgId );
     }
 
+
     @Override
-    public CreateAccountResponse createAccount( final CreateAccountRequest createAccountRequest, final UUID orgId ) {
-        return createAccountService.createAccount(createAccountRequest, orgId );
+    public CreateAccountResponse createAccount( final CreateAccountRequest createAccountRequest,
+                                                final UUID orgId )
+    {
+        return createAccountService.createAccount( createAccountRequest, orgId );
     }
 }
