@@ -16,7 +16,7 @@ public class JsonPathPropertiesMapperUtilTest
 
 
     @Test
-    public void test()
+    public void testAllFieldsMap()
           throws IOException
     {
         Map source = givenASourceObject();
@@ -24,6 +24,52 @@ public class JsonPathPropertiesMapperUtilTest
         JsonPathPropertiesMapperUtil mapper = givenAJsonPathPropertiesMapperUtil();
         Map<String, String> result = whenTheMapperMaps( mapper, properties, source );
         thenTheResultContainsAllMappedFields( result );
+    }
+
+
+    @Test
+    public void testFieldsNotMappedGetIgnored()
+          throws IOException
+    {
+        Map source = givenASourceObject();
+        Map<String, String> properties = givenJsonPathPropertiesWithFieldThatDoNotMap();
+        JsonPathPropertiesMapperUtil mapper = givenAJsonPathPropertiesMapperUtil();
+        Map<String, String> result = whenTheMapperMaps( mapper, properties, source );
+        thenOnlyTheValidPropertiesAreMapped( result );
+    }
+
+
+    @Test
+    public void testFieldsAreNotStringsGetIgnored()
+          throws IOException
+    {
+        Map source = givenASourceObject();
+        Map<String, String> properties = givenJsonPathPropertiesWithFieldThatAreNotString();
+        JsonPathPropertiesMapperUtil mapper = givenAJsonPathPropertiesMapperUtil();
+        Map<String, String> result = whenTheMapperMaps( mapper, properties, source );
+        thenOnlyTheValidPropertiesAreMapped( result );
+    }
+
+
+    private Map<String, String> givenJsonPathPropertiesWithFieldThatAreNotString()
+          throws IOException
+    {
+        return reader.loadFileAsMap( "util/jsonPathPropertiesMapperUtilTestData/jsonPathPropertiesWithNonStringQueries.json" );
+    }
+
+
+    private void thenOnlyTheValidPropertiesAreMapped( final Map<String, String> actual )
+          throws IOException
+    {
+        Map expected = reader.loadFileAsMap( "util/jsonPathPropertiesMapperUtilTestData/jsonPathExpectedOutputMissingPaths.json" );
+        assertEquals( expected, actual );
+    }
+
+
+    private Map<String, String> givenJsonPathPropertiesWithFieldThatDoNotMap()
+          throws IOException
+    {
+        return reader.loadFileAsMap( "util/jsonPathPropertiesMapperUtilTestData/jsonPathPropertiesWithMissingPaths.json" );
     }
 
 
