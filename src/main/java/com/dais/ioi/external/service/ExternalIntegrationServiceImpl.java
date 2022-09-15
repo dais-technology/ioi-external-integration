@@ -17,6 +17,7 @@ import com.dais.ioi.external.service.action.jm.JMSubmitApplicationServiceImpl;
 import com.dais.ioi.external.service.hubspot.HubSpotService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import ma.glasnost.orika.MapperFacade;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,18 +128,22 @@ public class ExternalIntegrationServiceImpl
     }
 
 
+    @SneakyThrows
     @Override
     public SubmitApplicationResponse submitApplication( final SubmitApplicationRequest submitApplicationRequest,
                                                         final UUID orgId )
     {
+        log.info(String.format("submitApplication: %s -> %s", orgId.toString(), new ObjectMapper().writeValueAsString(submitApplicationRequest)));
         return jmSubmitApplication.submit( submitApplicationRequest, orgId );
     }
 
 
+    @SneakyThrows
     @Override
     public CreateAccountResponse createAccount( final CreateAccountRequest createAccountRequest,
                                                 final UUID orgId )
     {
+        log.info(String.format("createAccount: %s -> %s", orgId.toString(), new ObjectMapper().writeValueAsString(createAccountRequest)));
         return createAccountService.createAccount( createAccountRequest, orgId );
     }
 }
