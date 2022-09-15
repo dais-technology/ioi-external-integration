@@ -36,6 +36,9 @@ public class AddQuoteRequest {
 
     public ArrayList<DeductibleOption> deductibleOptions;
 
+    @JsonProperty("selectedPaymentPlan")
+    public SelectedPlan selectedPaymentPlan;
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -167,6 +170,18 @@ public static class UnderwritingQuestion{
         public int itemNumber;
         @JsonProperty("deductible")
         public Double deductible;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class SelectedPlan
+    {
+        @JsonProperty("name")
+        public String name;
+        @JsonProperty("numberOfInstallments")
+        public int numberOfInstallments;
     }
 
 
