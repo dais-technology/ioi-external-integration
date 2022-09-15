@@ -62,26 +62,75 @@ public class JMAddQuoteHelperImpl
 
         final UUID requestId = null == firedTriggerDto.getTriggerRequestId() ? UUID.randomUUID() : firedTriggerDto.getTriggerRequestId();
 
+        String externalQuoteId = (String) firedTriggerDto.getPayload().get( "externalQuoteId");
+
         QuoteRequestSpecDto triggerSpec = objectMapper.convertValue( firedTriggerDto.getPayload(), QuoteRequestSpecDto.class );
 
         AddQuoteRequest addQuoteRequest = createAddQuoteRequest( triggerSpec.getIntake(), actionJMSQuoteSpecDto );
+
+// If the external quote id is sent, its treated as exclusively for upating
+        if ( externalQuoteId != null && !externalQuoteId.equalsIgnoreCase( "" ))
+        {
+            URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl());
+
+            addQuoteRequest.setQuoteId( externalQuoteId );
+
+            String planName = getValue( () -> ((Map)firedTriggerDto.getPayload().get( "selectedPaymentPlan" )).get( "name" ).toString(), "");
+
+            Integer numberOfInstallments = Integer.parseInt(   getValue( () -> ((Map)firedTriggerDto.getPayload().get( "selectedPaymentPlan" )).get( "numberOfInstallments" ).toString(), "") );
+
+            addPaymentPlan(addQuoteRequest, planName, numberOfInstallments);
+
+            log.info(objectMapper.writeValueAsString( addQuoteRequest ));
+
+            AddQuoteResult updQuoteResult = jmQuoteClient.updateQuote( determinedBasePathUri,
+                                                                       "Bearer " + jmAuthResult.getAccess_token(),
+                                                                       actionJMSQuoteSpecDto.getApiSubscriptionkey(),
+                                                                       addQuoteRequest );
+
+            if ( getValue( ()-> updQuoteResult.getErrorMessages().size(),0 ) > 0) {
+
+                String errorMessage = updQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
+
+                throw new Exception(errorMessage);
+
+            }
+
+            TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
+
+            HashMap<String, Object> idMap = new HashMap<>();
+
+            idMap.put( "externalQuoteId", externalQuoteId );
+
+            triggerResponseDto.setMetadata(idMap);
+
+            return triggerResponseDto;
+
+        }
+
 
         URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getAddQuoteUrl());
 
         log.info(objectMapper.writeValueAsString( addQuoteRequest ));
 
-        AddQuoteResult addQuoteResult = jmQuoteClient.addQuote( determinedBasePathUri,
-                                                                "Bearer " + jmAuthResult.getAccess_token(),
-                                                                actionJMSQuoteSpecDto.getApiSubscriptionkey(),
-                                                                addQuoteRequest );
 
-        if ( getValue( ()-> addQuoteResult.getErrorMessages().size(),0 ) > 0) {
-            String errorMessage = addQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
-            throw new Exception(errorMessage);
 
-        }
 
-        addQuoteRequest.setQuoteId( addQuoteResult.getQuoteId() );
+            AddQuoteResult addQuoteResult = jmQuoteClient.addQuote( determinedBasePathUri,
+                                                                    "Bearer " + jmAuthResult.getAccess_token(),
+                                                                    actionJMSQuoteSpecDto.getApiSubscriptionkey(),
+                                                                    addQuoteRequest );
+
+            externalQuoteId = addQuoteResult.getQuoteId();
+
+            if ( getValue( () -> addQuoteResult.getErrorMessages().size(), 0 ) > 0 )
+            {
+                String errorMessage = addQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
+                throw new Exception( errorMessage );
+            }
+
+
+        addQuoteRequest.setQuoteId( externalQuoteId );
 
         determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl());
 
@@ -279,7 +328,7 @@ public class JMAddQuoteHelperImpl
             );
             // Remove after questions answered
             item.setItemDamage( "no" );
-            item.setItemPossession( "yes" );
+         //   item.setItemPossession( "yes" );
             //
             AddQuoteRequest.PrimaryWearer primaryWearer = new AddQuoteRequest.PrimaryWearer();
 
@@ -355,6 +404,13 @@ public class JMAddQuoteHelperImpl
         addQuoteRequest.setJeweleryItems( jeweleryItems );
     }
 
+    private void addPaymentPlan(AddQuoteRequest addQuoteRequest, String name, int installments ) {
+
+        AddQuoteRequest.SelectedPlan selectedPlan = new AddQuoteRequest.SelectedPlan();
+        selectedPlan.setName( name );
+        selectedPlan.setNumberOfInstallments( installments );
+        addQuoteRequest.setSelectedPaymentPlan( selectedPlan );
+    }
 
 
     private PubQuoteDetailsDto getQuoteDetails( AddQuoteResult addQuoteResult )

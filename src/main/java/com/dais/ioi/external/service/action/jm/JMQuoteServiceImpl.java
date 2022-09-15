@@ -59,6 +59,14 @@ public class JMQuoteServiceImpl
 
             triggerResponseDto  = jmAddQuoteHelper.processAddQuote( ap, jmAuthResult, actionJMSQuoteSpecDto );
 
+            String externalQuoteId = (String) ap.getPayload().get( "externalQuoteId");
+
+            if ( externalQuoteId != null && !externalQuoteId.equalsIgnoreCase( "" )) {
+
+                return triggerResponseDto;
+            }
+
+
         }
         else {
             triggerResponseDto =  jmQuickQuoteHelper.processQuickQuote( ap, jmAuthResult, actionJMSQuoteSpecDto );
