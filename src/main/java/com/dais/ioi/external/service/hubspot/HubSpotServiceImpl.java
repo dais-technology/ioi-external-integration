@@ -38,14 +38,13 @@ public class HubSpotServiceImpl
 
     private static final String PORTAL_ID_PARAM_KEY = "_a";
 
-    private static final String API_KEY_PARAM_KEY = "hapikey";
-
 
     @Override
     public void trackEvent( final HubspotTrackRequest request )
     {
         try
         {
+            log.info( String.format( "Hubspot Track Request Received: %s", mapper.writeValueAsString( request ) ) );
             IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByOrganizationIdAndType( request.getLineId(), IntegrationType.HUBSPOT_TRACK );
             HubspotTrackSpec spec = mapper.convertValue( integrationEntity.getSpec(), HubspotTrackSpec.class );
             String mappingsAsString = spec.getMappings();
@@ -53,7 +52,7 @@ public class HubSpotServiceImpl
             Map<String, String> parameters = propertiesMapper.map( mappings, request.getInput() );
             parameters.put( EVENT_ID_PARAM_KEY, spec.getEventId() );
             parameters.put( PORTAL_ID_PARAM_KEY, spec.getPortalId() );
-            parameters.put( API_KEY_PARAM_KEY, spec.getApiKey() );
+            log.info( String.format( "Sending Hubspot Track Request with the folowing parameters: %s", mapper.writeValueAsString( parameters ) ) );
             hubspotClient.trackEvent( parameters );
         }
         catch ( Exception e )
