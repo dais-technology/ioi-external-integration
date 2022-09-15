@@ -32,6 +32,11 @@ public class FeignClientsConfig
     }
 
     @Bean
+    Logger.Level feignLoggerLevel() {
+        return Logger.Level.FULL;
+    }
+
+    @Bean
     RequestInterceptor jwtInterceptor()
     {
         String[] reqHeaders = new String[] { "x-jwt-assertion",
