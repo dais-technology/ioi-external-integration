@@ -102,6 +102,8 @@ public class JMAddQuoteHelperImpl
 
             idMap.put( "externalQuoteId", externalQuoteId );
 
+            triggerResponseDto.setTriggerRequestId( requestId );
+
             triggerResponseDto.setMetadata(idMap);
 
             return triggerResponseDto;
