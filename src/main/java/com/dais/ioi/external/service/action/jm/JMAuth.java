@@ -25,7 +25,7 @@ public abstract class JMAuth
                 "password=" + actionJMSQuoteSpecDto.getClientPassword());
 
         final URI determinedBasePathUri = URI.create(actionJMSQuoteSpecDto.getAuthUrl());
-        log.info(String.format("createAccount->getAuth: %s -> %s", determinedBasePathUri.toString(), new ObjectMapper().writeValueAsString(authTokenRequest)));
+//        log.info(String.format("createAccount->getAuth: %s -> %s", determinedBasePathUri.toString(), new ObjectMapper().writeValueAsString(authTokenRequest)));
         return jmAuthClient.getToken(determinedBasePathUri, authTokenRequest);
     }
 }

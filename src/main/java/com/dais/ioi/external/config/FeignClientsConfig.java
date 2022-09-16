@@ -31,10 +31,10 @@ public class FeignClientsConfig
         return builder.build();
     }
 
-    @Bean
-    Logger.Level feignLoggerLevel() {
-        return Logger.Level.FULL;
-    }
+//    @Bean
+//    Logger.Level feignLoggerLevel() {
+//        return Logger.Level.FULL;
+//    }
 
     @Bean
     RequestInterceptor jwtInterceptor()
