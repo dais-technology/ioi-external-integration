@@ -42,8 +42,8 @@ public class ExternalQuoteDataController
 
 
     @Override
-    public ExternalQuoteDataDto findByExternalQuoteId( final String externalQuoteDataId )
+    public ExternalQuoteDataDto findByExternalQuoteId( final String externalQuoteId )
     {
-        return externalQuoteDataService.getByExternalQuoteId( externalQuoteDataId );
+        return externalQuoteDataService.getByExternalQuoteId( externalQuoteId );
     }
 }

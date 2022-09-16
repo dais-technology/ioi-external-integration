@@ -34,8 +34,8 @@ public interface ExternalQuoteDataControllerApi
     void delete( @PathVariable final UUID externalQuoteDataId );
 
     @ResponseStatus( HttpStatus.OK )
-    @RequestMapping( value = "/{externalQuoteDataId}",
+    @RequestMapping( value = "/external-quote-id/{externalQuoteId}",
                      method = RequestMethod.GET )
-    @ApiOperation( value = "create or update an ExternalQuoteData Record" )
-    ExternalQuoteDataDto findByExternalQuoteId( @PathVariable final String externalQuoteDataId );
+    @ApiOperation( value = "find an ExternalQuoteData Record by externalQuoteId" )
+    ExternalQuoteDataDto findByExternalQuoteId( @PathVariable final String externalQuoteId );
 }
