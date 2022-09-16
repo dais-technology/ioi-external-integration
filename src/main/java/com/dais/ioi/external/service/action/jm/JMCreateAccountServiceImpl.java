@@ -38,13 +38,13 @@ public class JMCreateAccountServiceImpl {
     public CreateAccountResponse createAccount(final CreateAccountRequest createAccountRequest, final UUID orgId ) {
 
         final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByOrganizationIdAndType(orgId, IntegrationType.JM_CREATE_ACCOUNT); // TODO check should tis be lineId or orgId
-        log.info(String.format("createAccount->integrationEntity: %s", new ObjectMapper().writeValueAsString(integrationEntity)));
+//        log.info(String.format("createAccount->integrationEntity: %s", new ObjectMapper().writeValueAsString(integrationEntity)));
 
         final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue(integrationEntity.getSpec(), ActionJMSQuoteSpecDto.class);
-        log.info(String.format("createAccount->actionJMSQuoteSpecDto: %s", new ObjectMapper().writeValueAsString(actionJMSQuoteSpecDto)));
+//        log.info(String.format("createAccount->actionJMSQuoteSpecDto: %s", new ObjectMapper().writeValueAsString(actionJMSQuoteSpecDto)));
 
         final JMAuthResult jmAuthResult = getAuth(actionJMSQuoteSpecDto, jmAuthClient);
-        log.info(String.format("createAccount->jmAuthResult: %s", new ObjectMapper().writeValueAsString(jmAuthResult)));
+//        log.info(String.format("createAccount->jmAuthResult: %s", new ObjectMapper().writeValueAsString(jmAuthResult)));
 
         return processAccountCreation(createAccountRequest, jmAuthResult, actionJMSQuoteSpecDto);
     }

@@ -35,7 +35,7 @@ public class JMSubmitApplicationServiceImpl {
 
     public SubmitApplicationResponse submit(final SubmitApplicationRequest submitApplicationRequest, final UUID orgId ) {
 
-        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByOrganizationIdAndType(orgId, IntegrationType.JM_CREATE_ACCOUNT); // TODO check should tis be lineId or orgId
+        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByOrganizationIdAndType(orgId, IntegrationType.JM_SUBMIT_APPLICATION); // TODO check should tis be lineId or orgId
 
         final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue(integrationEntity.getSpec(), ActionJMSQuoteSpecDto.class);
 
