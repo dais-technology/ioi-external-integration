@@ -51,6 +51,11 @@ public class FeignClientsConfig
                 {
                     if ( !template.headers().containsKey( header ) && requestServlet.getHeader( header ) != null )
                     {
+                        if (requestServlet.getHeader(header).startsWith("Basic ")) {
+                            log.info("Header(%s) starts with 'Basic ' and is being skipped...");
+                            continue;
+                        }
+
                         template.header( header, requestServlet.getHeader( header ) );
                     }
                 }
