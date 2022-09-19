@@ -26,9 +26,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Objects;
 import java.math.BigDecimal;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 
@@ -101,17 +101,17 @@ public class ExternalIntegrationServiceImpl
         final String externalIntegrationType = (String) firedTriggerDto.getPayload().getOrDefault( "externalIntegrationType", null );
         final IntegrationType integrationType = IntegrationType.valueOf( externalIntegrationType );
 
-        if (integrationType == IntegrationType.JM_CREATE_ACCOUNT)
+        if ( integrationType == IntegrationType.JM_CREATE_ACCOUNT )
         {
             final UUID jmQuoteId = UUID.fromString( (String) firedTriggerDto.getPayload().get( "jmQuoteId" ) );
             final CreateAccountRequest createAccountRequest = new CreateAccountRequest( jmQuoteId );
             final CreateAccountResponse createAccountResponse = createAccountService.createAccount( createAccountRequest, firedTriggerDto.getLineId() );
             triggerResponseDto.setMetadata( new ObjectMapper().convertValue( createAccountResponse, Map.class ) );
         }
-        else if (integrationType == IntegrationType.JM_SUBMIT_APPLICATION)
+        else if ( integrationType == IntegrationType.JM_SUBMIT_APPLICATION )
         {
             final UUID jmQuoteId = UUID.fromString( (String) firedTriggerDto.getPayload().get( "jmQuoteId" ) );
-            final BigDecimal totalAmount = BigDecimal.valueOf((Double) firedTriggerDto.getPayload().get( "totalAmount" ));
+            final BigDecimal totalAmount = BigDecimal.valueOf( (Double) firedTriggerDto.getPayload().get( "totalAmount" ) );
             final SubmitApplicationRequest submitApplicationRequest = new SubmitApplicationRequest( jmQuoteId, totalAmount );
             final SubmitApplicationResponse submitApplicationResponse = jmSubmitApplication.submit( submitApplicationRequest, firedTriggerDto.getLineId() );
             triggerResponseDto.setMetadata( new ObjectMapper().convertValue( submitApplicationResponse, Map.class ) );
@@ -133,7 +133,7 @@ public class ExternalIntegrationServiceImpl
     public SubmitApplicationResponse submitApplication( final SubmitApplicationRequest submitApplicationRequest,
                                                         final UUID orgId )
     {
-        log.info(String.format("submitApplication: %s -> %s", orgId.toString(), new ObjectMapper().writeValueAsString(submitApplicationRequest)));
+        log.info( String.format( "submitApplication: %s -> %s", orgId.toString(), new ObjectMapper().writeValueAsString( submitApplicationRequest ) ) );
         return jmSubmitApplication.submit( submitApplicationRequest, orgId );
     }
 
@@ -143,7 +143,7 @@ public class ExternalIntegrationServiceImpl
     public CreateAccountResponse createAccount( final CreateAccountRequest createAccountRequest,
                                                 final UUID orgId )
     {
-        log.info(String.format("createAccount: %s -> %s", orgId.toString(), new ObjectMapper().writeValueAsString(createAccountRequest)));
+        log.info( String.format( "createAccount: %s -> %s", orgId.toString(), new ObjectMapper().writeValueAsString( createAccountRequest ) ) );
         return createAccountService.createAccount( createAccountRequest, orgId );
     }
 }
