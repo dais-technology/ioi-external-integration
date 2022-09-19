@@ -188,7 +188,7 @@ public class JMQuickQuoteHelperImpl
             QuickQuoteRequest.JeweleryItem item = new QuickQuoteRequest.JeweleryItem();
             item.setItemId( ( String.valueOf( itemId )) ) ;
             item.setItemValue( getValue( () -> Integer.parseInt( iteration.getAnswers().get( actionJMSQuoteSpecDto.getItemValue() ).getAnswer() ), 0 ) );
-            item.setJeweleryType( getValue( () -> iteration.getAnswers().get( actionJMSQuoteSpecDto.getItemType() ).getAnswer(), "" ) );
+            item.setJeweleryType( getValue( () -> iteration.getAnswers().get( actionJMSQuoteSpecDto.getItemType() ).getAnswer().toLowerCase(), "" ) );
             jeweleryItems.add( item );
             itemId++;
         }
