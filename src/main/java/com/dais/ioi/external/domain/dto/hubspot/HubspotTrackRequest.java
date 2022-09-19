@@ -17,5 +17,7 @@ public class HubspotTrackRequest
 {
     private UUID lineId;
 
+    private String useage;
+
     private Map<String, ?> input;
 }

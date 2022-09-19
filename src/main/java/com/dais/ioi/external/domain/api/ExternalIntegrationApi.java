@@ -54,6 +54,12 @@ public interface ExternalIntegrationApi
           throws IllegalAccessException;
 
     @ResponseStatus( HttpStatus.OK )
+    @RequestMapping( value = "/{integrationId}",
+                     method = RequestMethod.GET )
+    @ApiOperation( value = "Get Integration Record by Id" )
+    IntegrationDto getById( @PathVariable final UUID integrationId );
+
+    @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/save",
                      method = RequestMethod.POST )
     @ApiOperation( value = "create an Integration Record" )

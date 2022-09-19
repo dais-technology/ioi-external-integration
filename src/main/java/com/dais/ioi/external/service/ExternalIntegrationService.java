@@ -14,6 +14,8 @@ import java.util.UUID;
 
 public interface ExternalIntegrationService
 {
+    IntegrationDto getById( UUID integrationId );
+
     IntegrationDto create( final IntegrationDto integrationDto );
 
     IntegrationDto createOrUpdate( final IntegrationDto integrationDto );

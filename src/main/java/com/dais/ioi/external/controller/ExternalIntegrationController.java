@@ -96,8 +96,9 @@ public class ExternalIntegrationController
             log.info( "Responded with {} ", objectMapper.writeValueAsString( triggerResponseDto ) ); // TODO should be removed or set to not log in prod
         }
 
-        catch ( final FeignException e) {
-            throw new ResponseStatusException( HttpStatus.BAD_REQUEST, new String(e.content()) );
+        catch ( final FeignException e )
+        {
+            throw new ResponseStatusException( HttpStatus.BAD_REQUEST, new String( e.content() ) );
         }
 
         catch ( final Exception e )
@@ -124,5 +125,12 @@ public class ExternalIntegrationController
           throws IllegalAccessException
     {
         return externalIntegrationService.createAccount( createAccountRequest, orgId );
+    }
+
+
+    @Override
+    public IntegrationDto getById( final UUID integrationId )
+    {
+        return externalIntegrationService.getById( integrationId );
     }
 }

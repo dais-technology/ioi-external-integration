@@ -20,6 +20,7 @@ import javax.validation.constraints.NotNull;
 import java.util.Map;
 import java.util.UUID;
 
+
 @Entity
 @Table( name = "integration" )
 @NoArgsConstructor
@@ -40,6 +41,12 @@ public class IntegrationEntity
     @Enumerated( EnumType.STRING )
     @NotNull
     private IntegrationType type;
+
+    @Column( name = "usage" )
+    private String usage;
+
+    @Column( name = "description" )
+    private String description;
 
     @Column( name = "spec",
              columnDefinition = "jsonb" )
