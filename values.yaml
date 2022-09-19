@@ -53,6 +53,7 @@ clusterSecrets:
   - dais.admin.password
   - user-management.ribbon.listOfServers
   - dais.cors.allowOrigin
+  - feign.logging.level
 secretName: ioi-external-integration
 
 Persistence:
