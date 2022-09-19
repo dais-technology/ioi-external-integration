@@ -25,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.math.RoundingMode;
 import java.net.URI;
 import java.time.LocalDate;
@@ -151,9 +150,9 @@ public class JMAddQuoteHelperImpl
 
         PubPremiumDto.PubPremiumDtoBuilder premiumBuilder = PubPremiumDto.builder();
 
-        premiumBuilder.amount( new BigDecimal( (Double) addQuoteResult.ratingInfo.getTotalPremium() ).round( new MathContext( 2, RoundingMode.HALF_EVEN ) ) );
+        premiumBuilder.amount( new BigDecimal( (Double) addQuoteResult.ratingInfo.getTotalPremium() ).setScale( 2, RoundingMode.CEILING )  );
 
-        quoteDetails.getPremium().setAmount(  BigDecimal.valueOf( updQuoteResult.getPaymentPlans().get( 0 ).getDownPaymentAmount() ).round( new MathContext( 2, RoundingMode.HALF_EVEN )  ) );
+        quoteDetails.getPremium().setAmount(  BigDecimal.valueOf( updQuoteResult.getPaymentPlans().get( 0 ).getDownPaymentAmount() ).setScale( 2, RoundingMode.CEILING )    );
 
 
         TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
@@ -421,7 +420,7 @@ public class JMAddQuoteHelperImpl
 
         PubPremiumDto.PubPremiumDtoBuilder premiumBuilder = PubPremiumDto.builder();
 
-        premiumBuilder.amount( new BigDecimal( (Double) addQuoteResult.ratingInfo.getTotalPremium() ).round( new MathContext( 2, RoundingMode.HALF_EVEN ) ) );
+        premiumBuilder.amount( new BigDecimal( (Double) addQuoteResult.ratingInfo.getTotalPremium() ).setScale( 2, RoundingMode.CEILING )   );
 
         quoteBuilder.premium( premiumBuilder.build() );
 
@@ -465,7 +464,7 @@ public class JMAddQuoteHelperImpl
         for ( AddQuoteResult.RateOption rateOption : itemRateDetail.getRateOptions() )
         {
             PubCoverageDto.PubCoverageDtoBuilder pubCoverageBuilder = PubCoverageDto.builder();
-            BigDecimal premium = new BigDecimal( (double) rateOption.getRateBreakdown().get( 0 ).getRateValue() ).round( new MathContext( 2, RoundingMode.HALF_EVEN ) );
+            BigDecimal premium = new BigDecimal( (double) rateOption.getRateBreakdown().get( 0 ).getRateValue() ).setScale( 2, RoundingMode.CEILING )  ;
             pubCoverageBuilder.premium( premium );
             Map<String, List<PubCoverageDetailDto>> details = new HashMap<>();
 
