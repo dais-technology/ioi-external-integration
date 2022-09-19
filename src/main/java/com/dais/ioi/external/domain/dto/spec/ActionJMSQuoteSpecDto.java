@@ -2,6 +2,8 @@ package com.dais.ioi.external.domain.dto.spec;
 
 import lombok.Data;
 
+import java.util.Date;
+
 
 @Data
 public class ActionJMSQuoteSpecDto
@@ -42,6 +44,11 @@ public class ActionJMSQuoteSpecDto
     private String itemId;
 
     private String itemType;
+
+    private String itemSubType;
+
+    private String itemGender;
+
 
     private String itemValue;
 
@@ -112,9 +119,13 @@ public class ActionJMSQuoteSpecDto
 
     private String canceledOrDeniedCoverage;
 
+    private String additionalUnderwriting;
+
     private String itemDamage;
 
     private String itemPossession;
 
     private String deductible;
+
+    private String effectiveDate;
 }

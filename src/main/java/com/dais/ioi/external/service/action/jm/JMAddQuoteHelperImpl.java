@@ -63,9 +63,15 @@ public class JMAddQuoteHelperImpl
 
         String externalQuoteId = (String) firedTriggerDto.getPayload().get( "externalQuoteId");
 
+        String effectiveDate = (String) firedTriggerDto.getPayload().get( "effectiveDate");
+
+
         QuoteRequestSpecDto triggerSpec = objectMapper.convertValue( firedTriggerDto.getPayload(), QuoteRequestSpecDto.class );
 
         AddQuoteRequest addQuoteRequest = createAddQuoteRequest( triggerSpec.getIntake(), actionJMSQuoteSpecDto );
+
+        addQuoteRequest.setEffectiveDate( effectiveDate );
+
 
 // If the external quote id is sent, its treated as exclusively for upating
         if ( externalQuoteId != null && !externalQuoteId.equalsIgnoreCase( "" ))
@@ -178,7 +184,7 @@ public class JMAddQuoteHelperImpl
                                     .type( QuoteType.QUOTE )
                                     .clientId( triggerSpec.getClientId() )
                                     .requestId( requestId )
-                                    .effectiveDate( LocalDate.now()    )
+                                    .effectiveDate( LocalDate.parse( effectiveDate ) )
                                     .bindable( true )
                                     .quoteDetails( quoteDetails )
                                     .metadata( metaDatamap)
@@ -199,8 +205,6 @@ public class JMAddQuoteHelperImpl
         AddQuoteRequest addQuoteRequest = AddQuoteRequest.builder().build();
 
         addQuoteRequest.setProducerCode( "DIRD" );
-
-        addQuoteRequest.setEffectiveDate( "2022-10-01T00:00:00" );
 
         AddQuoteRequest.PrimaryContact primaryContact = new AddQuoteRequest.PrimaryContact();
         AddQuoteRequest.ResidentialAddress residentialAddress = new AddQuoteRequest.ResidentialAddress();
@@ -290,6 +294,12 @@ public class JMAddQuoteHelperImpl
         cancelledCoverage.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCanceledOrDeniedCoverage() ).getAnswer(), "" ) );
         underwritingInfo.getUnderwritingQuestions().add( cancelledCoverage );
 
+        AddQuoteRequest.UnderwritingQuestion additionalUnderwriting = new AddQuoteRequest.UnderwritingQuestion();
+        additionalUnderwriting.setKey( actionJMSQuoteSpecDto.getAdditionalUnderwriting() );
+        additionalUnderwriting.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getAdditionalUnderwriting() ).getAnswer(), "" ) );
+        underwritingInfo.getUnderwritingQuestions().add( additionalUnderwriting );
+
+
         addQuoteRequest.setUnderwritingInfo( underwritingInfo );
 
 
@@ -309,10 +319,10 @@ public class JMAddQuoteHelperImpl
 
 
             item.setJeweleryType(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemType() ).getAnswer(), "" ).toString()
+                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemType() ).getAnswer().toLowerCase(), "" ).toString()
             );
             item.setJewelerySubType(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( "test" ).getAnswer(), "" ).toString()
+                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemSubType() ).getAnswer(), "" ).toString()
             );
 
             item.setItemNumber(
@@ -357,7 +367,10 @@ public class JMAddQuoteHelperImpl
                   getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerPhoneNumber() ).getAnswer(), "" ).toString()
             );
 
-            primaryWearer.setGender( "F" );
+            primaryWearer.setGender(
+                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemGender()).getAnswer(), "" ).toString()
+
+            );
 
             AddQuoteRequest.ResidentialAddress primaryWearerResidentialAddress = new AddQuoteRequest.ResidentialAddress();
 
