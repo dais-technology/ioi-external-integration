@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.math.RoundingMode;
 import java.net.URI;
 import java.time.LocalDate;
@@ -117,7 +116,7 @@ public class JMQuickQuoteHelperImpl
 
         PubPremiumDto.PubPremiumDtoBuilder premiumBuilder = PubPremiumDto.builder();
 
-        premiumBuilder.amount( new BigDecimal( (Double) quickQuoteResult.getTotalPremiumWithTaxes() ).round( new MathContext( 2, RoundingMode.HALF_EVEN ) ) );
+        premiumBuilder.amount( new BigDecimal( (Double) quickQuoteResult.getTotalPremiumWithTaxes() ).setScale( 2, RoundingMode.CEILING ) );
 
         quoteBuilder.premium( premiumBuilder.build() );
 
@@ -209,7 +208,7 @@ public class JMQuickQuoteHelperImpl
         for ( QuickQuoteResult.RatingInfo ratingInfo : rateInfo.getRatingInfo() )
         {
             PubCoverageDto.PubCoverageDtoBuilder pubCoverageBuilder = PubCoverageDto.builder();
-            BigDecimal premium = new BigDecimal( (double) ratingInfo.getItemPremiumWithTaxes() ).round( new MathContext( 2, RoundingMode.HALF_EVEN ) );
+            BigDecimal premium = new BigDecimal( (double) ratingInfo.getItemPremiumWithTaxes() ).setScale( 2, RoundingMode.CEILING )  ;
             pubCoverageBuilder.premium( premium );
             Map<String, List<PubCoverageDetailDto>> details = new HashMap<>();
 

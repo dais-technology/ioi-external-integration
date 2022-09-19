@@ -62,7 +62,7 @@ public interface ExternalIntegrationApi
     @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/save",
                      method = RequestMethod.PUT )
-    @ApiOperation( value = "create an Integration Record" )
+    @ApiOperation( value = "create or update an Integration Record" )
     IntegrationDto saveOrUpdate( @RequestBody @Valid final IntegrationDto integrationDto );
 
     @ResponseStatus( HttpStatus.OK )
