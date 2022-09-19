@@ -26,6 +26,12 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 public class FeignClientsConfig
 {
+    /**
+     NONE: no logging (DEFAULT)
+     BASIC: logs the request method and URL and the response status code and execution time
+     HEADERS: logs the basic information along with the request and response headers
+     FULL: logs the headers, body, and metadata for both requests and responses
+     */
     @Value("${feign.logging.level:BASIC}")
     private Logger.Level feignLoggingLevel;
 
