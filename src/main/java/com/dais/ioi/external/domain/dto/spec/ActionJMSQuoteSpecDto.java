@@ -2,8 +2,6 @@ package com.dais.ioi.external.domain.dto.spec;
 
 import lombok.Data;
 
-import java.util.Date;
-
 
 @Data
 public class ActionJMSQuoteSpecDto
@@ -121,6 +119,14 @@ public class ActionJMSQuoteSpecDto
 
     private String additionalUnderwriting;
 
+    private String alarmId;
+
+    private String convictionType;
+
+    private String convictionSentenceCompletionDate;
+
+    private String paperlessDelivery;
+
     private String itemDamage;
 
     private String itemPossession;
@@ -128,4 +134,6 @@ public class ActionJMSQuoteSpecDto
     private String deductible;
 
     private String effectiveDate;
+
+
 }
