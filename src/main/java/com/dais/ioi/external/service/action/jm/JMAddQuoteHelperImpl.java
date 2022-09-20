@@ -441,7 +441,7 @@ public class JMAddQuoteHelperImpl
         final NormalizedPremium normalizedPremium = new NormalizedPremium( addQuoteResult.ratingInfo.getTotalPremium(),
                                                                            addQuoteResult.ratingInfo.getTotalTaxesAndSurcharges() );
 
-        premiumBuilder.amount( normalizedPremium.getPremiumWithTaxesAndSurcharges() ); // with or without? need to add taxes somewhere?
+        premiumBuilder.amount( normalizedPremium.getPremiumWithoutTaxesOrSurcharges() ); // with or without? need to add taxes somewhere?
 
         quoteBuilder.premium( premiumBuilder.build() );
 
