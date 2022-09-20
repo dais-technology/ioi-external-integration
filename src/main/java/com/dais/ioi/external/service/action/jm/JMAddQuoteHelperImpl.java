@@ -26,10 +26,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -161,7 +163,7 @@ public class JMAddQuoteHelperImpl
 
         premiumBuilder.amount( normalizedPremium.getPremiumWithoutTaxesOrSurcharges() );
 
-        quoteDetails.getPremium().setAmount(  BigDecimal.valueOf( updQuoteResult.getPaymentPlans().get( 0 ).getDownPaymentAmount() ).setScale( 2 )    );
+        quoteDetails.getPremium().setAmount(  BigDecimal.valueOf( updQuoteResult.getPaymentPlans().get( 0 ).getDownPaymentAmount() ).setScale( 2, RoundingMode.HALF_EVEN )    );
 
 
         TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
@@ -436,8 +438,10 @@ public class JMAddQuoteHelperImpl
 
         PubPremiumDto.PubPremiumDtoBuilder premiumBuilder = PubPremiumDto.builder();
 
-        // TODO here
-        premiumBuilder.amount( new BigDecimal( addQuoteResult.ratingInfo.getTotalPremium() ).setScale( 2 ) );
+        final NormalizedPremium normalizedPremium = new NormalizedPremium( addQuoteResult.ratingInfo.getTotalPremium(),
+                                                                           addQuoteResult.ratingInfo.getTotalTaxesAndSurcharges() );
+
+        premiumBuilder.amount( normalizedPremium.getPremiumWithTaxesAndSurcharges() ); // with or without? need to add taxes somewhere?
 
         quoteBuilder.premium( premiumBuilder.build() );
 
@@ -481,8 +485,7 @@ public class JMAddQuoteHelperImpl
         for ( AddQuoteResult.RateOption rateOption : itemRateDetail.getRateOptions() )
         {
             PubCoverageDto.PubCoverageDtoBuilder pubCoverageBuilder = PubCoverageDto.builder();
-            // TODO
-            BigDecimal premium = new BigDecimal( rateOption.getRateBreakdown().get( 0 ).getRateValue() ).setScale( 2 );
+            BigDecimal premium = new BigDecimal( rateOption.getRateBreakdown().get( 0 ).getRateValue() ).setScale( 2, RoundingMode.HALF_EVEN );
             pubCoverageBuilder.premium( premium );
             Map<String, List<PubCoverageDetailDto>> details = new HashMap<>();
 
