@@ -15,6 +15,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 
 /**
@@ -22,29 +24,33 @@ import javax.servlet.http.HttpServletRequest;
  */
 @Configuration
 @EnableFeignClients( basePackages = "com.dais.ioi.external.config.client" )
-@ComponentScan(basePackages = { "com.dais.ioi.external.config.client" })
+@ComponentScan( basePackages = { "com.dais.ioi.external.config.client" } )
 @Slf4j
 public class FeignClientsConfig
 {
     /**
-     NONE: no logging (DEFAULT)
-     BASIC: logs the request method and URL and the response status code and execution time
-     HEADERS: logs the basic information along with the request and response headers
-     FULL: logs the headers, body, and metadata for both requests and responses
+     * NONE: no logging (DEFAULT)
+     * BASIC: logs the request method and URL and the response status code and execution time
+     * HEADERS: logs the basic information along with the request and response headers
+     * FULL: logs the headers, body, and metadata for both requests and responses
      */
-    @Value("${feign.logging.level:BASIC}")
+    @Value( "${feign.logging.level:BASIC}" )
     private Logger.Level feignLoggingLevel;
 
+
     @Bean
-    RestTemplate restTemplate(final RestTemplateBuilder builder)
+    RestTemplate restTemplate( final RestTemplateBuilder builder )
     {
         return builder.build();
     }
 
+
     @Bean
-    Logger.Level feignLoggerLevel() {
+    Logger.Level feignLoggerLevel()
+    {
         return feignLoggingLevel;
     }
+
 
     @Bean
     RequestInterceptor jwtInterceptor()
@@ -53,23 +59,35 @@ public class FeignClientsConfig
                                              "Authorization" };
 
         return template -> {
-            RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-            if ( requestAttributes instanceof ServletRequestAttributes )
+            // Only copy over auth headers if the target address is a dais.com service
+            if ( isSendingToDaisAddress( template.path() ) )
             {
-                HttpServletRequest requestServlet = ( (ServletRequestAttributes) requestAttributes ).getRequest();
-                for ( String header : reqHeaders )
+                RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+                if ( requestAttributes instanceof ServletRequestAttributes )
                 {
-                    if ( !template.headers().containsKey( header ) && requestServlet.getHeader( header ) != null )
+                    HttpServletRequest requestServlet = ( (ServletRequestAttributes) requestAttributes ).getRequest();
+                    for ( String header : reqHeaders )
                     {
-                        if (requestServlet.getHeader(header).startsWith("Basic ")) {
-                            log.info("Header(%s) starts with 'Basic ' and is being skipped...");
-                            continue;
+                        if ( !template.headers().containsKey( header ) && requestServlet.getHeader( header ) != null )
+                        {
+                            template.header( header, requestServlet.getHeader( header ) );
                         }
-
-                        template.header( header, requestServlet.getHeader( header ) );
                     }
                 }
             }
         };
+    }
+
+
+    private Boolean isSendingToDaisAddress( final String path )
+    {
+        try
+        {
+            return new URI( path ).getHost().endsWith( ".dais.com" );
+        }
+        catch ( final URISyntaxException e )
+        {
+            throw new RuntimeException( "Unable to determine if target address is a Dais address!", e );
+        }
     }
 }
