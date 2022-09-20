@@ -22,6 +22,7 @@ import com.dais.ioi.quote.domain.dto.pub.PubQuoteDetailsDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -29,6 +30,7 @@ import java.math.RoundingMode;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,6 +48,8 @@ import static com.dais.ioi.external.service.action.jm.JMUtils.getValue;
 @Slf4j
 public class JMAddQuoteHelperImpl
 {
+    public static final DateTimeFormatter EFFECTIVE_DATE_FORMAT = DateTimeFormatter.ofPattern( "yyyy-MM-dd" );
+
     @Autowired
     JMQuoteClient jmQuoteClient;
 
@@ -63,14 +67,15 @@ public class JMAddQuoteHelperImpl
 
         String externalQuoteId = (String) firedTriggerDto.getPayload().get( "externalQuoteId");
 
-        String effectiveDate = (String) firedTriggerDto.getPayload().get( "effectiveDate");
-
-
         QuoteRequestSpecDto triggerSpec = objectMapper.convertValue( firedTriggerDto.getPayload(), QuoteRequestSpecDto.class );
 
         AddQuoteRequest addQuoteRequest = createAddQuoteRequest( triggerSpec.getIntake(), actionJMSQuoteSpecDto );
 
-        addQuoteRequest.setEffectiveDate( effectiveDate );
+        final String effectiveDateAnswer = triggerSpec.getIntake().get( actionJMSQuoteSpecDto.getEffectiveDate() ).getAnswer();
+
+        final LocalDate effectiveDate = OffsetDateTime.parse( effectiveDateAnswer ).toLocalDate();
+
+        addQuoteRequest.setEffectiveDate( effectiveDate.format( EFFECTIVE_DATE_FORMAT ) );
 
 
 // If the external quote id is sent, its treated as exclusively for upating
@@ -184,7 +189,7 @@ public class JMAddQuoteHelperImpl
                                     .type( QuoteType.QUOTE )
                                     .clientId( triggerSpec.getClientId() )
                                     .requestId( requestId )
-                                    .effectiveDate( LocalDate.parse( effectiveDate ) )
+                                    .effectiveDate( effectiveDate )
                                     .bindable( true )
                                     .quoteDetails( quoteDetails )
                                     .metadata( metaDatamap)
