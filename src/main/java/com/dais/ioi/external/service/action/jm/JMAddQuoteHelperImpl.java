@@ -133,6 +133,22 @@ public class JMAddQuoteHelperImpl
                                                                     actionJMSQuoteSpecDto.getApiSubscriptionkey(),
                                                                     addQuoteRequest );
 
+
+// This block will be hit if there is no coverage and the http response is 200
+            if (addQuoteResult.isCoverageAvailable == false ) {
+
+                TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
+
+                HashMap<String, Object> metaDatamap = new HashMap<>();
+
+                metaDatamap.put( "isUnderwritingNeeded" ,addQuoteResult.isUnderwritingNeeded());
+                metaDatamap.put( "isCoverageAvailable" ,addQuoteResult.isCoverageAvailable());
+
+                triggerResponseDto.setMetadata(metaDatamap);
+
+                return triggerResponseDto;
+            }
+
             externalQuoteId = addQuoteResult.getQuoteId();
 
             if ( getValue( () -> addQuoteResult.getErrorMessages().size(), 0 ) > 0 )
@@ -140,6 +156,7 @@ public class JMAddQuoteHelperImpl
                 String errorMessage = addQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
                 throw new Exception( errorMessage );
             }
+
 
 
         addQuoteRequest.setQuoteId( externalQuoteId );
@@ -156,6 +173,7 @@ public class JMAddQuoteHelperImpl
             throw new Exception(errorMessage);
 
         }
+
 
         PubQuoteDetailsDto quoteDetails = getQuoteDetails( addQuoteResult );
 
@@ -275,27 +293,27 @@ public class JMAddQuoteHelperImpl
         underwritingInfo.setLossHistoryEvents( new ArrayList<>() );
 
         AddQuoteRequest.UnderwritingQuestion felony = new AddQuoteRequest.UnderwritingQuestion();
-        felony.setKey( actionJMSQuoteSpecDto.getFelonyConviction() );
+        felony.setKey( "felonyConviction" );
         felony.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getFelonyConviction() ).getAnswer(), "" ) );
         underwritingInfo.getUnderwritingQuestions().add( felony );
 
         AddQuoteRequest.UnderwritingQuestion lostWithin7Years = new AddQuoteRequest.UnderwritingQuestion();
-        lostWithin7Years.setKey( actionJMSQuoteSpecDto.getLostWithin7Years() );
+        lostWithin7Years.setKey( "lostWithin7Years" );
         lostWithin7Years.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getLostWithin7Years() ).getAnswer(), "" ) );
         underwritingInfo.getUnderwritingQuestions().add( lostWithin7Years );
 
         AddQuoteRequest.UnderwritingQuestion misdemeanor = new AddQuoteRequest.UnderwritingQuestion();
-        misdemeanor.setKey( actionJMSQuoteSpecDto.getMisdemeanorConviction() );
+        misdemeanor.setKey( "misdemeanorConviction" );
         misdemeanor.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getMisdemeanorConviction() ).getAnswer(), "" ) );
         underwritingInfo.getUnderwritingQuestions().add( misdemeanor );
 
         AddQuoteRequest.UnderwritingQuestion crimeForProfit = new AddQuoteRequest.UnderwritingQuestion();
-        crimeForProfit.setKey( actionJMSQuoteSpecDto.getCrimeForProfit() );
+        crimeForProfit.setKey( "crimeForProfit" );
         crimeForProfit.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCrimeForProfit() ).getAnswer(), "" ) );
         underwritingInfo.getUnderwritingQuestions().add( crimeForProfit );
 
         AddQuoteRequest.UnderwritingQuestion cancelledCoverage = new AddQuoteRequest.UnderwritingQuestion();
-        cancelledCoverage.setKey( actionJMSQuoteSpecDto.getCanceledOrDeniedCoverage() );
+        cancelledCoverage.setKey( "canceledOrDeniedCoverage" );
         cancelledCoverage.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCanceledOrDeniedCoverage() ).getAnswer(), "" ) );
         underwritingInfo.getUnderwritingQuestions().add( cancelledCoverage );
 
@@ -303,6 +321,22 @@ public class JMAddQuoteHelperImpl
         additionalUnderwriting.setKey( actionJMSQuoteSpecDto.getAdditionalUnderwriting() );
         additionalUnderwriting.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getAdditionalUnderwriting() ).getAnswer(), "" ) );
         underwritingInfo.getUnderwritingQuestions().add( additionalUnderwriting );
+
+
+        AddQuoteRequest.UnderwritingQuestion alarmId = new AddQuoteRequest.UnderwritingQuestion();
+        alarmId.setKey( "AlarmId");
+        alarmId.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getAlarmId()).getAnswer(), "" ) );
+        underwritingInfo.getUnderwritingQuestions().add( alarmId );
+
+     /*   AddQuoteRequest.UnderwritingQuestion convictionType = new AddQuoteRequest.UnderwritingQuestion();
+        convictionType.setKey( "ConvictionType");
+        convictionType.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getConvictionType()).getAnswer(), "" ) );
+        underwritingInfo.getUnderwritingQuestions().add( convictionType );
+
+        AddQuoteRequest.UnderwritingQuestion convictionSentenceCompletionDate = new AddQuoteRequest.UnderwritingQuestion();
+        convictionSentenceCompletionDate.setKey( "ConvictionSentenceCompletionDate");
+        convictionSentenceCompletionDate.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getConvictionSentenceCompletionDate()).getAnswer(), "" ) );
+        underwritingInfo.getUnderwritingQuestions().add( convictionSentenceCompletionDate );*/
 
 
         addQuoteRequest.setUnderwritingInfo( underwritingInfo );
