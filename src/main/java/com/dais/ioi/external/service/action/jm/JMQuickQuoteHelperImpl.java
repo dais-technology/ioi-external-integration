@@ -11,6 +11,7 @@ import com.dais.ioi.external.domain.dto.jm.QuickQuoteRequest;
 import com.dais.ioi.external.domain.dto.jm.QuickQuoteResult;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
+import com.dais.ioi.external.util.NormalizedPremium;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
 import com.dais.ioi.quote.domain.dto.enums.AmountType;
 import com.dais.ioi.quote.domain.dto.enums.QuoteType;
@@ -24,7 +25,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -116,7 +116,10 @@ public class JMQuickQuoteHelperImpl
 
         PubPremiumDto.PubPremiumDtoBuilder premiumBuilder = PubPremiumDto.builder();
 
-        premiumBuilder.amount( new BigDecimal( (Double) quickQuoteResult.getTotalPremiumWithTaxes() ).setScale( 2, RoundingMode.CEILING ) );
+        final NormalizedPremium normalizedPremium = new NormalizedPremium( quickQuoteResult.getTotalPremiumWithTaxes(),
+                                                                           quickQuoteResult.getTotalTaxesAndSurcharges() );
+
+        premiumBuilder.amount( normalizedPremium.getPremiumWithoutTaxesOrSurcharges() );
 
         quoteBuilder.premium( premiumBuilder.build() );
 
@@ -208,8 +211,11 @@ public class JMQuickQuoteHelperImpl
         for ( QuickQuoteResult.RatingInfo ratingInfo : rateInfo.getRatingInfo() )
         {
             PubCoverageDto.PubCoverageDtoBuilder pubCoverageBuilder = PubCoverageDto.builder();
-            BigDecimal premium = new BigDecimal( (double) ratingInfo.getItemPremiumWithTaxes() ).setScale( 2, RoundingMode.CEILING )  ;
-            pubCoverageBuilder.premium( premium );
+
+            final NormalizedPremium normalizedPremium = new NormalizedPremium( ratingInfo.getItemPremiumWithTaxes(),
+                                                                               ratingInfo.getItemTaxesAndSurcharges() );
+
+            pubCoverageBuilder.premium( normalizedPremium.getPremiumWithoutTaxesOrSurcharges() );
             Map<String, List<PubCoverageDetailDto>> details = new HashMap<>();
 
             PubCoverageDetailDto.PubCoverageDetailDtoBuilder deductibleBuilder = PubCoverageDetailDto.builder();
