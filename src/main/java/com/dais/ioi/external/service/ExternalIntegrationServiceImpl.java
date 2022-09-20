@@ -26,6 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Objects;
@@ -56,6 +57,21 @@ public class ExternalIntegrationServiceImpl
 
     @Autowired
     private JMCreateAccountServiceImpl createAccountService;
+
+
+    @Override
+    public IntegrationDto getById( final UUID integrationId )
+    {
+        try
+        {
+            IntegrationEntity integrationEntity = externalIntegrationRepository.getOne( integrationId );
+            return mapperFacade.map( integrationEntity, IntegrationDto.class );
+        }
+        catch ( EntityNotFoundException e )
+        {
+            throw new ResponseStatusException( HttpStatus.NOT_FOUND );
+        }
+    }
 
 
     @Override

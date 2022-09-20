@@ -22,5 +22,9 @@ public class IntegrationDto
 
     private IntegrationType type;
 
+    private String usage;
+
+    private String description;
+
     private Map<String, ?> spec;
 }
