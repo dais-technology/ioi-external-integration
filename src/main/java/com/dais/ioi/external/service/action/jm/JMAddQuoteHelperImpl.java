@@ -10,6 +10,7 @@ import com.dais.ioi.external.domain.dto.jm.AddQuoteRequest;
 import com.dais.ioi.external.domain.dto.jm.AddQuoteResult;
 import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
+import com.dais.ioi.external.util.NormalizedPremium;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
 import com.dais.ioi.quote.domain.dto.enums.AmountType;
 import com.dais.ioi.quote.domain.dto.enums.QuoteType;
@@ -25,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -156,9 +156,12 @@ public class JMAddQuoteHelperImpl
 
         PubPremiumDto.PubPremiumDtoBuilder premiumBuilder = PubPremiumDto.builder();
 
-        premiumBuilder.amount( new BigDecimal( (Double) addQuoteResult.ratingInfo.getTotalPremium() ).setScale( 2, RoundingMode.CEILING )  );
+        final NormalizedPremium normalizedPremium = new NormalizedPremium( addQuoteResult.ratingInfo.getTotalPremium(),
+                                                                           addQuoteResult.ratingInfo.getTotalTaxesAndSurcharges() );
 
-        quoteDetails.getPremium().setAmount(  BigDecimal.valueOf( updQuoteResult.getPaymentPlans().get( 0 ).getDownPaymentAmount() ).setScale( 2, RoundingMode.CEILING )    );
+        premiumBuilder.amount( normalizedPremium.getPremiumWithoutTaxesOrSurcharges() );
+
+        quoteDetails.getPremium().setAmount(  BigDecimal.valueOf( updQuoteResult.getPaymentPlans().get( 0 ).getDownPaymentAmount() ).setScale( 2 )    );
 
 
         TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
@@ -433,7 +436,8 @@ public class JMAddQuoteHelperImpl
 
         PubPremiumDto.PubPremiumDtoBuilder premiumBuilder = PubPremiumDto.builder();
 
-        premiumBuilder.amount( new BigDecimal( (Double) addQuoteResult.ratingInfo.getTotalPremium() ).setScale( 2, RoundingMode.CEILING )   );
+        // TODO here
+        premiumBuilder.amount( new BigDecimal( addQuoteResult.ratingInfo.getTotalPremium() ).setScale( 2 ) );
 
         quoteBuilder.premium( premiumBuilder.build() );
 
@@ -477,7 +481,8 @@ public class JMAddQuoteHelperImpl
         for ( AddQuoteResult.RateOption rateOption : itemRateDetail.getRateOptions() )
         {
             PubCoverageDto.PubCoverageDtoBuilder pubCoverageBuilder = PubCoverageDto.builder();
-            BigDecimal premium = new BigDecimal( (double) rateOption.getRateBreakdown().get( 0 ).getRateValue() ).setScale( 2, RoundingMode.CEILING )  ;
+            // TODO
+            BigDecimal premium = new BigDecimal( rateOption.getRateBreakdown().get( 0 ).getRateValue() ).setScale( 2 );
             pubCoverageBuilder.premium( premium );
             Map<String, List<PubCoverageDetailDto>> details = new HashMap<>();
 
