@@ -45,7 +45,7 @@ public class HubSpotServiceImpl
         try
         {
             log.info( String.format( "Hubspot Track Request Received: %s", mapper.writeValueAsString( request ) ) );
-            IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByOrganizationIdAndType( request.getLineId(), IntegrationType.HUBSPOT_TRACK );
+            IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByUsageAndType( request.getUsage(), IntegrationType.HUBSPOT_TRACK );
             HubspotTrackSpec spec = mapper.convertValue( integrationEntity.getSpec(), HubspotTrackSpec.class );
             String mappingsAsString = spec.getMappings();
             Map<String, String> mappings = mapper.readValue( mappingsAsString, Map.class );
