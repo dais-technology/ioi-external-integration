@@ -185,7 +185,7 @@ public class JMAddQuoteHelperImpl
         }
 
 
-        PubQuoteDetailsDto quoteDetails = getQuoteDetails( addQuoteResult );
+        PubQuoteDetailsDto quoteDetails = getQuoteDetails( updQuoteResult );
 
         TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
 
