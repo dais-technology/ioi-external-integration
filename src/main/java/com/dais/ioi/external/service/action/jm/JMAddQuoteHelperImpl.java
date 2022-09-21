@@ -146,6 +146,8 @@ public class JMAddQuoteHelperImpl
                 metaDatamap.put( "isUnderwritingNeeded" ,addQuoteResult.isUnderwritingNeeded());
                 metaDatamap.put( "isCoverageAvailable" ,addQuoteResult.isCoverageAvailable());
 
+                triggerResponseDto.setTriggerRequestId( requestId );
+
                 triggerResponseDto.setMetadata(metaDatamap);
 
                 return triggerResponseDto;
