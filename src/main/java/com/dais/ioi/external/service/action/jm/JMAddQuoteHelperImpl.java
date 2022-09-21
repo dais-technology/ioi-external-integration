@@ -375,15 +375,15 @@ public class JMAddQuoteHelperImpl
             item.setItemValue(
                   Integer.parseInt( getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemValue() ).getAnswer(), "" ).toString() )
             );
-            item.setItemDamage(
+          /*  item.setItemDamage(
                   getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemDamage() ).getAnswer(), "" ).toString()
             );
             item.setItemPossession(
                   getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemPossession() ).getAnswer(), "" ).toString()
-            );
+            );*/
             // Remove after questions answered
-            item.setItemDamage( "no" );
-         //   item.setItemPossession( "yes" );
+           // item.setItemDamage( "no" );
+            //   item.setItemPossession( "yes" );
             //
             AddQuoteRequest.PrimaryWearer primaryWearer = new AddQuoteRequest.PrimaryWearer();
 
