@@ -1,0 +1,121 @@
+{
+  "quoteId": "05b9e9c3-0e60-4f1f-acfd-aa9e22c94872",
+  "statusCode": 200,
+  "isUnderwritingNeeded": true,
+  "isCoverageAvailable": true,
+  "errorMessages": [],
+  "ratingInfo": {
+    "totalPremium": 43,
+    "totalTaxesAndSurcharges": 0,
+    "discount": 2,
+    "minimumPremium": 25,
+    "minimumTaxesAndSurcharges": 0,
+    "itemRateDetails": [
+      {
+        "itemNumber": 1,
+        "rateOptions": [
+          {
+            "deductible": 0,
+            "rateBreakdown": [
+              {
+                "rateType": "PremiumAmount",
+                "rateValue": 43
+              },
+              {
+                "rateType": "TaxesAndSurcharges",
+                "rateValue": 0
+              }
+            ]
+          },
+          {
+            "deductible": 100,
+            "rateBreakdown": [
+              {
+                "rateType": "PremiumAmount",
+                "rateValue": 40
+              },
+              {
+                "rateType": "TaxesAndSurcharges",
+                "rateValue": 0
+              }
+            ]
+          },
+          {
+            "deductible": 250,
+            "rateBreakdown": [
+              {
+                "rateType": "PremiumAmount",
+                "rateValue": 38
+              },
+              {
+                "rateType": "TaxesAndSurcharges",
+                "rateValue": 0
+              }
+            ]
+          },
+          {
+            "deductible": 500,
+            "rateBreakdown": [
+              {
+                "rateType": "PremiumAmount",
+                "rateValue": 37
+              },
+              {
+                "rateType": "TaxesAndSurcharges",
+                "rateValue": 0
+              }
+            ]
+          },
+          {
+            "deductible": 1000,
+            "rateBreakdown": [
+              {
+                "rateType": "PremiumAmount",
+                "rateValue": 35
+              },
+              {
+                "rateType": "TaxesAndSurcharges",
+                "rateValue": 0
+              }
+            ]
+          },
+          {
+            "deductible": 2500,
+            "rateBreakdown": [
+              {
+                "rateType": "PremiumAmount",
+                "rateValue": 33
+              },
+              {
+                "rateType": "TaxesAndSurcharges",
+                "rateValue": 0
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "paymentPlans": [
+    {
+      "downPaymentAmount": 43,
+      "installmentAmount": 0,
+      "serviceFee": 0,
+      "downPaymentTax": 0,
+      "installmentTax": 0,
+      "name": "Annual Pay",
+      "numberOfInstallments": 1,
+      "schedules": [
+        {
+          "paymentDueDate": "2022-10-10T05:00:00Z",
+          "isDownPayment": true,
+          "totalAmount": 43,
+          "downPaymentAmount": 43,
+          "installmentAmount": 0,
+          "installmentFee": 0,
+          "taxesSurcharges": 0
+        }
+      ]
+    }
+  ]
+}

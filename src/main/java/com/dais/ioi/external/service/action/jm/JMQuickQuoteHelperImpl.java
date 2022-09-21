@@ -117,7 +117,8 @@ public class JMQuickQuoteHelperImpl
         PubPremiumDto.PubPremiumDtoBuilder premiumBuilder = PubPremiumDto.builder();
 
         final NormalizedPremium normalizedPremium = new NormalizedPremium( quickQuoteResult.getTotalPremiumWithTaxes(),
-                                                                           quickQuoteResult.getTotalTaxesAndSurcharges() );
+                                                                           quickQuoteResult.getTotalTaxesAndSurcharges(),
+                                                                           0d );
 
         premiumBuilder.amount( normalizedPremium.getPremiumWithoutTaxesOrSurcharges() );
 
@@ -212,8 +213,7 @@ public class JMQuickQuoteHelperImpl
         {
             PubCoverageDto.PubCoverageDtoBuilder pubCoverageBuilder = PubCoverageDto.builder();
 
-            final NormalizedPremium normalizedPremium = new NormalizedPremium( ratingInfo.getItemPremiumWithTaxes(),
-                                                                               ratingInfo.getItemTaxesAndSurcharges() );
+            final NormalizedPremium normalizedPremium = new NormalizedPremium( ratingInfo );
 
             pubCoverageBuilder.premium( normalizedPremium.getPremiumWithoutTaxesOrSurcharges() );
             Map<String, List<PubCoverageDetailDto>> details = new HashMap<>();
