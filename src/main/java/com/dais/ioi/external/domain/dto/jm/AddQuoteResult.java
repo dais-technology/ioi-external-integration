@@ -95,6 +95,8 @@ public class AddQuoteResult
 
         public double totalTaxesAndSurcharges;
 
+        public double discount;
+
         public int minimumPremium;
 
         public double minimumTaxesAndSurcharges;

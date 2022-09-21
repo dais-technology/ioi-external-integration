@@ -123,6 +123,7 @@ dependencies {
     compile( 'com.dais:ioi-policy-service-domain:0.0.304' )
 
 
+    testImplementation( "com.dais:test-utils:0.0.6" )
     testImplementation( "com.dais:commons-jwt-spring-testing-utils:0.0.9" )
     testImplementation( "com.nimbusds:nimbus-jose-jwt:6.1.1" )
     testImplementation( "org.junit.jupiter:junit-jupiter:5.4.2" )

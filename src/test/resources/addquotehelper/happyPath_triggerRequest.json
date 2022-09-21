@@ -1,0 +1,312 @@
+{
+  "lineId": "08f8334d-59b5-4508-9c1a-d0b467086cc6",
+  "type": "GET_QUOTES",
+  "source": {
+    "sourceType": "STOREFRONT",
+    "url": "https://ioi-storefront.uat.dais.com/jm-pilot",
+    "organizationId": "3eda8351-f3ad-4476-85eb-3d2b99953e65",
+    "storefrontId": "fd22f599-a5b6-48e3-9c04-dfca4a83fbea"
+  },
+  "agencyCodes": [],
+  "payload": {
+    "clientId": "de97d4ae-09b3-4a39-96e4-a4313acba90d",
+    "externalIntegrationType": "JM_ADDQUOTE",
+    "intake": {
+      "analytics_userBrowserType": {
+        "type": "ANSWER",
+        "answer": "Chrome",
+        "qid": "analytics_userBrowserType"
+      },
+      "analytics_userScreenWidth": {
+        "type": "ANSWER",
+        "answer": 1920,
+        "qid": "analytics_userScreenWidth"
+      },
+      "customerInfoFirstName": {
+        "type": "ANSWER",
+        "answer": "Italo",
+        "qid": "customerInfoFirstName"
+      },
+      "customerInfoLastName": {
+        "type": "ANSWER",
+        "answer": "Johnson",
+        "qid": "customerInfoLastName"
+      },
+      "client.address1": {
+        "type": "ANSWER",
+        "answer": "2025 Springhouse Rd",
+        "qid": "client.address1"
+      },
+      "customerInfoPrimaryApt": {
+        "type": "ANSWER",
+        "answer": "",
+        "qid": "customerInfoPrimaryApt"
+      },
+      "client.city": {
+        "type": "ANSWER",
+        "answer": "Broomall",
+        "qid": "client.city"
+      },
+      "client.state": {
+        "type": "ANSWER",
+        "answer": "PA",
+        "qid": "client.state"
+      },
+      "client.zipcode": {
+        "type": "ANSWER",
+        "answer": "19008-3202",
+        "qid": "client.zipcode"
+      },
+      "customerInfoPrimaryDOB": {
+        "type": "ANSWER",
+        "answer": "1990-04-04T10:56:33-04:00",
+        "qid": "customerInfoPrimaryDOB"
+      },
+      "customerInfoPreviousQuoteYesNo": {
+        "type": "ANSWER",
+        "answer": "NO",
+        "qid": "customerInfoPreviousQuoteYesNo"
+      },
+      "CommercialStructure_PhysicalAddress_CountyName_A": {
+        "type": "ANSWER",
+        "answer": "Delaware",
+        "qid": "CommercialStructure_PhysicalAddress_CountyName_A"
+      },
+      "customerInfoCountry": {
+        "type": "ANSWER",
+        "answer": "US",
+        "qid": "customerInfoCountry"
+      },
+      "dateOfLastQuote": {
+        "type": "ANSWER",
+        "answer": "09/21/2022",
+        "qid": "dateOfLastQuote"
+      },
+      "selectedPremiums": {
+        "type": "ANSWER",
+        "answer": "[0]",
+        "qid": "selectedPremiums"
+      },
+      "NamedInsured_MailingAddress_CityName_A": {
+        "type": "ANSWER",
+        "answer": "",
+        "qid": "NamedInsured_MailingAddress_CityName_A"
+      },
+      "NamedInsured_MailingAddress_StateOrProvinceCode_A": {
+        "type": "ANSWER",
+        "answer": "",
+        "qid": "NamedInsured_MailingAddress_StateOrProvinceCode_A"
+      },
+      "client.phoneNumber": {
+        "type": "ANSWER",
+        "answer": "8888888888",
+        "qid": "client.phoneNumber"
+      },
+      "customerInfoPrimaryEmail": {
+        "type": "ANSWER",
+        "answer": "jsakdfshjdfjsdk@apptest.jminsure.com",
+        "qid": "customerInfoPrimaryEmail"
+      },
+      "conviction": {
+        "type": "ANSWER",
+        "answer": "No",
+        "qid": "conviction"
+      },
+      "lostTheftDamage": {
+        "type": "ANSWER",
+        "answer": "NO",
+        "qid": "lostTheftDamage"
+      },
+      "customerMailingAddress": {
+        "type": "ANSWER",
+        "answer": "[\"Is this your Mailing Address?\"]",
+        "qid": "customerMailingAddress"
+      },
+      "existingDamage": {
+        "type": "ANSWER",
+        "answer": "NO",
+        "qid": "existingDamage"
+      },
+      "possessionOfItems": {
+        "type": "ANSWER",
+        "answer": "Yes",
+        "qid": "possessionOfItems"
+      },
+      "jewelryDetailsAlarmSecurity": {
+        "type": "ANSWER",
+        "answer": "2",
+        "qid": "jewelryDetailsAlarmSecurity"
+      },
+      "additionalUnderwriting": {
+        "type": "ANSWER",
+        "answer": "No",
+        "qid": "additionalUnderwriting"
+      },
+      "policy.date.effective": {
+        "type": "ANSWER",
+        "answer": "2022-09-30T10:57:09-04:00",
+        "qid": "policy.date.effective"
+      },
+      "CanceledOrDeniedCoverage": {
+        "qid": "CanceledOrDeniedCoverage",
+        "type": "ANSWER",
+        "answer": "no"
+      },
+      "LostWithin7Years": {
+        "qid": "LostWithin7Years",
+        "type": "ANSWER",
+        "answer": "0"
+      },
+      "FelonyConviction": {
+        "qid": "FelonyConviction",
+        "type": "ANSWER",
+        "answer": "no"
+      },
+      "MisdemeanorConviction": {
+        "qid": "MisdemeanorConviction",
+        "type": "ANSWER",
+        "answer": "no"
+      },
+      "CrimeForProfit": {
+        "qid": "CrimeForProfit",
+        "type": "ANSWER",
+        "answer": "no"
+      },
+      "customerStoreJewInSafeDepBox": {
+        "type": "ANSWER",
+        "answer": "No",
+        "qid": "customerStoreJewInSafeDepBox"
+      },
+      "customerLivesWithGatedEntrence": {
+        "type": "ANSWER",
+        "answer": "No",
+        "qid": "customerLivesWithGatedEntrence"
+      },
+      "customerEmployDomesticHelp": {
+        "type": "ANSWER",
+        "answer": "No",
+        "qid": "customerEmployDomesticHelp"
+      },
+      "customerAnyOtherPersonResideAtYourHome": {
+        "type": "ANSWER",
+        "answer": "No",
+        "qid": "customerAnyOtherPersonResideAtYourHome"
+      },
+      "customerHowOftenJewWorkn": {
+        "type": "ANSWER",
+        "answer": "Daily",
+        "qid": "customerHowOftenJewWorkn"
+      },
+      "customerJewStoredWhenNotWorn": {
+        "type": "ANSWER",
+        "answer": "It is never taken off",
+        "qid": "customerJewStoredWhenNotWorn"
+      },
+      "customerTravelOvernight": {
+        "type": "ANSWER",
+        "answer": "Never",
+        "qid": "customerTravelOvernight"
+      },
+      "jewelryItems": {
+        "type": "LOOP",
+        "qid": "jewelryItems",
+        "iterations": [
+          {
+            "iterationId": "0fc7fcc1-dddb-4171-ab66-45d63410087d",
+            "answers": {
+              "customerInfoFirstName": {
+                "qid": "customerInfoFirstName",
+                "type": "ANSWER",
+                "answer": "Italo"
+              },
+              "customerInfoLastName": {
+                "qid": "customerInfoLastName",
+                "type": "ANSWER",
+                "answer": "Johnson"
+              },
+              "customerInfoPrimaryDOB": {
+                "qid": "customerInfoPrimaryDOB",
+                "type": "ANSWER",
+                "answer": "1990-04-04T10:56:33-04:00"
+              },
+              "customerInfoPrimaryEmail": {
+                "qid": "customerInfoPrimaryEmail",
+                "type": "ANSWER",
+                "answer": "jsakdfshjdfjsdk@apptest.jminsure.com"
+              },
+              "jewelryType": {
+                "type": "ANSWER",
+                "answer": "Brooch",
+                "qid": "jewelryType"
+              },
+              "jewelryValue": {
+                "type": "ANSWER",
+                "answer": "3000",
+                "qid": "jewelryValue"
+              },
+              "client.phoneNumber": {
+                "qid": "client.phoneNumber",
+                "type": "ANSWER",
+                "answer": "8888888888"
+              },
+              "client.address1": {
+                "qid": "client.address1",
+                "type": "ANSWER",
+                "answer": "2025 Springhouse Rd"
+              },
+              "client.city": {
+                "qid": "client.city",
+                "type": "ANSWER",
+                "answer": "Broomall"
+              },
+              "customerInfoCountry": {
+                "qid": "customerInfoCountry",
+                "type": "ANSWER",
+                "answer": "US"
+              },
+              "client.zipcode": {
+                "qid": "client.zipcode",
+                "type": "ANSWER",
+                "answer": "19008-3202"
+              },
+              "CommercialStructure_PhysicalAddress_CountyName_A": {
+                "qid": "CommercialStructure_PhysicalAddress_CountyName_A",
+                "type": "ANSWER",
+                "answer": "Delaware"
+              },
+              "client.state": {
+                "qid": "client.state",
+                "type": "ANSWER",
+                "answer": "PA"
+              },
+              "deductible": {
+                "qid": "deductible",
+                "type": "ANSWER",
+                "answer": "0"
+              },
+              "possessionOfItems": {
+                "qid": "possessionOfItems",
+                "type": "ANSWER",
+                "answer": "Yes"
+              }
+            }
+          }
+        ]
+      },
+      "existingDamageYes": {
+        "qid": "existingDamageYes",
+        "type": "ANSWER"
+      },
+      "possessionOfItemsNoShippedFromJeweler": {
+        "qid": "possessionOfItemsNoShippedFromJeweler",
+        "type": "ANSWER"
+      },
+      "possessionOfItemsNo": {
+        "qid": "possessionOfItemsNo",
+        "type": "ANSWER"
+      }
+    },
+    "effectiveDate": "2022-09-22"
+  },
+  "triggerRequestId": "c5213585-ea28-4ce2-bf76-f9c402aa7489"
+}

@@ -19,11 +19,11 @@ import com.dais.ioi.quote.domain.dto.pub.PubCoverageDto;
 import com.dais.ioi.quote.domain.dto.pub.PubCoveragesDto;
 import com.dais.ioi.quote.domain.dto.pub.PubExternalDataDto;
 import com.dais.ioi.quote.domain.dto.pub.PubPremiumDto;
+import com.dais.ioi.quote.domain.dto.pub.PubPremiumTaxesDto;
 import com.dais.ioi.quote.domain.dto.pub.PubQuoteDetailsDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -52,11 +52,16 @@ public class JMAddQuoteHelperImpl
 {
     public static final DateTimeFormatter EFFECTIVE_DATE_FORMAT = DateTimeFormatter.ofPattern( "yyyy-MM-dd" );
 
-    @Autowired
-    JMQuoteClient jmQuoteClient;
+    private final JMQuoteClient jmQuoteClient;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
+
+    public JMAddQuoteHelperImpl( @Autowired final JMQuoteClient jmQuoteClient,
+                                 @Autowired final ObjectMapper objectMapper)
+    {
+        this.jmQuoteClient = jmQuoteClient;
+        this.objectMapper = objectMapper;
+    }
 
 
     public TriggerResponseDto processAddQuote( FiredTriggerDto firedTriggerDto,
@@ -181,10 +186,16 @@ public class JMAddQuoteHelperImpl
 
         PubPremiumDto.PubPremiumDtoBuilder premiumBuilder = PubPremiumDto.builder();
 
-        final NormalizedPremium normalizedPremium = new NormalizedPremium( addQuoteResult.ratingInfo.getTotalPremium(),
-                                                                           addQuoteResult.ratingInfo.getTotalTaxesAndSurcharges() );
+        final NormalizedPremium normalizedPremium = new NormalizedPremium( addQuoteResult.ratingInfo );
 
-        premiumBuilder.amount( normalizedPremium.getPremiumWithoutTaxesOrSurcharges() );
+        premiumBuilder.amount( normalizedPremium.getPremiumOnly() );
+
+        premiumBuilder.taxesAndFees( Arrays.asList( PubPremiumTaxesDto.builder()
+                                                                      .amount( normalizedPremium.getTotalTaxesAndSurcharges() )
+                                                                      .type( "Taxes and Surcharges" ).build(),
+                                                    PubPremiumTaxesDto.builder()
+                                                                      .amount( normalizedPremium.getDiscount() )
+                                                                      .type( "Discount" ).build() ) );
 
         quoteDetails.getPremium().setAmount(  BigDecimal.valueOf( updQuoteResult.getPaymentPlans().get( 0 ).getDownPaymentAmount() ).setScale( 2, RoundingMode.HALF_EVEN )    );
 
@@ -477,10 +488,16 @@ public class JMAddQuoteHelperImpl
 
         PubPremiumDto.PubPremiumDtoBuilder premiumBuilder = PubPremiumDto.builder();
 
-        final NormalizedPremium normalizedPremium = new NormalizedPremium( addQuoteResult.ratingInfo.getTotalPremium(),
-                                                                           addQuoteResult.ratingInfo.getTotalTaxesAndSurcharges() );
+        final NormalizedPremium normalizedPremium = new NormalizedPremium( addQuoteResult.ratingInfo );
 
-        premiumBuilder.amount( normalizedPremium.getPremiumWithoutTaxesOrSurcharges() ); // with or without? need to add taxes somewhere?
+        premiumBuilder.amount( normalizedPremium.getPremiumOnly() );
+
+        premiumBuilder.taxesAndFees( Arrays.asList( PubPremiumTaxesDto.builder()
+                                                                      .amount( normalizedPremium.getTotalTaxesAndSurcharges() )
+                                                                      .type( "Taxes and Surcharges" ).build(),
+                                                    PubPremiumTaxesDto.builder()
+                                                                      .amount( normalizedPremium.getDiscount() )
+                                                                      .type( "Discount" ).build() ) );
 
         quoteBuilder.premium( premiumBuilder.build() );
 

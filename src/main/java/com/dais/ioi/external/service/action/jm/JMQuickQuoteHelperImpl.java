@@ -212,8 +212,7 @@ public class JMQuickQuoteHelperImpl
         {
             PubCoverageDto.PubCoverageDtoBuilder pubCoverageBuilder = PubCoverageDto.builder();
 
-            final NormalizedPremium normalizedPremium = new NormalizedPremium( ratingInfo.getItemPremiumWithTaxes(),
-                                                                               ratingInfo.getItemTaxesAndSurcharges() );
+            final NormalizedPremium normalizedPremium = new NormalizedPremium( ratingInfo );
 
             pubCoverageBuilder.premium( normalizedPremium.getPremiumWithoutTaxesOrSurcharges() );
             Map<String, List<PubCoverageDetailDto>> details = new HashMap<>();
