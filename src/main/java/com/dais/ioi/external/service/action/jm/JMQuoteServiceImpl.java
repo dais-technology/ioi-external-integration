@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 
 import static com.dais.ioi.external.service.action.jm.JMAuth.getAuth;
+import static com.dais.ioi.external.service.action.jm.JMUtils.getValue;
 
 
 @Service
@@ -64,6 +65,12 @@ public class JMQuoteServiceImpl
             if ( externalQuoteId != null && !externalQuoteId.equalsIgnoreCase( "" )) {
 
                 return triggerResponseDto;
+            }
+
+           if ( getValue (() -> triggerResponseDto.getMetadata().get( "isCoverageAvailable" ).toString(), "true" ).equalsIgnoreCase( "false" ) ) {
+
+                return triggerResponseDto;
+
             }
 
 
