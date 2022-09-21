@@ -117,7 +117,8 @@ public class JMQuickQuoteHelperImpl
         PubPremiumDto.PubPremiumDtoBuilder premiumBuilder = PubPremiumDto.builder();
 
         final NormalizedPremium normalizedPremium = new NormalizedPremium( quickQuoteResult.getTotalPremiumWithTaxes(),
-                                                                           quickQuoteResult.getTotalTaxesAndSurcharges() );
+                                                                           quickQuoteResult.getTotalTaxesAndSurcharges(),
+                                                                           0d );
 
         premiumBuilder.amount( normalizedPremium.getPremiumWithoutTaxesOrSurcharges() );
 

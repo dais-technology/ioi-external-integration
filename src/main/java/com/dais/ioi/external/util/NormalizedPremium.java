@@ -38,9 +38,10 @@ public class NormalizedPremium
     }
 
     public NormalizedPremium( final double premiumWithTaxesAndSurcharges,
-                              final double totalTaxesAndSurcharges )
+                              final double totalTaxesAndSurcharges,
+                              final double discount )
     {
-        this(premiumWithTaxesAndSurcharges, totalTaxesAndSurcharges, 0, RoundingMode.HALF_EVEN );
+        this(premiumWithTaxesAndSurcharges, totalTaxesAndSurcharges, discount, RoundingMode.HALF_EVEN );
     }
 
     public NormalizedPremium( final double premiumWithTaxesAndSurcharges,
