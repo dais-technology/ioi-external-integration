@@ -187,24 +187,6 @@ public class JMAddQuoteHelperImpl
 
         PubQuoteDetailsDto quoteDetails = getQuoteDetails( addQuoteResult );
 
-        PubPremiumDto.PubPremiumDtoBuilder premiumBuilder = PubPremiumDto.builder();
-
-        final NormalizedPremium normalizedPremium = new NormalizedPremium( addQuoteResult.ratingInfo );
-
-        premiumBuilder.amount( normalizedPremium.getPremiumOnly() );
-
-        premiumBuilder.taxesAndFees( Arrays.asList( PubPremiumTaxesDto.builder()
-                                                                      .amount( normalizedPremium.getTotalTaxesAndSurcharges() )
-                                                                      .type( "Taxes and Surcharges" ).build(),
-                                                    PubPremiumTaxesDto.builder()
-                                                                      .amount( normalizedPremium.getDiscount() )
-                                                                      .type( "Discount" ).build() ) );
-
-        quoteDetails.setPremium( premiumBuilder.build() );
-        // Do we want this value?
-//        quoteDetails.getPremium().setAmount(  BigDecimal.valueOf( updQuoteResult.getPaymentPlans().get( 0 ).getDownPaymentAmount() ).setScale( 2, RoundingMode.HALF_EVEN )    );
-
-
         TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
 
         HashMap<String, Object> metaDatamap = new HashMap<>();
