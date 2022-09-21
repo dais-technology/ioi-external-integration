@@ -32,7 +32,6 @@
   "primaryWearerEmail": "customerInfoPrimaryEmail",
   "primaryContactEmail": "customerInfoPrimaryEmail",
   "primaryWearerGender": "primaryWearerGender",
-  "hasPaperlessDelivery": "hasPaperlessDelivery",
   "primaryContactGender": "primaryContactGender",
   "misdemeanorConviction": "MisdemeanorConviction",
   "primaryWearerLastName": "customerInfoLastName",

@@ -1,0 +1,290 @@
+{
+  "triggerRequestId": "c5213585-ea28-4ce2-bf76-f9c402aa7489",
+  "executedActionCount": 0,
+  "expectedResponseCount": 0,
+  "metadata": {
+    "c5213585-ea28-4ce2-bf76-f9c402aa7489": {
+      "requestId": "c5213585-ea28-4ce2-bf76-f9c402aa7489",
+      "quoteTimestamp": "2022-09-21T14:12:37.132-05:00",
+      "quoteDetails": {
+        "premium": {
+          "amount": 45.00,
+          "per": null,
+          "taxesAndFees": [
+            {
+              "type": "Taxes and Surcharges",
+              "amount": 0.00
+            },
+            {
+              "type": "Discount",
+              "amount": -2.00
+            }
+          ]
+        },
+        "coverageTypes": [
+          {
+            "type": "todo",
+            "coverages": [
+              {
+                "metadata": null,
+                "location": null,
+                "premium": 43.00,
+                "details": {
+                  "itemId": [
+                    {
+                      "amount": "1",
+                      "amountType": "TEXT",
+                      "description": null,
+                      "scope": null,
+                      "scopeLabel": null
+                    }
+                  ],
+                  "itemTaxesAndSurcharges": [
+                    {
+                      "amount": "0.0",
+                      "amountType": "DOLLAR",
+                      "description": null,
+                      "scope": null,
+                      "scopeLabel": null
+                    }
+                  ],
+                  "deductible": [
+                    {
+                      "amount": "0",
+                      "amountType": "DOLLAR",
+                      "description": null,
+                      "scope": null,
+                      "scopeLabel": null
+                    }
+                  ]
+                },
+                "adjustments": null
+              },
+              {
+                "metadata": null,
+                "location": null,
+                "premium": 40.00,
+                "details": {
+                  "itemId": [
+                    {
+                      "amount": "1",
+                      "amountType": "TEXT",
+                      "description": null,
+                      "scope": null,
+                      "scopeLabel": null
+                    }
+                  ],
+                  "itemTaxesAndSurcharges": [
+                    {
+                      "amount": "0.0",
+                      "amountType": "DOLLAR",
+                      "description": null,
+                      "scope": null,
+                      "scopeLabel": null
+                    }
+                  ],
+                  "deductible": [
+                    {
+                      "amount": "100",
+                      "amountType": "DOLLAR",
+                      "description": null,
+                      "scope": null,
+                      "scopeLabel": null
+                    }
+                  ]
+                },
+                "adjustments": null
+              },
+              {
+                "metadata": null,
+                "location": null,
+                "premium": 38.00,
+                "details": {
+                  "itemId": [
+                    {
+                      "amount": "1",
+                      "amountType": "TEXT",
+                      "description": null,
+                      "scope": null,
+                      "scopeLabel": null
+                    }
+                  ],
+                  "itemTaxesAndSurcharges": [
+                    {
+                      "amount": "0.0",
+                      "amountType": "DOLLAR",
+                      "description": null,
+                      "scope": null,
+                      "scopeLabel": null
+                    }
+                  ],
+                  "deductible": [
+                    {
+                      "amount": "250",
+                      "amountType": "DOLLAR",
+                      "description": null,
+                      "scope": null,
+                      "scopeLabel": null
+                    }
+                  ]
+                },
+                "adjustments": null
+              },
+              {
+                "metadata": null,
+                "location": null,
+                "premium": 37.00,
+                "details": {
+                  "itemId": [
+                    {
+                      "amount": "1",
+                      "amountType": "TEXT",
+                      "description": null,
+                      "scope": null,
+                      "scopeLabel": null
+                    }
+                  ],
+                  "itemTaxesAndSurcharges": [
+                    {
+                      "amount": "0.0",
+                      "amountType": "DOLLAR",
+                      "description": null,
+                      "scope": null,
+                      "scopeLabel": null
+                    }
+                  ],
+                  "deductible": [
+                    {
+                      "amount": "500",
+                      "amountType": "DOLLAR",
+                      "description": null,
+                      "scope": null,
+                      "scopeLabel": null
+                    }
+                  ]
+                },
+                "adjustments": null
+              },
+              {
+                "metadata": null,
+                "location": null,
+                "premium": 35.00,
+                "details": {
+                  "itemId": [
+                    {
+                      "amount": "1",
+                      "amountType": "TEXT",
+                      "description": null,
+                      "scope": null,
+                      "scopeLabel": null
+                    }
+                  ],
+                  "itemTaxesAndSurcharges": [
+                    {
+                      "amount": "0.0",
+                      "amountType": "DOLLAR",
+                      "description": null,
+                      "scope": null,
+                      "scopeLabel": null
+                    }
+                  ],
+                  "deductible": [
+                    {
+                      "amount": "1000",
+                      "amountType": "DOLLAR",
+                      "description": null,
+                      "scope": null,
+                      "scopeLabel": null
+                    }
+                  ]
+                },
+                "adjustments": null
+              },
+              {
+                "metadata": null,
+                "location": null,
+                "premium": 33.00,
+                "details": {
+                  "itemId": [
+                    {
+                      "amount": "1",
+                      "amountType": "TEXT",
+                      "description": null,
+                      "scope": null,
+                      "scopeLabel": null
+                    }
+                  ],
+                  "itemTaxesAndSurcharges": [
+                    {
+                      "amount": "0.0",
+                      "amountType": "DOLLAR",
+                      "description": null,
+                      "scope": null,
+                      "scopeLabel": null
+                    }
+                  ],
+                  "deductible": [
+                    {
+                      "amount": "2500",
+                      "amountType": "DOLLAR",
+                      "description": null,
+                      "scope": null,
+                      "scopeLabel": null
+                    }
+                  ]
+                },
+                "adjustments": null
+              }
+            ]
+          }
+        ],
+        "externalData": {
+          "directQuoteUrl": null,
+          "externalQuoteId": "05b9e9c3-0e60-4f1f-acfd-aa9e22c94872",
+          "content": null
+        }
+      },
+      "bindable": true,
+      "effectiveDate": "2022-09-30",
+      "type": "QUOTE",
+      "source": {
+        "sourceType": "STOREFRONT",
+        "url": "https://ioi-storefront.uat.dais.com/jm-pilot",
+        "organizationId": "3eda8351-f3ad-4476-85eb-3d2b99953e65",
+        "storefrontId": "fd22f599-a5b6-48e3-9c04-dfca4a83fbea",
+        "personId": null
+      },
+      "clientId": "de97d4ae-09b3-4a39-96e4-a4313acba90d",
+      "clientOrganizationId": "3eda8351-f3ad-4476-85eb-3d2b99953e65",
+      "metadata": {
+        "ratePlans": [
+          {
+            "downPaymentAmount": 43.0,
+            "installmentAmount": 0,
+            "serviceFee": 0,
+            "downPaymentTax": 0.0,
+            "installmentTax": 0,
+            "name": "Annual Pay",
+            "numberOfInstallments": 1,
+            "schedules": [
+              {
+                "paymentDueDate": "2022-10-10T05:00:00.000+00:00",
+                "isDownPayment": true,
+                "totalAmount": 43.0,
+                "downPaymentAmount": 43,
+                "installmentAmount": 0,
+                "installmentFee": 0,
+                "taxesSurcharges": 0.0,
+                "downPayment": true
+              }
+            ]
+          }
+        ],
+        "isCoverageAvailable": true,
+        "isUnderwritingNeeded": true
+      },
+      "rawQuoteRequest": {},
+      "rawQuoteDetails": {}
+    }
+  }
+}

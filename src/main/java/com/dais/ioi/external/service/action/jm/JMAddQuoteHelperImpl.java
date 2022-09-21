@@ -200,7 +200,9 @@ public class JMAddQuoteHelperImpl
                                                                       .amount( normalizedPremium.getDiscount() )
                                                                       .type( "Discount" ).build() ) );
 
-        quoteDetails.getPremium().setAmount(  BigDecimal.valueOf( updQuoteResult.getPaymentPlans().get( 0 ).getDownPaymentAmount() ).setScale( 2, RoundingMode.HALF_EVEN )    );
+        quoteDetails.setPremium( premiumBuilder.build() );
+        // Do we want this value?
+//        quoteDetails.getPremium().setAmount(  BigDecimal.valueOf( updQuoteResult.getPaymentPlans().get( 0 ).getDownPaymentAmount() ).setScale( 2, RoundingMode.HALF_EVEN )    );
 
 
         TriggerResponseDto triggerResponseDto = new TriggerResponseDto();

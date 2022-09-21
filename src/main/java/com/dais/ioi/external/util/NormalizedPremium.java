@@ -52,6 +52,6 @@ public class NormalizedPremium
         this.totalTaxesAndSurcharges = new BigDecimal( totalTaxesAndSurcharges ).setScale( 2, roundingMode );
         this.discount = new BigDecimal( -discount ).setScale( 2, roundingMode );
         this.premiumWithoutTaxesOrSurcharges = this.premiumWithTaxesAndSurcharges.subtract( this.totalTaxesAndSurcharges ).setScale( 2, roundingMode );
-        this.premiumOnly = this.premiumWithoutTaxesOrSurcharges.add( this.discount );
+        this.premiumOnly = this.premiumWithoutTaxesOrSurcharges.subtract( this.discount );
     }
 }
