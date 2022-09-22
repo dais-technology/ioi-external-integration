@@ -479,6 +479,10 @@ public class JMAddQuoteHelperImpl
         else {
             producerCode = customerInfoReferralSource;
         }
+
+        if (producerCode.equalsIgnoreCase( "" )) {
+            producerCode = "DIRD";
+        }
         addQuoteRequest.setProducerCode( producerCode);
 
     }
