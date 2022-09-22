@@ -58,29 +58,32 @@ public class FeignClientsConfig
 
         return template -> {
             // Only copy over auth headers if the target address is a dais.com service
-            if ( isSendingToDaisAddress( template.path() ) )
+            RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+            if ( requestAttributes instanceof ServletRequestAttributes )
             {
-                RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-                if ( requestAttributes instanceof ServletRequestAttributes )
+                HttpServletRequest requestServlet = ( (ServletRequestAttributes) requestAttributes ).getRequest();
+                for ( String header : reqHeaders )
                 {
-                    HttpServletRequest requestServlet = ( (ServletRequestAttributes) requestAttributes ).getRequest();
-                    for ( String header : reqHeaders )
+                    if ( !template.headers().containsKey( header ) && requestServlet.getHeader( header ) != null )
                     {
-                        if ( !template.headers().containsKey( header ) && requestServlet.getHeader( header ) != null )
+                        /**
+                         * NOTE: This is not entirely reliable as it will remove any Basic auth header.
+                         * Ideally we would check if the outgoing calls are to a dais.com host.
+                         * Unfortunately the template does not contain host information for internal calls.
+                         * We may be able to check for no-host-info to identify Dais calls and only forward auth headers then.
+                         * It is not yet known if any non-Dais calls would similarly have non-host data.
+                         * So that may be just as unreliable just in a different way.
+                         */
+                        if ( requestServlet.getHeader( header ).startsWith( "Basic " ) )
                         {
-                            template.header( header, requestServlet.getHeader( header ) );
+                            log.info( "Header(%s) starts with 'Basic ' and is being skipped..." );
+                            continue;
                         }
+
+                        template.header( header, requestServlet.getHeader( header ) );
                     }
                 }
             }
         };
-    }
-
-
-    private Boolean isSendingToDaisAddress( final String path )
-    {
-        final boolean isDaisAddress = path.toLowerCase().contains( ".dais.com" );
-        log.info( String.format( "Feign interceptor target path: %s [isDaisAddress? %s]", path, isDaisAddress ) );
-        return isDaisAddress;
     }
 }
