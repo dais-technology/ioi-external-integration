@@ -230,7 +230,7 @@ public class JMAddQuoteHelperImpl
     {
         AddQuoteRequest addQuoteRequest = AddQuoteRequest.builder().build();
 
-        addQuoteRequest.setProducerCode( "DIRD" );
+        addProducerCode(addQuoteRequest,actionJMSQuoteSpecDto,intake);
 
         AddQuoteRequest.PrimaryContact primaryContact = new AddQuoteRequest.PrimaryContact();
         AddQuoteRequest.ResidentialAddress residentialAddress = new AddQuoteRequest.ResidentialAddress();
@@ -467,6 +467,23 @@ public class JMAddQuoteHelperImpl
         selectedPlan.setNumberOfInstallments( installments );
         addQuoteRequest.setSelectedPaymentPlan( selectedPlan );
     }
+    private void addProducerCode( AddQuoteRequest addQuoteRequest, ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,  LinkedHashMap<String, ClientAnswerDto> intake ) {
+
+        String producerCode = "";
+
+        String customerInfoReferralSource =  getValue( () -> intake.get( actionJMSQuoteSpecDto.getCustomerInfoReferralSource() ).getAnswer(), "" );
+
+        if ( customerInfoReferralSource.equalsIgnoreCase( "Agency Express" )) {
+            producerCode =  getValue( () -> intake.get( actionJMSQuoteSpecDto.getCustomerInfoAgencyExpressOptions() ).getAnswer(), "" );
+        }
+        else {
+            producerCode = customerInfoReferralSource;
+        }
+        addQuoteRequest.setProducerCode( producerCode);
+
+    }
+
+
 
 
     private PubQuoteDetailsDto getQuoteDetails( AddQuoteResult addQuoteResult )
