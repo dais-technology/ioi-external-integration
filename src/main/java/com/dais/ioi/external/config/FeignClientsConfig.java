@@ -63,25 +63,22 @@ public class FeignClientsConfig
                 HttpServletRequest requestServlet = ( (ServletRequestAttributes) requestAttributes ).getRequest();
                 for ( String header : reqHeaders )
                 {
-                    /**
-                     * NOTE: This is not entirely reliable as it will remove any Basic auth header.
-                     * Ideally we would check if the outgoing calls are to a dais.com host.
-                     * Unfortunately the template does not contain host information for internal calls.
-                     * We may be able to check for no-host-info to identify Dais calls and only forward auth headers then.
-                     * It is not yet known if any non-Dais calls would similarly have non-host data.
-                     * So that may be just as unreliable just in a different way.
-                     */
-                    // NOTE: This will not work if we ever use feign for another call that has basic auth
-                    // However, on the server, the template does NOT contain the host info for Dais feign calls
-                    // So we cannot reliably look
-                    if ( requestServlet.getHeader( header ).startsWith( "Basic " ) )
-                    {
-                        log.info( "Header(%s) starts with 'Basic ' and is being skipped..." );
-                        continue;
-                    }
-
                     if ( !template.headers().containsKey( header ) && requestServlet.getHeader( header ) != null )
                     {
+                        /**
+                         * NOTE: This is not entirely reliable as it will remove any Basic auth header.
+                         * Ideally we would check if the outgoing calls are to a dais.com host.
+                         * Unfortunately the template does not contain host information for internal calls.
+                         * We may be able to check for no-host-info to identify Dais calls and only forward auth headers then.
+                         * It is not yet known if any non-Dais calls would similarly have non-host data.
+                         * So that may be just as unreliable just in a different way.
+                         */
+                        if ( requestServlet.getHeader( header ).startsWith( "Basic " ) )
+                        {
+                            log.info( "Header(%s) starts with 'Basic ' and is being skipped..." );
+                            continue;
+                        }
+
                         template.header( header, requestServlet.getHeader( header ) );
                     }
                 }
