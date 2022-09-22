@@ -15,8 +15,6 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 
 /**
@@ -81,13 +79,8 @@ public class FeignClientsConfig
 
     private Boolean isSendingToDaisAddress( final String path )
     {
-        try
-        {
-            return new URI( path ).getHost().endsWith( ".dais.com" );
-        }
-        catch ( final URISyntaxException e )
-        {
-            throw new RuntimeException( "Unable to determine if target address is a Dais address!", e );
-        }
+        final boolean isDaisAddress = path.toLowerCase().contains( ".dais.com" );
+        log.info( String.format( "Feign interceptor target path: %s [isDaisAddress? %s]", path, isDaisAddress ) );
+        return isDaisAddress;
     }
 }
