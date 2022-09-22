@@ -53,6 +53,11 @@ public class ActionJMSQuoteSpecDto
     private String itemLoop;
 
     //Add quote fields
+
+    private String customerInfoReferralSource;
+
+    private String customerInfoAgencyExpressOptions;
+
     private String primaryContactFirstName;
 
     private String primaryContactLastName;
