@@ -27,11 +27,11 @@ public class MapperConfig
     {
         mapperFactory = new DefaultMapperFactory.Builder().build();
 
-        mapperFactory.classMap( IntegrationDto.class, IntegrationEntity.class )
-                     .mapNulls( true )
-                     .mapNullsInReverse( true )
-                     .byDefault()
-                     .register();
+//        mapperFactory.classMap( IntegrationDto.class, IntegrationEntity.class )
+//                     .mapNulls( true )
+//                     .mapNullsInReverse( true )
+//                     .byDefault()
+//                     .register();
     }
 
 

@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
+
 
 @Data
 @NoArgsConstructor
@@ -23,5 +25,5 @@ public class HubspotTrackSpec
 
     //TODO: This should be of type Map<String, String>
     //      Need to resolve DB serialization issue
-    private String mappings;
+    private Map<String, String> mappings;
 }
