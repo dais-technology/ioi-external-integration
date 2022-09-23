@@ -130,7 +130,7 @@ public class ActionJMSQuoteSpecDto
 
     private String convictionSentenceCompletionDate;
 
-    private String paperlessDelivery;
+    private String hasPaperlessDelivery;
 
     private String itemDamage;
 
