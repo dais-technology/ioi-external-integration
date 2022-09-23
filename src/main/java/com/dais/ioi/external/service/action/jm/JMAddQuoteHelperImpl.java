@@ -232,6 +232,8 @@ public class JMAddQuoteHelperImpl
 
         addProducerCode(addQuoteRequest,actionJMSQuoteSpecDto,intake);
 
+        addPaperLessOption( addQuoteRequest,actionJMSQuoteSpecDto,intake );
+
         AddQuoteRequest.PrimaryContact primaryContact = new AddQuoteRequest.PrimaryContact();
         AddQuoteRequest.ResidentialAddress residentialAddress = new AddQuoteRequest.ResidentialAddress();
 
@@ -321,7 +323,7 @@ public class JMAddQuoteHelperImpl
         underwritingInfo.getUnderwritingQuestions().add( cancelledCoverage );
 
         AddQuoteRequest.UnderwritingQuestion additionalUnderwriting = new AddQuoteRequest.UnderwritingQuestion();
-        additionalUnderwriting.setKey( actionJMSQuoteSpecDto.getAdditionalUnderwriting() );
+        additionalUnderwriting.setKey( "IsAdditionalUnderwritingNeeded" );
         additionalUnderwriting.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getAdditionalUnderwriting() ).getAnswer(), "" ) );
         underwritingInfo.getUnderwritingQuestions().add( additionalUnderwriting );
 
@@ -484,6 +486,20 @@ public class JMAddQuoteHelperImpl
             producerCode = "DIRD";
         }
         addQuoteRequest.setProducerCode( producerCode);
+
+    }
+
+    private void addPaperLessOption( AddQuoteRequest addQuoteRequest, ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,  LinkedHashMap<String, ClientAnswerDto> intake ) {
+
+        boolean paperlessOption = false;
+
+        String hasPaperlessDelivery =  getValue( () -> intake.get( actionJMSQuoteSpecDto.getHasPaperlessDelivery() ).getAnswer(), "" );
+
+        if ( hasPaperlessDelivery.equalsIgnoreCase( "yes" )) {
+            paperlessOption =  true;
+        }
+
+        addQuoteRequest.setHasPaperlessDelivery( paperlessOption);
 
     }
 
