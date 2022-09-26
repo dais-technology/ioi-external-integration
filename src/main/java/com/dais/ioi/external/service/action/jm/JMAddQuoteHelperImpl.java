@@ -437,14 +437,24 @@ public class JMAddQuoteHelperImpl
         addQuoteRequest.setJeweleryItems( jeweleryItems );
     }
 
-    private void addUserInfo(AddQuoteRequest addQuoteRequest,FiredTriggerDto firedTriggerDto) {
-
+    private void addUserInfo(AddQuoteRequest addQuoteRequest,FiredTriggerDto firedTriggerDto)
+    {
 
         AddQuoteRequest.User userInfo = new AddQuoteRequest.User();
 
-        final  LinkedHashMap<String,String> agentInfoMap = (LinkedHashMap<String, String>) firedTriggerDto.getPayload( ).get( "agent");
+        final LinkedHashMap<String, String> agentInfoMap = (LinkedHashMap<String, String>) firedTriggerDto.getPayload().get( "agent" );
 
-        userInfo.setUserId(   getValue( () -> agentInfoMap.get( "id"), "" ) );
+        String emailString = getValue( () -> agentInfoMap.get( "email" ).toString(), "@" );
+
+        String emailId = "";
+
+        if ( emailString.contains( "@" ) ) {
+            emailId = emailString.substring( 0, emailString.indexOf( "@" ) );
+        }
+        String userId = "JEWELERSNT/" + emailId;
+
+
+        userInfo.setUserId(   userId );
         userInfo.setUserFirstName(    getValue( () -> agentInfoMap.get( "firstName"), "" ) );
         userInfo.setUserLastName( getValue( () -> agentInfoMap.get( "lastName"), "" ) );
         userInfo.setUserEmailAddress (  getValue( () -> agentInfoMap.get( "email"), "" ) );
