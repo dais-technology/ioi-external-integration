@@ -84,8 +84,10 @@ public class JMAddQuoteHelperImpl
 
         addQuoteRequest.setEffectiveDate( effectiveDate.format( EFFECTIVE_DATE_FORMAT ) );
 
+        addUserInfo( addQuoteRequest, firedTriggerDto );
 
-// If the external quote id is sent, its treated as exclusively for upating
+
+// If the external quote id is sent, its treated as exclusively for updating
         if ( externalQuoteId != null && !externalQuoteId.equalsIgnoreCase( "" ))
         {
             URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl());
@@ -150,6 +152,7 @@ public class JMAddQuoteHelperImpl
 
                 metaDatamap.put( "isUnderwritingNeeded" ,addQuoteResult.isUnderwritingNeeded());
                 metaDatamap.put( "isCoverageAvailable" ,addQuoteResult.isCoverageAvailable());
+                metaDatamap.put( "errorMessages", addQuoteResult.getErrorMessages() );
 
                 log.info("setting request Id to " + requestId);
                 triggerResponseDto.setTriggerRequestId( requestId );
@@ -225,33 +228,34 @@ public class JMAddQuoteHelperImpl
 
 
     // Add Quote Methods
-    private AddQuoteRequest createAddQuoteRequest( LinkedHashMap<String, ClientAnswerDto> intake,
+    public AddQuoteRequest createAddQuoteRequest( LinkedHashMap<String, ClientAnswerDto> intake,
                                                    ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
     {
         AddQuoteRequest addQuoteRequest = AddQuoteRequest.builder().build();
 
-        addProducerCode(addQuoteRequest,actionJMSQuoteSpecDto,intake);
+            addProducerCode(addQuoteRequest,actionJMSQuoteSpecDto,intake);
 
-        addPaperLessOption( addQuoteRequest,actionJMSQuoteSpecDto,intake );
+            addPaperLessOption( addQuoteRequest,actionJMSQuoteSpecDto,intake );
 
         AddQuoteRequest.PrimaryContact primaryContact = new AddQuoteRequest.PrimaryContact();
+
         AddQuoteRequest.ResidentialAddress residentialAddress = new AddQuoteRequest.ResidentialAddress();
 
         //Map primary contact
         primaryContact.setFirstName(
-              getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryWearerFirstName() ).getAnswer(), "" )
+              getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactFirstName() ).getAnswer().toString(), "" )
         );
         primaryContact.setLastName(
-              getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactLastName() ).getAnswer(), "" )
+              getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactLastName() ).getAnswer().toString(), "" )
         );
         primaryContact.setDateOfBirth(
-              getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactDob() ).getAnswer(), "" )
+              getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactDob() ).getAnswer().toString(), "" )
         );
         primaryContact.setEmailAddress(
-              getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactEmail() ).getAnswer(), "" )
+              getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactEmail() ).getAnswer().toString(), "" )
         );
         primaryContact.setPhoneNumber(
-              getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactPhoneNumber() ).getAnswer(), "" )
+              getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactPhoneNumber() ).getAnswer().toString(), "" )
         );
         // Map residential address
         residentialAddress.setAddress1(
@@ -282,7 +286,9 @@ public class JMAddQuoteHelperImpl
 
         processUnderWriting( addQuoteRequest, intake, actionJMSQuoteSpecDto );
 
-        processAddQuoteIteration( addQuoteRequest, intake.get( actionJMSQuoteSpecDto.getItemLoop()).getIterations(), actionJMSQuoteSpecDto );
+        List<ClientLoopIterationDto> jewerlyWearers =  intake.get( "jewelryWearers").getIterations();
+
+        processAddQuoteIteration( addQuoteRequest, intake.get( actionJMSQuoteSpecDto.getItemLoop()).getIterations(), actionJMSQuoteSpecDto, jewerlyWearers );
 
         return addQuoteRequest;
     }
@@ -352,7 +358,8 @@ public class JMAddQuoteHelperImpl
 
     private void processAddQuoteIteration( AddQuoteRequest addQuoteRequest,
                                            List<ClientLoopIterationDto> iterations,
-                                           ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
+                                           ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
+                                           List<ClientLoopIterationDto> jewerlyWearers)
     {
         ArrayList<AddQuoteRequest.JeweleryItem> jeweleryItems = new ArrayList<>();
         int itemNumber = 1;
@@ -360,7 +367,6 @@ public class JMAddQuoteHelperImpl
         for ( ClientLoopIterationDto clientLoopIterationDto : iterations )
         {
             AddQuoteRequest.JeweleryItem item = new AddQuoteRequest.JeweleryItem();
-
 
             item.setJeweleryType(
                   getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemType() ).getAnswer().toLowerCase(), "" ).toString()
@@ -375,6 +381,7 @@ public class JMAddQuoteHelperImpl
             item.setItemValue(
                   Integer.parseInt( getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemValue() ).getAnswer(), "" ).toString() )
             );
+
           /*  item.setItemDamage(
                   getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemDamage() ).getAnswer(), "" ).toString()
             );
@@ -385,59 +392,29 @@ public class JMAddQuoteHelperImpl
            // item.setItemDamage( "no" );
             //   item.setItemPossession( "yes" );
             //
-            AddQuoteRequest.PrimaryWearer primaryWearer = new AddQuoteRequest.PrimaryWearer();
+            AddQuoteRequest.PrimaryWearer primaryWearer ;
 
-            primaryWearer.setLastName(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerLastName() ).getAnswer(), "" ).toString()
-            );
+            String wearerId =  getValue ( ()-> clientLoopIterationDto.getAnswers().get( "wearerValue" ).getAnswer(), "primary" ) ;
 
-            primaryWearer.setFirstName(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerFirstName() ).getAnswer(), "" ).toString()
-            );
+            // wearerId will give the ID of the wearer or say primary if the applicant is same as the primary
+            ClientLoopIterationDto wearerDto ;
 
-            primaryWearer.setPhoneNumber(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerPhoneNumber() ).getAnswer(), "" ).toString()
-            );
+         /*   if ( wearerId.equalsIgnoreCase( "primary" )) {
+                primaryWearer = mapToPrimary( clientLoopIterationDto, actionJMSQuoteSpecDto );
+            }*/
+            primaryWearer = mapToPrimary( clientLoopIterationDto, actionJMSQuoteSpecDto );
 
-            primaryWearer.setDateOfBirth(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerDob() ).getAnswer(), "" ).toString()
-            );
-
-            primaryWearer.setEmailAddress(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerEmail() ).getAnswer(), "" ).toString()
-            );
-
-            primaryWearer.setPhoneNumber(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerPhoneNumber() ).getAnswer(), "" ).toString()
-            );
+            if ( !wearerId.equalsIgnoreCase( "primary" )) {
+                wearerDto = jewerlyWearers.stream().filter( wearer -> getValue (()->wearer.getAnswers().get( "id" ).getAnswer().toString(),"") .equalsIgnoreCase( wearerId ) ).findFirst().get();
+                AddQuoteRequest.PrimaryWearer nonContactWearer = mapToWearer( wearerDto, actionJMSQuoteSpecDto );
+                if ( getValue(  ()-> wearerDto.getAnswers().get( "sameAsPrimary" ).getAnswer().toString(), "").contains( "same" ) ){
+                    nonContactWearer.setResidentialAddress( primaryWearer.getResidentialAddress() );
+                }
+                primaryWearer = nonContactWearer;
+            }
 
             primaryWearer.setGender(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemGender()).getAnswer(), "" ).toString()
-
-            );
-
-            AddQuoteRequest.ResidentialAddress primaryWearerResidentialAddress = new AddQuoteRequest.ResidentialAddress();
-
-            primaryWearerResidentialAddress.setAddress1(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddr1() ).getAnswer(), "" )
-            );
-            primaryWearerResidentialAddress.setAddress2(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddr2() ).getAnswer(), "" )
-            );
-            primaryWearerResidentialAddress.setCity(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrCity() ).getAnswer(), "" )
-            );
-            primaryWearerResidentialAddress.setCountry(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrCountry() ).getAnswer(), "" )
-            );
-            primaryWearerResidentialAddress.setCounty(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrCountry() ).getAnswer(), "" )
-            );
-            primaryWearerResidentialAddress.setState(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrState() ).getAnswer(), "" )
-            );
-            primaryWearerResidentialAddress.setPostalCode(
-                JMUtils.formatZipCode(    getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrPostalCode() ).getAnswer(), "" ) )
+                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemGender()).getAnswer().toString(), "" )
             );
 
             AddQuoteRequest.DeductibleOption deductibleOption = new AddQuoteRequest.DeductibleOption();
@@ -452,14 +429,149 @@ public class JMAddQuoteHelperImpl
 
             deductibleOptions.add( deductibleOption );
 
-
-            primaryWearer.setResidentialAddress( primaryWearerResidentialAddress );
             item.setPrimaryWearer( primaryWearer );
             jeweleryItems.add( item );
             itemNumber++;
         }
         addQuoteRequest.setDeductibleOptions( deductibleOptions );
         addQuoteRequest.setJeweleryItems( jeweleryItems );
+    }
+
+    private void addUserInfo(AddQuoteRequest addQuoteRequest,FiredTriggerDto firedTriggerDto) {
+
+
+        AddQuoteRequest.User userInfo = new AddQuoteRequest.User();
+
+        final  LinkedHashMap<String,String> agentInfoMap = (LinkedHashMap<String, String>) firedTriggerDto.getPayload( ).get( "agent");
+
+        userInfo.setUserId(   getValue( () -> agentInfoMap.get( "id"), "" ) );
+        userInfo.setUserFirstName(    getValue( () -> agentInfoMap.get( "firstName"), "" ) );
+        userInfo.setUserLastName( getValue( () -> agentInfoMap.get( "lastName"), "" ) );
+        userInfo.setUserEmailAddress (  getValue( () -> agentInfoMap.get( "email"), "" ) );
+        userInfo.setUserPhoneNumber(  getValue( () -> agentInfoMap.get( "phoneNumber"), "" ) );
+
+        addQuoteRequest.setUser( userInfo );
+
+    }
+
+    private AddQuoteRequest.PrimaryWearer mapToWearer(ClientLoopIterationDto wearerDto, ActionJMSQuoteSpecDto actionJMSQuoteSpecDto) {
+
+        AddQuoteRequest.PrimaryWearer primaryWearer = new AddQuoteRequest.PrimaryWearer();
+
+        primaryWearer.setLastName(
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerLastName() ).getAnswer().toString(), "" )
+        );
+
+        primaryWearer.setFirstName(
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerFirstName() ).getAnswer().toString(), "" )
+        );
+
+        primaryWearer.setPhoneNumber(
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerPhoneNumber() ).getAnswer().toString(), "" )
+        );
+
+        primaryWearer.setDateOfBirth(
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerDob() ).getAnswer().toString(), "" )
+        );
+
+        primaryWearer.setEmailAddress(
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerEmail() ).getAnswer().toString(), "" )
+        );
+
+        primaryWearer.setPhoneNumber(
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerPhoneNumber() ).getAnswer().toString(), "" )
+        );
+
+        primaryWearer.setGender(
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getItemGender()).getAnswer().toString(), "" )
+
+        );
+
+        AddQuoteRequest.ResidentialAddress primaryWearerResidentialAddress = new AddQuoteRequest.ResidentialAddress();
+
+        primaryWearerResidentialAddress.setAddress1(
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddr1() ).getAnswer(), "" )
+        );
+        primaryWearerResidentialAddress.setAddress2(
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddr2() ).getAnswer(), "" )
+        );
+        primaryWearerResidentialAddress.setCity(
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrCity() ).getAnswer(), "" )
+        );
+        primaryWearerResidentialAddress.setCountry(
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrCountry() ).getAnswer(), "" )
+        );
+        primaryWearerResidentialAddress.setCounty(
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrCounty() ).getAnswer(), "" )
+        );
+        primaryWearerResidentialAddress.setState(
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrState() ).getAnswer(), "" )
+        );
+        primaryWearerResidentialAddress.setPostalCode(
+              JMUtils.formatZipCode(    getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrPostalCode() ).getAnswer().toString(), "" ) )
+        );
+
+        primaryWearer.setResidentialAddress( primaryWearerResidentialAddress );
+
+        return primaryWearer;
+    }
+
+    private AddQuoteRequest.PrimaryWearer mapToPrimary(ClientLoopIterationDto wearerDto, ActionJMSQuoteSpecDto actionJMSQuoteSpecDto) {
+
+        AddQuoteRequest.PrimaryWearer primaryWearer = new AddQuoteRequest.PrimaryWearer();
+
+        primaryWearer.setLastName(
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactLastName() ).getAnswer().toString(), "" )
+        );
+
+        primaryWearer.setFirstName(
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactFirstName()).getAnswer().toString(), "" )
+        );
+
+        primaryWearer.setPhoneNumber(
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactPhoneNumber() ).getAnswer().toString(), "" )
+        );
+
+        primaryWearer.setDateOfBirth(
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactDob() ).getAnswer().toString(), "" )
+        );
+
+        primaryWearer.setEmailAddress(
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactEmail() ).getAnswer().toString(), "" )
+        );
+
+        primaryWearer.setGender(
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getItemGender()).getAnswer().toString(), "" )
+
+        );
+
+        AddQuoteRequest.ResidentialAddress primaryWearerResidentialAddress = new AddQuoteRequest.ResidentialAddress();
+
+        primaryWearerResidentialAddress.setAddress1(
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactResAddr1()).getAnswer(), "" )
+        );
+        primaryWearerResidentialAddress.setAddress2(
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactResAddr2() ).getAnswer(), "" )
+        );
+        primaryWearerResidentialAddress.setCity(
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactResAddrCity()).getAnswer(), "" )
+        );
+        primaryWearerResidentialAddress.setCountry(
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactResAddrCountry() ).getAnswer(), "" )
+        );
+        primaryWearerResidentialAddress.setCounty(
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactResAddrCounty() ).getAnswer(), "" )
+        );
+        primaryWearerResidentialAddress.setState(
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactResAddrState() ).getAnswer(), "" )
+        );
+        primaryWearerResidentialAddress.setPostalCode(
+              JMUtils.formatZipCode(    getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactResAddrPostalCode() ).getAnswer(), "" ) )
+        );
+
+        primaryWearer.setResidentialAddress( primaryWearerResidentialAddress );
+
+        return primaryWearer;
     }
 
     private void addPaymentPlan(AddQuoteRequest addQuoteRequest, String name, int installments ) {

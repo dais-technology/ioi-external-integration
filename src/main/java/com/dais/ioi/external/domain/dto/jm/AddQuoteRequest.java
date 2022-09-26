@@ -39,6 +39,9 @@ public class AddQuoteRequest {
     @JsonProperty("selectedPaymentPlan")
     public SelectedPlan selectedPaymentPlan;
 
+    @JsonProperty("User")
+    public User user;
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -183,6 +186,29 @@ public static class UnderwritingQuestion{
         @JsonProperty("numberOfInstallments")
         public int numberOfInstallments;
     }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class User
+    {
+        @JsonProperty("UserId")
+        public String  userId ;
+
+        @JsonProperty("UserFirstName")
+        public String  userFirstName;
+
+        @JsonProperty("UserLastName")
+        public String  userLastName ;
+
+        @JsonProperty("UserEmailAddress")
+        public String userEmailAddress;
+
+        @JsonProperty("UserPhoneNumber")
+        public String userPhoneNumber ;
+    }
+
 
 
 

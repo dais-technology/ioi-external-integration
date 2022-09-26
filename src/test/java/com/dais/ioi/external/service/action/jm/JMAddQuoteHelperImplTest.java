@@ -1,8 +1,11 @@
 package com.dais.ioi.external.service.action.jm;
 
+import com.dais.common.ioi.dto.answer.ClientAnswerDto;
 import com.dais.ioi.action.domain.dto.FiredTriggerDto;
+import com.dais.ioi.action.domain.dto.internal.spec.QuoteRequestSpecDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.config.client.JMQuoteClient;
+import com.dais.ioi.external.domain.dto.jm.AddQuoteRequest;
 import com.dais.ioi.external.domain.dto.jm.AddQuoteResult;
 import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
@@ -18,6 +21,7 @@ import org.skyscreamer.jsonassert.comparator.CustomComparator;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.LinkedHashMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,6 +48,32 @@ class JMAddQuoteHelperImplTest
 
         final String formattedDate = effectiveDate.format( JMAddQuoteHelperImpl.EFFECTIVE_DATE_FORMAT );
         assertEquals( "2022-09-29", formattedDate );
+    }
+
+    @Test
+    void testPrimaryWearerMapping() throws Exception {
+        // Create instance
+        final JMQuoteClient mockJmQuoteClient = Mockito.mock( JMQuoteClient.class );
+        final JMAddQuoteHelperImpl addQuoteHelper = new JMAddQuoteHelperImpl( mockJmQuoteClient, OBJECT_MAPPER );
+
+        // Prepare inputs
+        final FiredTriggerDto firedTriggerDto = JsonFileUtils.loadResourceAs(
+              "addquotehelper/multiple_wearers_request.json", FiredTriggerDto.class );
+        final JMAuthResult jmAuthResult = JMAuthResult.builder().access_token( "test token" ).build();
+        final ActionJMSQuoteSpecDto spec = JsonFileUtils.loadResourceAs(
+              "addquotehelper/addQuoteSpecWearer.json", ActionJMSQuoteSpecDto.class );
+
+        // Prepare Mock API Outputs
+        final AddQuoteResult addQuoteResult = JsonFileUtils.loadResourceAs(
+              "addquotehelper/addQuoteResponse.json", AddQuoteResult.class );
+        QuoteRequestSpecDto triggerSpec = OBJECT_MAPPER.convertValue( firedTriggerDto.getPayload(), QuoteRequestSpecDto.class );
+
+
+      AddQuoteRequest request = addQuoteHelper.createAddQuoteRequest( triggerSpec.getIntake(), spec );
+
+
+      request.getPrimaryContact();
+
     }
 
 

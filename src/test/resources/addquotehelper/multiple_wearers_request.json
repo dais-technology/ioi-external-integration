@@ -1,0 +1,677 @@
+{
+  "lineId": "ad8c6000-1c5c-43b3-a6ad-3a1f99f3aec9",
+  "triggerRequestId" : "1ed14c22-2494-436e-8356-429ca298808c",
+
+  "payload": {
+    "externalIntegrationType" : "JM_ADDQUOTE",
+    "selectedPaymentPlan": {
+      "name": "venu plan",
+      "numberOfInstallments": 2
+    },
+
+    "clientId": "e98019e0-c9c2-4479-94fa-0f18ef2d1c56",
+    "effectiveDate": "2022-10-01",
+    "intake": {
+      "analytics_userBrowserType": {
+        "type": "ANSWER",
+        "answer": "Chrome",
+        "qid": "analytics_userBrowserType"
+      },
+      "analytics_userScreenWidth": {
+        "type": "ANSWER",
+        "answer": 1920,
+        "qid": "analytics_userScreenWidth"
+      },
+      "customerInfoFirstName": {
+        "type": "ANSWER",
+        "answer": "WearerTest",
+        "qid": "customerInfoFirstName"
+      },
+      "customerInfoLastName": {
+        "type": "ANSWER",
+        "answer": "Test",
+        "qid": "customerInfoLastName"
+      },
+      "client.address1": {
+        "type": "ANSWER",
+        "answer": "234324",
+        "qid": "client.address1"
+      },
+      "client.city": {
+        "type": "ANSWER",
+        "answer": "Naples",
+        "qid": "client.city"
+      },
+      "client.state": {
+        "type": "ANSWER",
+        "answer": "FL",
+        "qid": "client.state"
+      },
+      "client.zipcode": {
+        "type": "ANSWER",
+        "answer": "34101",
+        "qid": "client.zipcode"
+      },
+      "customerInfoPrimaryDOB": {
+        "type": "ANSWER",
+        "answer": "2002-09-08T15:09:53-05:00",
+        "qid": "customerInfoPrimaryDOB"
+      },
+      "customerInfoPreviousQuoteYesNo": {
+        "type": "ANSWER",
+        "answer": "NO",
+        "qid": "customerInfoPreviousQuoteYesNo"
+      },
+      "CommercialStructure_PhysicalAddress_CountyName_A": {
+        "type": "ANSWER",
+        "answer": "Collier",
+        "qid": "CommercialStructure_PhysicalAddress_CountyName_A"
+      },
+      "customerInfoCountry": {
+        "type": "ANSWER",
+        "answer": "US",
+        "qid": "customerInfoCountry"
+      },
+      "selectedPremiums": {
+        "type": "ANSWER",
+        "answer": "[0,0,0]",
+        "qid": "selectedPremiums"
+      },
+      "dateOfLastQuote": {
+        "type": "ANSWER",
+        "answer": "09/23/2022",
+        "qid": "dateOfLastQuote"
+      },
+      "NamedInsured_MailingAddress_CityName_A": {
+        "type": "ANSWER",
+        "answer": "",
+        "qid": "NamedInsured_MailingAddress_CityName_A"
+      },
+      "NamedInsured_MailingAddress_StateOrProvinceCode_A": {
+        "type": "ANSWER",
+        "answer": "",
+        "qid": "NamedInsured_MailingAddress_StateOrProvinceCode_A"
+      },
+      "client.phoneNumber": {
+        "type": "ANSWER",
+        "answer": "2342343242",
+        "qid": "client.phoneNumber"
+      },
+      "conviction": {
+        "type": "ANSWER",
+        "answer": "No",
+        "qid": "conviction"
+      },
+      "lostTheftDamage": {
+        "type": "ANSWER",
+        "answer": "NO",
+        "qid": "lostTheftDamage"
+      },
+      "customerMailingAddress": {
+        "type": "ANSWER",
+        "answer": "[\"Is this your Mailing Address?\"]",
+        "qid": "customerMailingAddress"
+      },
+      "jewelryItems": {
+        "type": "LOOP",
+        "qid": "jewelryItems",
+        "iterations": [{
+          "iterationId": "d2d6c2ae-d78a-4715-bd0f-6bcb62edd664",
+          "answers": {
+            "jewelryType": {
+              "type": "ANSWER",
+              "answer": "Ring",
+              "qid": "jewelryType"
+            },
+            "jewelrySubType": {
+              "type": "ANSWER",
+              "answer": "Engagement Ring",
+              "qid": "jewelrySubType"
+            },
+            "jewelryValue": {
+              "type": "ANSWER",
+              "answer": "1000",
+              "qid": "jewelryValue"
+            },
+            "itemGender": {
+              "type": "ANSWER",
+              "answer": "Female",
+              "qid": "itemGender"
+            },
+            "existingDamage": {
+              "answer": "none",
+              "qid": "existingDamage",
+              "type": "ANSWER"
+            },
+            "wearerValue": {
+              "type": "ANSWER",
+              "qid": "wearerValue",
+              "answer": "0"
+            },
+            "showForm": {
+              "type": "ANSWER",
+              "qid": "showForm",
+              "answer": "yes"
+            },
+            "customerInfoFirstName": {
+              "qid": "customerInfoFirstName",
+              "type": "ANSWER",
+              "answer": "WearerTest"
+            },
+            "customerInfoLastName": {
+              "qid": "customerInfoLastName",
+              "type": "ANSWER",
+              "answer": "Test"
+            },
+            "customerInfoPrimaryDOB": {
+              "qid": "customerInfoPrimaryDOB",
+              "type": "ANSWER",
+              "answer": "2002-09-08T15:09:53-05:00"
+            },
+            "client.phoneNumber": {
+              "qid": "client.phoneNumber",
+              "type": "ANSWER",
+              "answer": "2342343242"
+            },
+            "client.address1": {
+              "qid": "client.address1",
+              "type": "ANSWER",
+              "answer": "234324"
+            },
+            "client.city": {
+              "qid": "client.city",
+              "type": "ANSWER",
+              "answer": "Naples"
+            },
+            "customerInfoCountry": {
+              "qid": "customerInfoCountry",
+              "type": "ANSWER",
+              "answer": "US"
+            },
+            "client.zipcode": {
+              "qid": "client.zipcode",
+              "type": "ANSWER",
+              "answer": "34101"
+            },
+            "CommercialStructure_PhysicalAddress_CountyName_A": {
+              "qid": "CommercialStructure_PhysicalAddress_CountyName_A",
+              "type": "ANSWER",
+              "answer": "Collier"
+            },
+            "client.state": {
+              "qid": "client.state",
+              "type": "ANSWER",
+              "answer": "FL"
+            },
+            "deductible": {
+              "qid": "deductible",
+              "type": "ANSWER",
+              "answer": "0"
+            },
+            "possessionOfItems": {
+              "qid": "possessionOfItems",
+              "type": "ANSWER",
+              "answer": "Yes"
+            }
+          }
+        }, {
+          "iterationId": "c1a7dc9b-4198-49dc-9d77-fe60fa46141a",
+          "answers": {
+            "jewelryType": {
+              "type": "ANSWER",
+              "answer": "Ring",
+              "qid": "jewelryType"
+            },
+            "jewelrySubType": {
+              "type": "ANSWER",
+              "answer": "Engagement Ring",
+              "qid": "jewelrySubType"
+            },
+            "jewelryValue": {
+              "type": "ANSWER",
+              "answer": "2000",
+              "qid": "jewelryValue"
+            },
+            "itemGender": {
+              "type": "ANSWER",
+              "answer": "Female",
+              "qid": "itemGender"
+            },
+            "existingDamage": {
+              "answer": "none",
+              "qid": "existingDamage",
+              "type": "ANSWER"
+            },
+            "wearerValue": {
+              "type": "ANSWER",
+              "qid": "wearerValue",
+              "answer": "primary"
+            },
+            "showForm": {
+              "type": "ANSWER",
+              "qid": "showForm",
+              "answer": ""
+            },
+            "customerInfoFirstName": {
+              "qid": "customerInfoFirstName",
+              "type": "ANSWER",
+              "answer": "WearerTest"
+            },
+            "customerInfoLastName": {
+              "qid": "customerInfoLastName",
+              "type": "ANSWER",
+              "answer": "Test"
+            },
+            "customerInfoPrimaryDOB": {
+              "qid": "customerInfoPrimaryDOB",
+              "type": "ANSWER",
+              "answer": "2002-09-08T15:09:53-05:00"
+            },
+            "client.phoneNumber": {
+              "qid": "client.phoneNumber",
+              "type": "ANSWER",
+              "answer": "2342343242"
+            },
+            "client.address1": {
+              "qid": "client.address1",
+              "type": "ANSWER",
+              "answer": "234324"
+            },
+            "client.city": {
+              "qid": "client.city",
+              "type": "ANSWER",
+              "answer": "Naples"
+            },
+            "customerInfoCountry": {
+              "qid": "customerInfoCountry",
+              "type": "ANSWER",
+              "answer": "US"
+            },
+            "client.zipcode": {
+              "qid": "client.zipcode",
+              "type": "ANSWER",
+              "answer": "34101"
+            },
+            "CommercialStructure_PhysicalAddress_CountyName_A": {
+              "qid": "CommercialStructure_PhysicalAddress_CountyName_A",
+              "type": "ANSWER",
+              "answer": "Collier"
+            },
+            "client.state": {
+              "qid": "client.state",
+              "type": "ANSWER",
+              "answer": "FL"
+            },
+            "deductible": {
+              "qid": "deductible",
+              "type": "ANSWER",
+              "answer": "0"
+            },
+            "possessionOfItems": {
+              "qid": "possessionOfItems",
+              "type": "ANSWER",
+              "answer": "Yes"
+            }
+          }
+        }, {
+          "iterationId": "470e4405-1609-4c3f-bd98-55cc16c221c6",
+          "answers": {
+            "jewelryType": {
+              "type": "ANSWER",
+              "answer": "Ring",
+              "qid": "jewelryType"
+            },
+            "jewelrySubType": {
+              "type": "ANSWER",
+              "answer": "Engagement Ring",
+              "qid": "jewelrySubType"
+            },
+            "jewelryValue": {
+              "type": "ANSWER",
+              "answer": "3000",
+              "qid": "jewelryValue"
+            },
+            "itemGender": {
+              "type": "ANSWER",
+              "answer": "Female",
+              "qid": "itemGender"
+            },
+            "existingDamage": {
+              "answer": "none",
+              "qid": "existingDamage",
+              "type": "ANSWER"
+            },
+            "wearerValue": {
+              "type": "ANSWER",
+              "qid": "wearerValue",
+              "answer": "2"
+            },
+            "showForm": {
+              "type": "ANSWER",
+              "qid": "showForm",
+              "answer": "yes"
+            },
+            "customerInfoFirstName": {
+              "qid": "customerInfoFirstName",
+              "type": "ANSWER",
+              "answer": "WearerTest"
+            },
+            "customerInfoLastName": {
+              "qid": "customerInfoLastName",
+              "type": "ANSWER",
+              "answer": "Test"
+            },
+            "customerInfoPrimaryDOB": {
+              "qid": "customerInfoPrimaryDOB",
+              "type": "ANSWER",
+              "answer": "2002-09-08T15:09:53-05:00"
+            },
+            "client.phoneNumber": {
+              "qid": "client.phoneNumber",
+              "type": "ANSWER",
+              "answer": "2342343242"
+            },
+            "client.address1": {
+              "qid": "client.address1",
+              "type": "ANSWER",
+              "answer": "234324"
+            },
+            "client.city": {
+              "qid": "client.city",
+              "type": "ANSWER",
+              "answer": "Naples"
+            },
+            "customerInfoCountry": {
+              "qid": "customerInfoCountry",
+              "type": "ANSWER",
+              "answer": "US"
+            },
+            "client.zipcode": {
+              "qid": "client.zipcode",
+              "type": "ANSWER",
+              "answer": "34101"
+            },
+            "CommercialStructure_PhysicalAddress_CountyName_A": {
+              "qid": "CommercialStructure_PhysicalAddress_CountyName_A",
+              "type": "ANSWER",
+              "answer": "Collier"
+            },
+            "client.state": {
+              "qid": "client.state",
+              "type": "ANSWER",
+              "answer": "FL"
+            },
+            "deductible": {
+              "qid": "deductible",
+              "type": "ANSWER",
+              "answer": "0"
+            },
+            "possessionOfItems": {
+              "qid": "possessionOfItems",
+              "type": "ANSWER",
+              "answer": "Yes"
+            }
+          }
+        }]
+      },
+      "possessionOfItems": {
+        "qid": "possessionOfItems",
+        "type": "ANSWER",
+        "answer": "Yes"
+      },
+      "possessionOfItemsNoShippedFromJeweler": {
+        "qid": "possessionOfItemsNoShippedFromJeweler",
+        "type": "ANSWER",
+        "answer": null
+      },
+      "possessionOfItemsNo": {
+        "qid": "possessionOfItemsNo",
+        "type": "ANSWER",
+        "answer": null
+      },
+      "jewelryDetailsAlarmSecurity": {
+        "qid": "jewelryDetailsAlarmSecurity",
+        "type": "ANSWER",
+        "answer": "No Alarm"
+      },
+      "additionalUnderwriting": {
+        "qid": "additionalUnderwriting",
+        "type": "ANSWER",
+        "answer": "No"
+      },
+      "policy.date.effective": {
+        "qid": "policy.date.effective",
+        "type": "ANSWER",
+        "answer": "2022-10-23T18:38:33.713Z"
+      },
+      "jewelryWearers": {
+        "iterations": [{
+          "answers": {
+            "primary": {
+              "answer": "",
+              "qid": "primary",
+              "type": "ANSWER"
+            },
+            "firstName": {
+              "qid": "firstName",
+              "type": "ANSWER",
+              "answer": "Fake"
+            },
+            "lastName": {
+              "qid": "lastName",
+              "type": "ANSWER",
+              "answer": "Person"
+            },
+            "client.address1": {
+              "qid": "client.address1",
+              "type": "ANSWER",
+              "answer": "234234"
+            },
+            "customerInfoPrimaryApt": {
+              "qid": "customerInfoPrimaryApt",
+              "type": "ANSWER",
+              "answer": null
+            },
+            "client.city": {
+              "qid": "client.city",
+              "type": "ANSWER",
+              "answer": ""
+            },
+            "client.state": {
+              "qid": "client.state",
+              "type": "ANSWER",
+              "answer": "FL"
+            },
+            "client.zipcode": {
+              "qid": "client.zipcode",
+              "type": "ANSWER",
+              "answer": "34101"
+            },
+            "client.phoneNumber": {
+              "qid": "client.phoneNumber",
+              "type": "ANSWER"
+            },
+            "PrimaryPhoneType": {
+              "qid": "PrimaryPhoneType",
+              "type": "ANSWER"
+            },
+            "emailAddress": {
+              "qid": "emailAddress",
+              "type": "ANSWER"
+            },
+            "dateOfBirth": {
+              "qid": "dateOfBirth",
+              "type": "ANSWER",
+              "answer": "2002-09-07T15:11:20-05:00"
+            },
+            "relationshipToApplicant": {
+              "qid": "relationshipToApplicant",
+              "type": "ANSWER",
+              "answer": "Husband"
+            },
+            "OtherRelationshipToApplicant": {
+              "qid": "OtherRelationshipToApplicant",
+              "type": "ANSWER",
+              "answer": null
+            },
+            "id": {
+              "type": "ANSWER",
+              "qid": "id",
+              "answer": "0"
+            },
+            "sameAsPrimary": {
+              "qid": "sameAsPrimary",
+              "type": "ANSWER",
+              "answer": "[]"
+            },
+            "customerInfoCountry": {
+              "qid": "customerInfoCountry",
+              "type": "ANSWER",
+              "answer": "US"
+            },
+            "CommercialStructure_PhysicalAddress_CountyName_A": {
+              "qid": "CommercialStructure_PhysicalAddress_CountyName_A",
+              "type": "ANSWER",
+              "answer": "Collier"
+            }
+          },
+          "iterationId": "f3d68f80-579a-4b63-bfab-45b15aa688f7"
+        }, {
+          "answers": {
+            "primary": {
+              "answer": "yes",
+              "qid": "primary",
+              "type": "ANSWER"
+            }
+          },
+          "iterationId": "c8dc1930-5f9a-4e56-a31f-8fce45ad43a4"
+        }, {
+          "answers": {
+            "primary": {
+              "answer": "",
+              "qid": "primary",
+              "type": "ANSWER"
+            },
+            "firstName": {
+              "qid": "firstName",
+              "type": "ANSWER",
+              "answer": "Third"
+            },
+            "lastName": {
+              "qid": "lastName",
+              "type": "ANSWER",
+              "answer": "Wearer"
+            },
+            "client.address1": {
+              "qid": "client.address1",
+              "type": "ANSWER",
+              "answer": null
+            },
+            "customerInfoPrimaryApt": {
+              "qid": "customerInfoPrimaryApt",
+              "type": "ANSWER",
+              "answer": null
+            },
+            "client.city": {
+              "qid": "client.city",
+              "type": "ANSWER",
+              "answer": ""
+            },
+            "client.state": {
+              "qid": "client.state",
+              "type": "ANSWER",
+              "answer": ""
+            },
+            "client.zipcode": {
+              "qid": "client.zipcode",
+              "type": "ANSWER",
+              "answer": ""
+            },
+            "client.phoneNumber": {
+              "qid": "client.phoneNumber",
+              "type": "ANSWER"
+            },
+            "PrimaryPhoneType": {
+              "qid": "PrimaryPhoneType",
+              "type": "ANSWER"
+            },
+            "emailAddress": {
+              "qid": "emailAddress",
+              "type": "ANSWER"
+            },
+            "dateOfBirth": {
+              "qid": "dateOfBirth",
+              "type": "ANSWER",
+              "answer": "2002-09-28T15:11:36-05:00"
+            },
+            "relationshipToApplicant": {
+              "qid": "relationshipToApplicant",
+              "type": "ANSWER",
+              "answer": "Wife"
+            },
+            "OtherRelationshipToApplicant": {
+              "qid": "OtherRelationshipToApplicant",
+              "type": "ANSWER",
+              "answer": null
+            },
+            "id": {
+              "type": "ANSWER",
+              "qid": "id",
+              "answer": "2"
+            },
+            "sameAsPrimary": {
+              "qid": "sameAsPrimary",
+              "type": "ANSWER",
+              "answer": "[\"same\"]"
+            },
+            "customerInfoCountry": {
+              "qid": "customerInfoCountry",
+              "type": "ANSWER",
+              "answer": ""
+            },
+            "CommercialStructure_PhysicalAddress_CountyName_A": {
+              "qid": "CommercialStructure_PhysicalAddress_CountyName_A",
+              "type": "ANSWER",
+              "answer": ""
+            }
+          },
+          "iterationId": "0d9ca745-04b5-49b1-b3ce-7d818615dff0"
+        }],
+        "qid": "jewelryWearers",
+        "type": "LOOP"
+      },
+      "CanceledOrDeniedCoverage": {
+        "qid": "CanceledOrDeniedCoverage",
+        "type": "ANSWER",
+        "answer": "no"
+      },
+      "LostWithin7Years": {
+        "qid": "LostWithin7Years",
+        "type": "ANSWER",
+        "answer": "0"
+      },
+      "FelonyConviction": {
+        "qid": "FelonyConviction",
+        "type": "ANSWER",
+        "answer": "no"
+      },
+      "MisdemeanorConviction": {
+        "qid": "MisdemeanorConviction",
+        "type": "ANSWER",
+        "answer": "no"
+      },
+      "CrimeForProfit": {
+        "qid": "CrimeForProfit",
+        "type": "ANSWER",
+        "answer": "no"
+      }
+    }
+
+  },
+  "source": {
+    "organizationId": "418cc25b-fdb9-4aaa-a8a8-1263cbb70c92",
+    "sourceType": "STOREFRONT",
+    "storefrontId": "a3f4fe9a-a6ff-4330-921f-006a870bc02f"
+  },
+  "type": "SELECT_QUOTE"
+}

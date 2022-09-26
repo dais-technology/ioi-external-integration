@@ -304,6 +304,202 @@
       "possessionOfItemsNo": {
         "qid": "possessionOfItemsNo",
         "type": "ANSWER"
+      },
+      "jewelryWearers": {
+        "iterations": [{
+          "answers": {
+            "primary": {
+              "answer": "",
+              "qid": "primary",
+              "type": "ANSWER"
+            },
+            "firstName": {
+              "qid": "firstName",
+              "type": "ANSWER",
+              "answer": "Fake"
+            },
+            "lastName": {
+              "qid": "lastName",
+              "type": "ANSWER",
+              "answer": "Person"
+            },
+            "client.address1": {
+              "qid": "client.address1",
+              "type": "ANSWER",
+              "answer": "234234"
+            },
+            "customerInfoPrimaryApt": {
+              "qid": "customerInfoPrimaryApt",
+              "type": "ANSWER",
+              "answer": null
+            },
+            "client.city": {
+              "qid": "client.city",
+              "type": "ANSWER",
+              "answer": ""
+            },
+            "client.state": {
+              "qid": "client.state",
+              "type": "ANSWER",
+              "answer": "FL"
+            },
+            "client.zipcode": {
+              "qid": "client.zipcode",
+              "type": "ANSWER",
+              "answer": "34101"
+            },
+            "client.phoneNumber": {
+              "qid": "client.phoneNumber",
+              "type": "ANSWER"
+            },
+            "PrimaryPhoneType": {
+              "qid": "PrimaryPhoneType",
+              "type": "ANSWER"
+            },
+            "emailAddress": {
+              "qid": "emailAddress",
+              "type": "ANSWER"
+            },
+            "dateOfBirth": {
+              "qid": "dateOfBirth",
+              "type": "ANSWER",
+              "answer": "2002-09-07T15:11:20-05:00"
+            },
+            "relationshipToApplicant": {
+              "qid": "relationshipToApplicant",
+              "type": "ANSWER",
+              "answer": "Husband"
+            },
+            "OtherRelationshipToApplicant": {
+              "qid": "OtherRelationshipToApplicant",
+              "type": "ANSWER",
+              "answer": null
+            },
+            "id": {
+              "type": "ANSWER",
+              "qid": "id",
+              "answer": "0"
+            },
+            "sameAsPrimary": {
+              "qid": "sameAsPrimary",
+              "type": "ANSWER",
+              "answer": "[]"
+            },
+            "customerInfoCountry": {
+              "qid": "customerInfoCountry",
+              "type": "ANSWER",
+              "answer": "US"
+            },
+            "CommercialStructure_PhysicalAddress_CountyName_A": {
+              "qid": "CommercialStructure_PhysicalAddress_CountyName_A",
+              "type": "ANSWER",
+              "answer": "Collier"
+            }
+          },
+          "iterationId": "f3d68f80-579a-4b63-bfab-45b15aa688f7"
+        }, {
+          "answers": {
+            "primary": {
+              "answer": "yes",
+              "qid": "primary",
+              "type": "ANSWER"
+            }
+          },
+          "iterationId": "c8dc1930-5f9a-4e56-a31f-8fce45ad43a4"
+        }, {
+          "answers": {
+            "primary": {
+              "answer": "",
+              "qid": "primary",
+              "type": "ANSWER"
+            },
+            "firstName": {
+              "qid": "firstName",
+              "type": "ANSWER",
+              "answer": "Third"
+            },
+            "lastName": {
+              "qid": "lastName",
+              "type": "ANSWER",
+              "answer": "Wearer"
+            },
+            "client.address1": {
+              "qid": "client.address1",
+              "type": "ANSWER",
+              "answer": null
+            },
+            "customerInfoPrimaryApt": {
+              "qid": "customerInfoPrimaryApt",
+              "type": "ANSWER",
+              "answer": null
+            },
+            "client.city": {
+              "qid": "client.city",
+              "type": "ANSWER",
+              "answer": ""
+            },
+            "client.state": {
+              "qid": "client.state",
+              "type": "ANSWER",
+              "answer": ""
+            },
+            "client.zipcode": {
+              "qid": "client.zipcode",
+              "type": "ANSWER",
+              "answer": ""
+            },
+            "client.phoneNumber": {
+              "qid": "client.phoneNumber",
+              "type": "ANSWER"
+            },
+            "PrimaryPhoneType": {
+              "qid": "PrimaryPhoneType",
+              "type": "ANSWER"
+            },
+            "emailAddress": {
+              "qid": "emailAddress",
+              "type": "ANSWER"
+            },
+            "dateOfBirth": {
+              "qid": "dateOfBirth",
+              "type": "ANSWER",
+              "answer": "2002-09-28T15:11:36-05:00"
+            },
+            "relationshipToApplicant": {
+              "qid": "relationshipToApplicant",
+              "type": "ANSWER",
+              "answer": "Wife"
+            },
+            "OtherRelationshipToApplicant": {
+              "qid": "OtherRelationshipToApplicant",
+              "type": "ANSWER",
+              "answer": null
+            },
+            "id": {
+              "type": "ANSWER",
+              "qid": "id",
+              "answer": "2"
+            },
+            "sameAsPrimary": {
+              "qid": "sameAsPrimary",
+              "type": "ANSWER",
+              "answer": "[\"same\"]"
+            },
+            "customerInfoCountry": {
+              "qid": "customerInfoCountry",
+              "type": "ANSWER",
+              "answer": ""
+            },
+            "CommercialStructure_PhysicalAddress_CountyName_A": {
+              "qid": "CommercialStructure_PhysicalAddress_CountyName_A",
+              "type": "ANSWER",
+              "answer": ""
+            }
+          },
+          "iterationId": "0d9ca745-04b5-49b1-b3ce-7d818615dff0"
+        }],
+        "qid": "jewelryWearers",
+        "type": "LOOP"
       }
     },
     "effectiveDate": "2022-09-22"
