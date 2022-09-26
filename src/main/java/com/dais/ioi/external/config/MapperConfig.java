@@ -1,7 +1,5 @@
 package com.dais.ioi.external.config;
 
-import com.dais.ioi.external.domain.dto.IntegrationDto;
-import com.dais.ioi.external.entity.IntegrationEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ma.glasnost.orika.MapperFacade;
@@ -26,12 +24,6 @@ public class MapperConfig
     public void postConstruct()
     {
         mapperFactory = new DefaultMapperFactory.Builder().build();
-
-        mapperFactory.classMap( IntegrationDto.class, IntegrationEntity.class )
-                     .mapNulls( true )
-                     .mapNullsInReverse( true )
-                     .byDefault()
-                     .register();
     }
 
 

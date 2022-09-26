@@ -42,10 +42,6 @@ public class ExternalIntegrationServiceImpl
     @Autowired
     private ExternalIntegrationRepository externalIntegrationRepository;
 
-    @Qualifier( "mapperFacade" )
-    private final MapperFacade mapperFacade;
-
-
     @Autowired
     private JMQuoteServiceImpl jmsQuoteService;
 
@@ -58,6 +54,10 @@ public class ExternalIntegrationServiceImpl
     @Autowired
     private JMCreateAccountServiceImpl createAccountService;
 
+    @Autowired
+    @Qualifier( "primaryObjectMapper" )
+    private ObjectMapper objectMapper;
+
 
     @Override
     public IntegrationDto getById( final UUID integrationId )
@@ -65,7 +65,7 @@ public class ExternalIntegrationServiceImpl
         try
         {
             IntegrationEntity integrationEntity = externalIntegrationRepository.getOne( integrationId );
-            return mapperFacade.map( integrationEntity, IntegrationDto.class );
+            return objectMapper.convertValue( integrationEntity, IntegrationDto.class );
         }
         catch ( EntityNotFoundException e )
         {
@@ -77,9 +77,9 @@ public class ExternalIntegrationServiceImpl
     @Override
     public IntegrationDto create( final IntegrationDto integrationDto )
     {
-        IntegrationEntity integrationEntity = mapperFacade.map( integrationDto, IntegrationEntity.class );
+        IntegrationEntity integrationEntity = objectMapper.convertValue( integrationDto, IntegrationEntity.class );
         externalIntegrationRepository.save( integrationEntity );
-        return mapperFacade.map( integrationEntity, IntegrationDto.class );
+        return objectMapper.convertValue( integrationEntity, IntegrationDto.class );
     }
 
 
@@ -88,10 +88,11 @@ public class ExternalIntegrationServiceImpl
     {
         if ( !Objects.isNull( integrationDto.getId() ) )
         {
-            final IntegrationEntity entity = externalIntegrationRepository.findById( integrationDto.getId() ).orElseThrow( () -> new ResponseStatusException( HttpStatus.NOT_FOUND ) );
-            mapperFacade.map( integrationDto, entity );
-            externalIntegrationRepository.save( entity );
-            return mapperFacade.map( entity, IntegrationDto.class );
+            final IntegrationEntity original = externalIntegrationRepository.findById( integrationDto.getId() ).orElseThrow( () -> new ResponseStatusException( HttpStatus.NOT_FOUND ) );
+            final IntegrationEntity updated = objectMapper.convertValue( integrationDto, IntegrationEntity.class );
+            updated.setId( original.getId() );
+            externalIntegrationRepository.save( updated );
+            return objectMapper.convertValue( updated, IntegrationDto.class );
         }
         else
         {
