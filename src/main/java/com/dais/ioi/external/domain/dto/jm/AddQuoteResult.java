@@ -48,13 +48,13 @@ public class AddQuoteResult
     {
         public double downPaymentAmount;
 
-        public int installmentAmount;
+        public double installmentAmount;
 
-        public int serviceFee;
+        public double serviceFee;
 
         public double downPaymentTax;
 
-        public int installmentTax;
+        public double installmentTax;
 
         public String name;
 
@@ -97,7 +97,7 @@ public class AddQuoteResult
 
         public double discount;
 
-        public int minimumPremium;
+        public double minimumPremium;
 
         public double minimumTaxesAndSurcharges;
 
@@ -118,11 +118,11 @@ public class AddQuoteResult
 
         public double totalAmount;
 
-        public int downPaymentAmount;
+        public double downPaymentAmount;
 
-        public int installmentAmount;
+        public double installmentAmount;
 
-        public int installmentFee;
+        public double installmentFee;
 
         public double taxesSurcharges;
     }
