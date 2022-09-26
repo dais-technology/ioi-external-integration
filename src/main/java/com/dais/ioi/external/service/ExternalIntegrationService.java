@@ -3,7 +3,6 @@ package com.dais.ioi.external.service;
 import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.domain.dto.IntegrationDto;
-import com.dais.ioi.external.domain.dto.hubspot.HubspotTrackRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
@@ -25,8 +24,6 @@ public interface ExternalIntegrationService
 
     TriggerResponseDto processSynchronous( final FiredTriggerDto firedTriggerDto )
           throws Exception;
-
-    void hubspotTrack( final HubspotTrackRequest request );
 
     SubmitApplicationResponse submitApplication( final SubmitApplicationRequest submitApplicationRequest,
                                                  final UUID orgId );

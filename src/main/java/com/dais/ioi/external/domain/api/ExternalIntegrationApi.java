@@ -3,7 +3,6 @@ package com.dais.ioi.external.domain.api;
 import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.domain.dto.IntegrationDto;
-import com.dais.ioi.external.domain.dto.hubspot.HubspotTrackRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
@@ -71,10 +70,10 @@ public interface ExternalIntegrationApi
     @ApiOperation( value = "create or update an Integration Record" )
     IntegrationDto saveOrUpdate( @RequestBody @Valid final IntegrationDto integrationDto );
 
-    @ResponseStatus( HttpStatus.OK )
-    @RequestMapping( value = "/hubspot",
-                     method = RequestMethod.POST )
-    @ApiOperation( value = "make a track call to hubspot" )
-    void trackEvent( @RequestBody @Valid final
-                     HubspotTrackRequest request );
+//    @ResponseStatus( HttpStatus.OK )
+    //    @RequestMapping( value = "/hubspot",
+    //                     method = RequestMethod.POST )
+    //    @ApiOperation( value = "make a track call to hubspot" )
+    //    void trackEvent( @RequestBody @Valid final
+    //                     HubspotTrackRequest request );
 }
