@@ -339,7 +339,7 @@ public class JMAddQuoteHelperImpl
         alarmId.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getAlarmId()).getAnswer(), "" ) );
         underwritingInfo.getUnderwritingQuestions().add( alarmId );
 
-     /*   AddQuoteRequest.UnderwritingQuestion convictionType = new AddQuoteRequest.UnderwritingQuestion();
+        AddQuoteRequest.UnderwritingQuestion convictionType = new AddQuoteRequest.UnderwritingQuestion();
         convictionType.setKey( "ConvictionType");
         convictionType.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getConvictionType()).getAnswer(), "" ) );
         underwritingInfo.getUnderwritingQuestions().add( convictionType );
@@ -347,10 +347,32 @@ public class JMAddQuoteHelperImpl
         AddQuoteRequest.UnderwritingQuestion convictionSentenceCompletionDate = new AddQuoteRequest.UnderwritingQuestion();
         convictionSentenceCompletionDate.setKey( "ConvictionSentenceCompletionDate");
         convictionSentenceCompletionDate.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getConvictionSentenceCompletionDate()).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( convictionSentenceCompletionDate );*/
+        underwritingInfo.getUnderwritingQuestions().add( convictionSentenceCompletionDate );
 
 
         addQuoteRequest.setUnderwritingInfo( underwritingInfo );
+
+        List<ClientLoopIterationDto> lostTheftDamage =  getValue ( ()-> intake.get( actionJMSQuoteSpecDto.getLostTheftDamageLoop()).getIterations() , new ArrayList<ClientLoopIterationDto>() );
+
+        for ( ClientLoopIterationDto clientLoopIterationDto : lostTheftDamage)
+        {
+
+            AddQuoteRequest.LossHistoryEvent lossHistoryEvent = new AddQuoteRequest.LossHistoryEvent();
+            lossHistoryEvent.setLossType(
+                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getTypeOfLoss() ).getAnswer().toLowerCase(), "" ).toString()
+
+            );
+            lossHistoryEvent.setAmount(
+               Double.parseDouble(   getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getAmountOfLoss() ).getAnswer().toString(), "" ) )
+
+            );
+            lossHistoryEvent.setLossDate(
+                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getDateOfLoss() ).getAnswer().toString(), "" ).toString()
+
+            );
+            addQuoteRequest.getUnderwritingInfo().getLossHistoryEvents().add( lossHistoryEvent );
+        }
+
 
 
     }
@@ -615,9 +637,9 @@ public class JMAddQuoteHelperImpl
 
         boolean paperlessOption = false;
 
-        String hasPaperlessDelivery =  getValue( () -> intake.get( actionJMSQuoteSpecDto.getHasPaperlessDelivery() ).getAnswer(), "" );
+        String hasPaperlessDelivery =  getValue( () -> intake.get( actionJMSQuoteSpecDto.getHasPaperlessDelivery() ).getAnswer().toString(), "" );
 
-        if ( hasPaperlessDelivery.equalsIgnoreCase( "yes" )) {
+        if ( hasPaperlessDelivery.equalsIgnoreCase( "true" )) {
             paperlessOption =  true;
         }
 
