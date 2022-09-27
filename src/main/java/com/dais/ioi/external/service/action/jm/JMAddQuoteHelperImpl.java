@@ -153,6 +153,8 @@ public class JMAddQuoteHelperImpl
                 metaDatamap.put( "isUnderwritingNeeded" ,addQuoteResult.isUnderwritingNeeded());
                 metaDatamap.put( "isCoverageAvailable" ,addQuoteResult.isCoverageAvailable());
                 metaDatamap.put( "errorMessages", addQuoteResult.getErrorMessages() );
+                metaDatamap.put( "messageList", addQuoteResult.getRespMessageList() );
+
 
                 log.info("setting request Id to " + requestId);
                 triggerResponseDto.setTriggerRequestId( requestId );
@@ -196,6 +198,8 @@ public class JMAddQuoteHelperImpl
         metaDatamap.put( "ratePlans", updQuoteResult.getPaymentPlans() );
         metaDatamap.put( "isUnderwritingNeeded" ,addQuoteResult.isUnderwritingNeeded());
         metaDatamap.put( "isCoverageAvailable" ,addQuoteResult.isCoverageAvailable());
+        metaDatamap.put( "minimumPremium" ,addQuoteResult.getRatingInfo().getMinimumPremium());
+
 
 
         QuoteDto newQuote = QuoteDto.builder()

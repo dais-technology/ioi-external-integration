@@ -29,6 +29,8 @@ public class AddQuoteResult
 
     public ArrayList<PaymentPlan> paymentPlans;
 
+    public ArrayList<String> respMessageList;
+
     @Data
     @Builder
     @NoArgsConstructor
