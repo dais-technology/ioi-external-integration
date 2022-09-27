@@ -197,10 +197,10 @@ public class JMAddQuoteHelperImpl
 
         HashMap<String, Object> metaDatamap = new HashMap<>();
         metaDatamap.put( "ratePlans", updQuoteResult.getPaymentPlans() );
-        metaDatamap.put( "isUnderwritingNeeded", addQuoteResult.isUnderwritingNeeded() );
-        metaDatamap.put( "isCoverageAvailable", addQuoteResult.isCoverageAvailable() );
-        metaDatamap.put( "minimumPremium", addQuoteResult.getRatingInfo().getMinimumPremium() );
-
+        metaDatamap.put( "isUnderwritingNeeded" ,addQuoteResult.isUnderwritingNeeded());
+        metaDatamap.put( "isCoverageAvailable" ,addQuoteResult.isCoverageAvailable());
+        metaDatamap.put( "minimumPremium" ,addQuoteResult.getRatingInfo().getMinimumPremium());
+        metaDatamap.put( "minimumTaxesAndSurcharges" ,addQuoteResult.getRatingInfo().getMinimumTaxesAndSurcharges());
 
 
         QuoteDto newQuote = QuoteDto.builder()

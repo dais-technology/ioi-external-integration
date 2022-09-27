@@ -86,6 +86,7 @@ public class JMQuickQuoteHelperImpl
         HashMap<String, Object> metaDatamap = new HashMap<>();
         metaDatamap.put( "totalTaxesAndSurcharges",  (Double) quickQuoteResult.getTotalTaxesAndSurcharges() );
         metaDatamap.put( "minimumPremium" ,quickQuoteResult.getMinimumPremium());
+        metaDatamap.put( "minimumTaxesAndSurcharges" ,quickQuoteResult.getMinimumTaxesAndSurcharges());
 
 
         QuoteDto newQuote = QuoteDto.builder()
