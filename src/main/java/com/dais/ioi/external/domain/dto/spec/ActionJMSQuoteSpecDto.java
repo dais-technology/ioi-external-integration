@@ -140,5 +140,13 @@ public class ActionJMSQuoteSpecDto
 
     private String effectiveDate;
 
+    private String lostTheftDamageLoop;
+
+    private String typeOfLoss;
+
+    private String amountOfLoss;
+
+    private String  dateOfLoss;
+
 
 }

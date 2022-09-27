@@ -74,9 +74,9 @@ public static class LossHistoryEvent{
     @JsonProperty("LossType")
     public String lossType;
     @JsonProperty("Amount")
-    public int amount;
+    public Double amount;
     @JsonProperty("LossDate")
-    public Date lossDate;
+    public String lossDate;
 }
     @Data
     @NoArgsConstructor
