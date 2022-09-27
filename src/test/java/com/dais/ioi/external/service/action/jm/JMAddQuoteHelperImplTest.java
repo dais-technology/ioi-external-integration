@@ -1,6 +1,5 @@
 package com.dais.ioi.external.service.action.jm;
 
-import com.dais.common.ioi.dto.answer.ClientAnswerDto;
 import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.internal.spec.QuoteRequestSpecDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
@@ -21,7 +20,6 @@ import org.skyscreamer.jsonassert.comparator.CustomComparator;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.util.LinkedHashMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -50,8 +48,11 @@ class JMAddQuoteHelperImplTest
         assertEquals( "2022-09-29", formattedDate );
     }
 
+
     @Test
-    void testPrimaryWearerMapping() throws Exception {
+    void testPrimaryWearerMapping()
+          throws Exception
+    {
         // Create instance
         final JMQuoteClient mockJmQuoteClient = Mockito.mock( JMQuoteClient.class );
         final JMAddQuoteHelperImpl addQuoteHelper = new JMAddQuoteHelperImpl( mockJmQuoteClient, OBJECT_MAPPER );
@@ -69,11 +70,44 @@ class JMAddQuoteHelperImplTest
         QuoteRequestSpecDto triggerSpec = OBJECT_MAPPER.convertValue( firedTriggerDto.getPayload(), QuoteRequestSpecDto.class );
 
 
-      AddQuoteRequest request = addQuoteHelper.createAddQuoteRequest( triggerSpec.getIntake(), spec );
+        AddQuoteRequest request = addQuoteHelper.createAddQuoteRequest( triggerSpec.getIntake(), spec );
 
 
-      request.getPrimaryContact();
+        request.getPrimaryContact();
+    }
 
+
+    @Test
+        //TODO: Assertions on AddQuoteRequest
+    void mailingAddressIsIncludedInJmRequestSanityCheck()
+          throws Exception
+    {
+        // Create instance
+        final JMQuoteClient mockJmQuoteClient = Mockito.mock( JMQuoteClient.class );
+        final JMAddQuoteHelperImpl addQuoteHelper = new JMAddQuoteHelperImpl( mockJmQuoteClient, OBJECT_MAPPER );
+
+        // Prepare inputs
+        final FiredTriggerDto firedTriggerDto = JsonFileUtils.loadResourceAs(
+              "addquotehelper/mailingAddressDifferent_triggerRequest.json", FiredTriggerDto.class );
+        final JMAuthResult jmAuthResult = JMAuthResult.builder().access_token( "test token" ).build();
+        final ActionJMSQuoteSpecDto spec = JsonFileUtils.loadResourceAs(
+              "addquotehelper/addQuoteSpec.json", ActionJMSQuoteSpecDto.class );
+
+        // Prepare Mock API Outputs
+        final AddQuoteResult addQuoteResult = JsonFileUtils.loadResourceAs(
+              "addquotehelper/addQuoteResponse.json", AddQuoteResult.class );
+
+        Mockito.when( mockJmQuoteClient.addQuote( any(), any(), any(), any() ) ).thenReturn( addQuoteResult );
+        Mockito.when( mockJmQuoteClient.updateQuote( any(), any(), any(), any() ) ).thenReturn( addQuoteResult );
+
+        // Execute
+        final TriggerResponseDto triggerResponseDto = addQuoteHelper.processAddQuote( firedTriggerDto, jmAuthResult, spec );
+
+        // Verify Results
+        final TriggerResponseDto expectedResult = JsonFileUtils.loadResourceAs(
+              "addquotehelper/expectedTriggerResponse.json", TriggerResponseDto.class );
+
+        JsonComparisonUtils.assertMatch( expectedResult, triggerResponseDto, getComparator(), "triggerResponseDto" );
     }
 
 

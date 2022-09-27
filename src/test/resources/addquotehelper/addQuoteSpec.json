@@ -36,11 +36,11 @@
   "misdemeanorConviction": "MisdemeanorConviction",
   "primaryWearerLastName": "customerInfoLastName",
   "primaryWearerResAddr1": "client.address1",
-  "primaryWearerResAddr2": "client.address2",
+  "primaryWearerResAddr2": "customerInfoPrimaryApt",
   "additionalUnderwriting": "additionalUnderwriting",
   "primaryContactLastName": "customerInfoLastName",
   "primaryContactResAddr1": "client.address1",
-  "primaryContactResAddr2": "client.address2",
+  "primaryContactResAddr2": "customerInfoPrimaryApt",
   "primaryWearerFirstName": "customerInfoFirstName",
   "primaryContactFirstName": "customerInfoFirstName",
   "canceledOrDeniedCoverage": "CanceledOrDeniedCoverage",
@@ -56,5 +56,12 @@
   "primaryContactResAddrCountry": "customerInfoCountry",
   "primaryWearerResAddrPostalCode": "client.zipcode",
   "primaryContactResAddrPostalCode": "client.zipcode",
-  "convictionSentenceCompletionDate": "sentenceCompletionDate"
+  "convictionSentenceCompletionDate": "sentenceCompletionDate",
+  "primaryContactMailingAddrCity": "NamedInsured_MailingAddress_CityName_A",
+  "primaryContactMailingAddr1": "NamedInsured_MailingAddress_LineOne_A",
+  "primaryContactMailingAddr2": "applicantWearerMailingAddress2",
+  "primaryContactMailingAddrPostalCode": "NamedInsured_MailingAddress_PostalCode_A",
+  "primaryContactMailingAddrCounty": "NamedInsured_MailingAddress_CountyName_A",
+  "primaryContactMailingAddrState": "NamedInsured_MailingAddress_StateOrProvinceCode_A",
+  "hasMailingAddr": "customerMailingAddress"
 }
