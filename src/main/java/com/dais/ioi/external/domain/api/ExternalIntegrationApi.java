@@ -69,4 +69,10 @@ public interface ExternalIntegrationApi
                      method = RequestMethod.PUT )
     @ApiOperation( value = "create or update an Integration Record" )
     IntegrationDto saveOrUpdate( @RequestBody @Valid final IntegrationDto integrationDto );
+
+    @ResponseStatus( HttpStatus.OK )
+    @RequestMapping( value = "/{integrationId}",
+                     method = RequestMethod.DELETE )
+    @ApiOperation( value = "Delete Integration Record by Id" )
+    void deleteById( @PathVariable final UUID integrationId );
 }

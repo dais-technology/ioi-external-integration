@@ -30,4 +30,6 @@ public interface ExternalIntegrationService
 
     CreateAccountResponse createAccount( final CreateAccountRequest createAccountRequest,
                                          final UUID orgId );
+
+    void deleteById( UUID integrationId );
 }

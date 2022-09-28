@@ -78,6 +78,13 @@ public class ExternalIntegrationServiceImpl
 
 
     @Override
+    public void deleteById( final UUID integrationId )
+    {
+        externalIntegrationRepository.deleteById( integrationId );
+    }
+
+
+    @Override
     public IntegrationDto createOrUpdate( final IntegrationDto integrationDto )
     {
         if ( !Objects.isNull( integrationDto.getId() ) )

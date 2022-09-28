@@ -34,15 +34,40 @@ public class ExternalIntegrationController
     private final ObjectMapper objectMapper;
 
 
+    @Override
     public IntegrationDto save( final IntegrationDto integrationDto )
     {
         return externalIntegrationService.create( integrationDto );
     }
 
 
+    @Override
     public IntegrationDto saveOrUpdate( final IntegrationDto integrationDto )
     {
         return externalIntegrationService.createOrUpdate( integrationDto );
+    }
+
+
+    @Override
+    public void deleteById( final UUID integrationId )
+    {
+        externalIntegrationService.deleteById( integrationId );
+    }
+
+
+    @Override
+    public CreateAccountResponse create( final CreateAccountRequest createAccountRequest,
+                                         final UUID orgId )
+          throws IllegalAccessException
+    {
+        return externalIntegrationService.createAccount( createAccountRequest, orgId );
+    }
+
+
+    @Override
+    public IntegrationDto getById( final UUID integrationId )
+    {
+        return externalIntegrationService.getById( integrationId );
     }
 
 
@@ -108,21 +133,5 @@ public class ExternalIntegrationController
                                              final UUID orgId )
     {
         return externalIntegrationService.submitApplication( submitApplicationRequest, orgId );
-    }
-
-
-    @Override
-    public CreateAccountResponse create( final CreateAccountRequest createAccountRequest,
-                                         final UUID orgId )
-          throws IllegalAccessException
-    {
-        return externalIntegrationService.createAccount( createAccountRequest, orgId );
-    }
-
-
-    @Override
-    public IntegrationDto getById( final UUID integrationId )
-    {
-        return externalIntegrationService.getById( integrationId );
     }
 }
