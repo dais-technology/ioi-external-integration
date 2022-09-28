@@ -69,11 +69,4 @@ public interface ExternalIntegrationApi
                      method = RequestMethod.PUT )
     @ApiOperation( value = "create or update an Integration Record" )
     IntegrationDto saveOrUpdate( @RequestBody @Valid final IntegrationDto integrationDto );
-
-//    @ResponseStatus( HttpStatus.OK )
-    //    @RequestMapping( value = "/hubspot",
-    //                     method = RequestMethod.POST )
-    //    @ApiOperation( value = "make a track call to hubspot" )
-    //    void trackEvent( @RequestBody @Valid final
-    //                     HubspotTrackRequest request );
 }
