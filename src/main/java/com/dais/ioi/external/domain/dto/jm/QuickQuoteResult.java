@@ -24,6 +24,10 @@ public class QuickQuoteResult
 
     public double totalTaxesAndSurcharges;
 
+    public double minimumPremium;
+
+    public double  minimumTaxesAndSurcharges;
+
     public ArrayList<ItemWiseRateInfo> itemWiseRateInfo;
 
     @Data

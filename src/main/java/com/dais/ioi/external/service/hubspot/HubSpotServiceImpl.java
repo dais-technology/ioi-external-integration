@@ -47,8 +47,7 @@ public class HubSpotServiceImpl
             log.info( String.format( "Hubspot Track Request Received: %s", mapper.writeValueAsString( request ) ) );
             IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByUsageAndType( request.getUsage(), IntegrationType.HUBSPOT_TRACK );
             HubspotTrackSpec spec = mapper.convertValue( integrationEntity.getSpec(), HubspotTrackSpec.class );
-            String mappingsAsString = "";//spec.getMappings();
-            Map<String, String> mappings = mapper.readValue( mappingsAsString, Map.class );
+            Map<String, String> mappings = spec.getMappings();
             Map<String, String> parameters = propertiesMapper.map( mappings, request.getInput() );
             parameters.put( EVENT_ID_PARAM_KEY, spec.getEventId() );
             parameters.put( PORTAL_ID_PARAM_KEY, spec.getPortalId() );

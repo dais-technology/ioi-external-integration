@@ -119,8 +119,38 @@
       },
       "customerMailingAddress": {
         "type": "ANSWER",
-        "answer": "[\"Is this your Mailing Address?\"]",
+        "answer": "[]",
         "qid": "customerMailingAddress"
+      },
+      "NamedInsured_MailingAddress_CityName_A": {
+        "type": "ANSWER",
+        "answer": "MailingAddressCity",
+        "qid": "NamedInsured_MailingAddress_CityName_A"
+      },
+      "NamedInsured_MailingAddress_LineOne_A": {
+        "type": "ANSWER",
+        "answer": "MailingAddressLine1",
+        "qid": "NamedInsured_MailingAddress_LineOne_A"
+      },
+      "applicantWearerMailingAddress2": {
+        "type": "ANSWER",
+        "answer": "MailingAddressLine2",
+        "qid": "applicantWearerMailingAddress2"
+      },
+      "NamedInsured_MailingAddress_PostalCode_A": {
+        "type": "ANSWER",
+        "answer": "60563",
+        "qid": "NamedInsured_MailingAddress_PostalCode_A"
+      },
+      "NamedInsured_MailingAddress_CountyName_A": {
+        "type": "ANSWER",
+        "answer": "MailingAddressCounty",
+        "qid": "NamedInsured_MailingAddress_CountyName_A"
+      },
+      "NamedInsured_MailingAddress_StateOrProvinceCode_A": {
+        "type": "ANSWER",
+        "answer": "IL",
+        "qid": "NamedInsured_MailingAddress_StateOrProvinceCode_A"
       },
       "existingDamage": {
         "type": "ANSWER",

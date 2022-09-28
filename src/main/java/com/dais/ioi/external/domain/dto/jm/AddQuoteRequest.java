@@ -74,9 +74,9 @@ public static class LossHistoryEvent{
     @JsonProperty("LossType")
     public String lossType;
     @JsonProperty("Amount")
-    public int amount;
+    public Double amount;
     @JsonProperty("LossDate")
-    public Date lossDate;
+    public String lossDate;
 }
     @Data
     @NoArgsConstructor
@@ -98,7 +98,7 @@ public static class PrimaryContact{
     @JsonProperty("ResidentialAddress")
     public ResidentialAddress residentialAddress;
     @JsonProperty("MailingAddress")
-    public Object mailingAddress;
+    public ResidentialAddress mailingAddress;
     @JsonProperty("ContactPreference")
     public Object contactPreference;
 }
@@ -122,7 +122,7 @@ public static class PrimaryWearer{
     @JsonProperty("ResidentialAddress")
     public ResidentialAddress residentialAddress;
     @JsonProperty("MailingAddress")
-    public Object mailingAddress;
+    public ResidentialAddress mailingAddress;
     @JsonProperty("ContactPreference")
     public Object contactPreference;
 }

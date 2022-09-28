@@ -69,9 +69,6 @@ serviceSecrets:
   - spring.datasource.password
   - spring.jpa.properties.hibernate.show_sql
   - spring.jpa.hibernate.ddl-auto
-  - jm.auth.url
-  - jm.api.url
-  - jm.api.subscriptionKey
   - ioi-action-service.ribbon.listOfServers
   - track-hubspot.ribbon.listOfServers
   - feign.logging.level

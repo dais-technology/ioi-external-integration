@@ -8,17 +8,17 @@ public class ActionJMSQuoteSpecDto
 {
     // Auth fields
 
-    private String authUrl ;
+    private String authUrl;
 
-    private String userName ;
+    private String userName;
 
-    private String  clientId ;
+    private String clientId;
 
-    private String  clientSecret ;
+    private String clientSecret;
 
-    private String  clientPassword;
+    private String clientPassword;
 
-    private String  apiSubscriptionkey;
+    private String apiSubscriptionkey;
 
     private String quickQuoteUrl;
 
@@ -112,6 +112,20 @@ public class ActionJMSQuoteSpecDto
 
     private String primaryWearerResAddrPostalCode;
 
+    private String hasMailingAddr;
+
+    private String primaryContactMailingAddrCity;
+
+    private String primaryContactMailingAddr1;
+
+    private String primaryContactMailingAddr2;
+
+    private String primaryContactMailingAddrPostalCode;
+
+    private String primaryContactMailingAddrCounty;
+
+    private String primaryContactMailingAddrState;
+
     private String felonyConviction;
 
     private String lostWithin7Years;
@@ -140,5 +154,11 @@ public class ActionJMSQuoteSpecDto
 
     private String effectiveDate;
 
+    private String lostTheftDamageLoop;
 
+    private String typeOfLoss;
+
+    private String amountOfLoss;
+
+    private String dateOfLoss;
 }

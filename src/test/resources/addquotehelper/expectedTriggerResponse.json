@@ -257,6 +257,8 @@
       "clientId": "de97d4ae-09b3-4a39-96e4-a4313acba90d",
       "clientOrganizationId": "3eda8351-f3ad-4476-85eb-3d2b99953e65",
       "metadata": {
+        "minimumPremium" : 25.00,
+        "minimumTaxesAndSurcharges" : 0.0,
         "ratePlans": [
           {
             "downPaymentAmount": 43.0,

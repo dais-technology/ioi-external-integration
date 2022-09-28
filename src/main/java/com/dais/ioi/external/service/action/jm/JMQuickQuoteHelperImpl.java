@@ -82,6 +82,13 @@ public class JMQuickQuoteHelperImpl
 
         TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
 
+
+        HashMap<String, Object> metaDatamap = new HashMap<>();
+        metaDatamap.put( "totalTaxesAndSurcharges",  (Double) quickQuoteResult.getTotalTaxesAndSurcharges() );
+        metaDatamap.put( "minimumPremium" ,quickQuoteResult.getMinimumPremium());
+        metaDatamap.put( "minimumTaxesAndSurcharges" ,quickQuoteResult.getMinimumTaxesAndSurcharges());
+
+
         QuoteDto newQuote = QuoteDto.builder()
                                 /*    .actionId( ap.actionEntity.getId() )
                                     .pipelineId( ap.triggerEntity.getPipeline().getId() )
@@ -99,7 +106,7 @@ public class JMQuickQuoteHelperImpl
                                     .bindable( false )
                                     .effectiveDate( LocalDate.now()    )
                                     .quoteDetails( quoteDetails )
-                                    .metadata( Collections.singletonMap( "totalTaxesAndSurcharges", (Double) quickQuoteResult.getTotalTaxesAndSurcharges() ) )
+                                    .metadata( metaDatamap )
                                     .build();
 
         triggerResponseDto.getMetadata().put( requestId.toString(),  newQuote );

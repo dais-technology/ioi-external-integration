@@ -23,6 +23,7 @@ import com.dais.ioi.quote.domain.dto.pub.PubPremiumTaxesDto;
 import com.dais.ioi.quote.domain.dto.pub.PubQuoteDetailsDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -56,8 +57,9 @@ public class JMAddQuoteHelperImpl
 
     private final ObjectMapper objectMapper;
 
+
     public JMAddQuoteHelperImpl( @Autowired final JMQuoteClient jmQuoteClient,
-                                 @Autowired final ObjectMapper objectMapper)
+                                 @Autowired final ObjectMapper objectMapper )
     {
         this.jmQuoteClient = jmQuoteClient;
         this.objectMapper = objectMapper;
@@ -65,14 +67,14 @@ public class JMAddQuoteHelperImpl
 
 
     public TriggerResponseDto processAddQuote( FiredTriggerDto firedTriggerDto,
-                                 JMAuthResult jmAuthResult ,
-                                 ActionJMSQuoteSpecDto actionJMSQuoteSpecDto)
-          throws  Exception
+                                               JMAuthResult jmAuthResult,
+                                               ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
+          throws Exception
     {
 
         final UUID requestId = null == firedTriggerDto.getTriggerRequestId() ? UUID.randomUUID() : firedTriggerDto.getTriggerRequestId();
 
-        String externalQuoteId = (String) firedTriggerDto.getPayload().get( "externalQuoteId");
+        String externalQuoteId = (String) firedTriggerDto.getPayload().get( "externalQuoteId" );
 
         QuoteRequestSpecDto triggerSpec = objectMapper.convertValue( firedTriggerDto.getPayload(), QuoteRequestSpecDto.class );
 
@@ -87,32 +89,32 @@ public class JMAddQuoteHelperImpl
         addUserInfo( addQuoteRequest, firedTriggerDto );
 
 
-// If the external quote id is sent, its treated as exclusively for updating
-        if ( externalQuoteId != null && !externalQuoteId.equalsIgnoreCase( "" ))
+        // If the external quote id is sent, its treated as exclusively for updating
+        if ( externalQuoteId != null && !externalQuoteId.equalsIgnoreCase( "" ) )
         {
-            URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl());
+            URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl() );
 
             addQuoteRequest.setQuoteId( externalQuoteId );
 
-            String planName = getValue( () -> ((Map)firedTriggerDto.getPayload().get( "selectedPaymentPlan" )).get( "name" ).toString(), "");
+            String planName = getValue( () -> ( (Map) firedTriggerDto.getPayload().get( "selectedPaymentPlan" ) ).get( "name" ).toString(), "" );
 
-            Integer numberOfInstallments = Integer.parseInt(   getValue( () -> ((Map)firedTriggerDto.getPayload().get( "selectedPaymentPlan" )).get( "numberOfInstallments" ).toString(), "") );
+            Integer numberOfInstallments = Integer.parseInt( getValue( () -> ( (Map) firedTriggerDto.getPayload().get( "selectedPaymentPlan" ) ).get( "numberOfInstallments" ).toString(), "" ) );
 
-            addPaymentPlan(addQuoteRequest, planName, numberOfInstallments);
+            addPaymentPlan( addQuoteRequest, planName, numberOfInstallments );
 
-            log.info(objectMapper.writeValueAsString( addQuoteRequest ));
+            log.info( objectMapper.writeValueAsString( addQuoteRequest ) );
 
             AddQuoteResult updQuoteResult = jmQuoteClient.updateQuote( determinedBasePathUri,
                                                                        "Bearer " + jmAuthResult.getAccess_token(),
                                                                        actionJMSQuoteSpecDto.getApiSubscriptionkey(),
                                                                        addQuoteRequest );
 
-            if ( getValue( ()-> updQuoteResult.getErrorMessages().size(),0 ) > 0) {
+            if ( getValue( () -> updQuoteResult.getErrorMessages().size(), 0 ) > 0 )
+            {
 
                 String errorMessage = updQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
 
-                throw new Exception(errorMessage);
-
+                throw new Exception( errorMessage );
             }
 
             TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
@@ -123,68 +125,69 @@ public class JMAddQuoteHelperImpl
 
             triggerResponseDto.setTriggerRequestId( requestId );
 
-            triggerResponseDto.setMetadata(idMap);
+            triggerResponseDto.setMetadata( idMap );
 
             return triggerResponseDto;
-
         }
 
 
-        URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getAddQuoteUrl());
+        URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getAddQuoteUrl() );
 
-        log.info(objectMapper.writeValueAsString( addQuoteRequest ));
-
-
+        log.info( objectMapper.writeValueAsString( addQuoteRequest ) );
 
 
-            AddQuoteResult addQuoteResult = jmQuoteClient.addQuote( determinedBasePathUri,
-                                                                    "Bearer " + jmAuthResult.getAccess_token(),
-                                                                    actionJMSQuoteSpecDto.getApiSubscriptionkey(),
-                                                                    addQuoteRequest );
+
+        AddQuoteResult addQuoteResult = jmQuoteClient.addQuote( determinedBasePathUri,
+                                                                "Bearer " + jmAuthResult.getAccess_token(),
+                                                                actionJMSQuoteSpecDto.getApiSubscriptionkey(),
+                                                                addQuoteRequest );
 
 
-// This block will be hit if there is no coverage and the http response is 200
-            if (addQuoteResult.isCoverageAvailable == false ) {
+        // This block will be hit if there is no coverage and the http response is 200
+        if ( addQuoteResult.isCoverageAvailable == false )
+        {
 
-                TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
+            TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
 
-                HashMap<String, Object> metaDatamap = new HashMap<>();
+            HashMap<String, Object> metaDatamap = new HashMap<>();
 
-                metaDatamap.put( "isUnderwritingNeeded" ,addQuoteResult.isUnderwritingNeeded());
-                metaDatamap.put( "isCoverageAvailable" ,addQuoteResult.isCoverageAvailable());
-                metaDatamap.put( "errorMessages", addQuoteResult.getErrorMessages() );
+            metaDatamap.put( "isUnderwritingNeeded", addQuoteResult.isUnderwritingNeeded() );
+            metaDatamap.put( "isCoverageAvailable", addQuoteResult.isCoverageAvailable() );
+            metaDatamap.put( "errorMessages", addQuoteResult.getErrorMessages() );
+            metaDatamap.put( "messageList", addQuoteResult.getRespMessageList() );
 
-                log.info("setting request Id to " + requestId);
-                triggerResponseDto.setTriggerRequestId( requestId );
 
-                triggerResponseDto.setMetadata(metaDatamap);
+            log.info( "setting request Id to " + requestId );
+            triggerResponseDto.setTriggerRequestId( requestId );
 
-                return triggerResponseDto;
-            }
+            triggerResponseDto.setMetadata( metaDatamap );
 
-            externalQuoteId = addQuoteResult.getQuoteId();
+            return triggerResponseDto;
+        }
 
-            if ( getValue( () -> addQuoteResult.getErrorMessages().size(), 0 ) > 0 )
-            {
-                String errorMessage = addQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
-                throw new Exception( errorMessage );
-            }
+        externalQuoteId = addQuoteResult.getQuoteId();
+
+        if ( getValue( () -> addQuoteResult.getErrorMessages().size(), 0 ) > 0 )
+        {
+            String errorMessage = addQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
+            throw new Exception( errorMessage );
+        }
 
 
 
         addQuoteRequest.setQuoteId( externalQuoteId );
 
-        determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl());
+        determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl() );
 
         AddQuoteResult updQuoteResult = jmQuoteClient.updateQuote( determinedBasePathUri,
-                                                                "Bearer " + jmAuthResult.getAccess_token(),
-                                                                actionJMSQuoteSpecDto.getApiSubscriptionkey(),
-                                                                addQuoteRequest );
+                                                                   "Bearer " + jmAuthResult.getAccess_token(),
+                                                                   actionJMSQuoteSpecDto.getApiSubscriptionkey(),
+                                                                   addQuoteRequest );
 
-        if ( getValue( ()-> updQuoteResult.getErrorMessages().size(),0 ) > 0) {
+        if ( getValue( () -> updQuoteResult.getErrorMessages().size(), 0 ) > 0 )
+        {
             String errorMessage = updQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
-            throw new Exception(errorMessage);
-
+            throw new Exception( errorMessage );
         }
 
 
@@ -194,18 +197,20 @@ public class JMAddQuoteHelperImpl
 
         HashMap<String, Object> metaDatamap = new HashMap<>();
         metaDatamap.put( "ratePlans", updQuoteResult.getPaymentPlans() );
-        metaDatamap.put( "isUnderwritingNeeded" ,addQuoteResult.isUnderwritingNeeded());
-        metaDatamap.put( "isCoverageAvailable" ,addQuoteResult.isCoverageAvailable());
+        metaDatamap.put( "isUnderwritingNeeded", addQuoteResult.isUnderwritingNeeded() );
+        metaDatamap.put( "isCoverageAvailable", addQuoteResult.isCoverageAvailable() );
+        metaDatamap.put( "minimumPremium", addQuoteResult.getRatingInfo().getMinimumPremium() );
+        metaDatamap.put( "minimumTaxesAndSurcharges", addQuoteResult.getRatingInfo().getMinimumTaxesAndSurcharges() );
 
 
         QuoteDto newQuote = QuoteDto.builder()
-                                  /*  .actionId( firedTriggerDto.actionEntity.getId() )
-                                    .pipelineId( firedTriggerDto.triggerEntity.getPipeline().getId() )
-                                    .quotingOrganizationId( firedTriggerDto.triggerEntity.getPipeline().getOrganizationId() )
-                                    .triggerRequestId( firedTriggerDto.triggerResponse.getTriggerRequestId() )
-                                    .bundleId( firedTriggerDto.firedTrigger.getBundleId() )
-                                    .lineId( firedTriggerDto.line.getId() )
-                                    .source( firedTriggerDto.firedTrigger.getSource() )*/
+                                    /*  .actionId( firedTriggerDto.actionEntity.getId() )
+                                      .pipelineId( firedTriggerDto.triggerEntity.getPipeline().getId() )
+                                      .quotingOrganizationId( firedTriggerDto.triggerEntity.getPipeline().getOrganizationId() )
+                                      .triggerRequestId( firedTriggerDto.triggerResponse.getTriggerRequestId() )
+                                      .bundleId( firedTriggerDto.firedTrigger.getBundleId() )
+                                      .lineId( firedTriggerDto.line.getId() )
+                                      .source( firedTriggerDto.firedTrigger.getSource() )*/
                                     .clientOrganizationId( firedTriggerDto.getSource().getOrganizationId() )
                                     .quoteTimestamp( OffsetDateTime.now() )
                                     .source( firedTriggerDto.getSource() )
@@ -216,10 +221,10 @@ public class JMAddQuoteHelperImpl
                                     .effectiveDate( effectiveDate )
                                     .bindable( true )
                                     .quoteDetails( quoteDetails )
-                                    .metadata( metaDatamap)
+                                    .metadata( metaDatamap )
                                     .build();
 
-        triggerResponseDto.getMetadata().put( requestId.toString(),  newQuote );
+        triggerResponseDto.getMetadata().put( requestId.toString(), newQuote );
 
         triggerResponseDto.setTriggerRequestId( requestId );
 
@@ -229,13 +234,13 @@ public class JMAddQuoteHelperImpl
 
     // Add Quote Methods
     public AddQuoteRequest createAddQuoteRequest( LinkedHashMap<String, ClientAnswerDto> intake,
-                                                   ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
+                                                  ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
     {
         AddQuoteRequest addQuoteRequest = AddQuoteRequest.builder().build();
 
-            addProducerCode(addQuoteRequest,actionJMSQuoteSpecDto,intake);
+        addProducerCode( addQuoteRequest, actionJMSQuoteSpecDto, intake );
 
-            addPaperLessOption( addQuoteRequest,actionJMSQuoteSpecDto,intake );
+        addPaperLessOption( addQuoteRequest, actionJMSQuoteSpecDto, intake );
 
         AddQuoteRequest.PrimaryContact primaryContact = new AddQuoteRequest.PrimaryContact();
 
@@ -277,8 +282,44 @@ public class JMAddQuoteHelperImpl
               getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactResAddrState() ).getAnswer(), "" )
         );
         residentialAddress.setPostalCode(
-            JMUtils.formatZipCode(   getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactResAddrPostalCode() ).getAnswer(), "" ) )
+              JMUtils.formatZipCode( getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactResAddrPostalCode() ).getAnswer(), "" ) )
         );
+
+        // Map mailing address
+        if ( getValue( () -> intake.get( actionJMSQuoteSpecDto.getHasMailingAddr() ).getAnswer(), StringUtils.EMPTY ).equals( "[]" ) )
+        {
+            String mailingPostalCode = intake.get( actionJMSQuoteSpecDto.getPrimaryContactMailingAddrPostalCode() ).getAnswer();
+            String mailingCounty = intake.get( actionJMSQuoteSpecDto.getPrimaryContactMailingAddrCounty() ).getAnswer();
+            if ( StringUtils.isEmpty( mailingCounty ) || StringUtils.isEmpty( mailingPostalCode ) )
+            {
+                log.warn( "Primary Contact Mailing address PostalCode/County is Empty.  Mailing address will not be included in JM Request" );
+            }
+            else
+            {
+                AddQuoteRequest.ResidentialAddress mailingAddress = new AddQuoteRequest.ResidentialAddress();
+                mailingAddress.setAddress1(
+                      getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactMailingAddr1() ).getAnswer(), "" )
+                );
+                mailingAddress.setAddress2(
+                      getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactMailingAddr2() ).getAnswer(), "" )
+                );
+                mailingAddress.setCity(
+                      getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactMailingAddrCity() ).getAnswer(), "" )
+                );
+                mailingAddress.setCounty(
+                      getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactMailingAddrCounty() ).getAnswer(), "" )
+                );
+                mailingAddress.setState(
+                      getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactMailingAddrState() ).getAnswer(), "" )
+                );
+                mailingAddress.setPostalCode(
+                      JMUtils.formatZipCode( getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactMailingAddrPostalCode() ).getAnswer(), "" ) )
+                );
+                primaryContact.setMailingAddress( mailingAddress );
+            }
+        }
+
+
 
         primaryContact.setResidentialAddress( residentialAddress );
 
@@ -286,9 +327,9 @@ public class JMAddQuoteHelperImpl
 
         processUnderWriting( addQuoteRequest, intake, actionJMSQuoteSpecDto );
 
-        List<ClientLoopIterationDto> jewerlyWearers =  intake.get( "jewelryWearers").getIterations();
+        List<ClientLoopIterationDto> jewerlyWearers = intake.get( "jewelryWearers" ).getIterations();
 
-        processAddQuoteIteration( addQuoteRequest, intake.get( actionJMSQuoteSpecDto.getItemLoop()).getIterations(), actionJMSQuoteSpecDto, jewerlyWearers );
+        processAddQuoteIteration( addQuoteRequest, intake.get( actionJMSQuoteSpecDto.getItemLoop() ).getIterations(), actionJMSQuoteSpecDto, jewerlyWearers );
 
         return addQuoteRequest;
     }
@@ -335,31 +376,50 @@ public class JMAddQuoteHelperImpl
 
 
         AddQuoteRequest.UnderwritingQuestion alarmId = new AddQuoteRequest.UnderwritingQuestion();
-        alarmId.setKey( "AlarmId");
-        alarmId.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getAlarmId()).getAnswer(), "" ) );
+        alarmId.setKey( "AlarmId" );
+        alarmId.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getAlarmId() ).getAnswer(), "" ) );
         underwritingInfo.getUnderwritingQuestions().add( alarmId );
 
-     /*   AddQuoteRequest.UnderwritingQuestion convictionType = new AddQuoteRequest.UnderwritingQuestion();
-        convictionType.setKey( "ConvictionType");
-        convictionType.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getConvictionType()).getAnswer(), "" ) );
+        AddQuoteRequest.UnderwritingQuestion convictionType = new AddQuoteRequest.UnderwritingQuestion();
+        convictionType.setKey( "ConvictionType" );
+        convictionType.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getConvictionType() ).getAnswer(), "" ) );
         underwritingInfo.getUnderwritingQuestions().add( convictionType );
 
         AddQuoteRequest.UnderwritingQuestion convictionSentenceCompletionDate = new AddQuoteRequest.UnderwritingQuestion();
-        convictionSentenceCompletionDate.setKey( "ConvictionSentenceCompletionDate");
-        convictionSentenceCompletionDate.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getConvictionSentenceCompletionDate()).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( convictionSentenceCompletionDate );*/
+        convictionSentenceCompletionDate.setKey( "ConvictionSentenceCompletionDate" );
+        convictionSentenceCompletionDate.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getConvictionSentenceCompletionDate() ).getAnswer(), "" ) );
+        underwritingInfo.getUnderwritingQuestions().add( convictionSentenceCompletionDate );
 
 
         addQuoteRequest.setUnderwritingInfo( underwritingInfo );
 
+        List<ClientLoopIterationDto> lostTheftDamage = getValue( () -> intake.get( actionJMSQuoteSpecDto.getLostTheftDamageLoop() ).getIterations(), new ArrayList<ClientLoopIterationDto>() );
 
+        for ( ClientLoopIterationDto clientLoopIterationDto : lostTheftDamage )
+        {
+
+            AddQuoteRequest.LossHistoryEvent lossHistoryEvent = new AddQuoteRequest.LossHistoryEvent();
+            lossHistoryEvent.setLossType(
+                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getTypeOfLoss() ).getAnswer().toLowerCase(), "" ).toString()
+
+            );
+            lossHistoryEvent.setAmount(
+                  Double.parseDouble( getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getAmountOfLoss() ).getAnswer().toString(), "" ) )
+
+            );
+            lossHistoryEvent.setLossDate(
+                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getDateOfLoss() ).getAnswer().toString(), "" ).toString()
+
+            );
+            addQuoteRequest.getUnderwritingInfo().getLossHistoryEvents().add( lossHistoryEvent );
+        }
     }
 
 
     private void processAddQuoteIteration( AddQuoteRequest addQuoteRequest,
                                            List<ClientLoopIterationDto> iterations,
                                            ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
-                                           List<ClientLoopIterationDto> jewerlyWearers)
+                                           List<ClientLoopIterationDto> jewerlyWearers )
     {
         ArrayList<AddQuoteRequest.JeweleryItem> jeweleryItems = new ArrayList<>();
         int itemNumber = 1;
@@ -389,42 +449,44 @@ public class JMAddQuoteHelperImpl
                   getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemPossession() ).getAnswer(), "" ).toString()
             );*/
             // Remove after questions answered
-           // item.setItemDamage( "no" );
+            // item.setItemDamage( "no" );
             //   item.setItemPossession( "yes" );
             //
-            AddQuoteRequest.PrimaryWearer primaryWearer ;
+            AddQuoteRequest.PrimaryWearer primaryWearer;
 
-            String wearerId =  getValue ( ()-> clientLoopIterationDto.getAnswers().get( "wearerValue" ).getAnswer(), "primary" ) ;
+            String wearerId = getValue( () -> clientLoopIterationDto.getAnswers().get( "wearerValue" ).getAnswer(), "primary" );
 
             // wearerId will give the ID of the wearer or say primary if the applicant is same as the primary
-            ClientLoopIterationDto wearerDto ;
+            ClientLoopIterationDto wearerDto;
 
          /*   if ( wearerId.equalsIgnoreCase( "primary" )) {
                 primaryWearer = mapToPrimary( clientLoopIterationDto, actionJMSQuoteSpecDto );
             }*/
             primaryWearer = mapToPrimary( clientLoopIterationDto, actionJMSQuoteSpecDto );
 
-            if ( !wearerId.equalsIgnoreCase( "primary" )) {
-                wearerDto = jewerlyWearers.stream().filter( wearer -> getValue (()->wearer.getAnswers().get( "id" ).getAnswer().toString(),"") .equalsIgnoreCase( wearerId ) ).findFirst().get();
+            if ( !wearerId.equalsIgnoreCase( "primary" ) )
+            {
+                wearerDto = jewerlyWearers.stream().filter( wearer -> getValue( () -> wearer.getAnswers().get( "id" ).getAnswer().toString(), "" ).equalsIgnoreCase( wearerId ) ).findFirst().get();
                 AddQuoteRequest.PrimaryWearer nonContactWearer = mapToWearer( wearerDto, actionJMSQuoteSpecDto );
-                if ( getValue(  ()-> wearerDto.getAnswers().get( "sameAsPrimary" ).getAnswer().toString(), "").contains( "same" ) ){
+                if ( getValue( () -> wearerDto.getAnswers().get( "sameAsPrimary" ).getAnswer().toString(), "" ).contains( "same" ) )
+                {
                     nonContactWearer.setResidentialAddress( primaryWearer.getResidentialAddress() );
                 }
                 primaryWearer = nonContactWearer;
             }
 
             primaryWearer.setGender(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemGender()).getAnswer().toString(), "" )
+                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemGender() ).getAnswer().toString(), "" )
             );
 
             AddQuoteRequest.DeductibleOption deductibleOption = new AddQuoteRequest.DeductibleOption();
 
             deductibleOption.setDeductible(
-                  Double.parseDouble(  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getDeductible() ).getAnswer(), "0" ) )
+                  Double.parseDouble( getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getDeductible() ).getAnswer(), "0" ) )
             );
 
             deductibleOption.setItemNumber(
-                 itemNumber
+                  itemNumber
             );
 
             deductibleOptions.add( deductibleOption );
@@ -437,24 +499,39 @@ public class JMAddQuoteHelperImpl
         addQuoteRequest.setJeweleryItems( jeweleryItems );
     }
 
-    private void addUserInfo(AddQuoteRequest addQuoteRequest,FiredTriggerDto firedTriggerDto) {
 
+    private void addUserInfo( AddQuoteRequest addQuoteRequest,
+                              FiredTriggerDto firedTriggerDto )
+    {
 
         AddQuoteRequest.User userInfo = new AddQuoteRequest.User();
 
-        final  LinkedHashMap<String,String> agentInfoMap = (LinkedHashMap<String, String>) firedTriggerDto.getPayload( ).get( "agent");
+        final LinkedHashMap<String, String> agentInfoMap = (LinkedHashMap<String, String>) firedTriggerDto.getPayload().get( "agent" );
 
-        userInfo.setUserId(   getValue( () -> agentInfoMap.get( "id"), "" ) );
-        userInfo.setUserFirstName(    getValue( () -> agentInfoMap.get( "firstName"), "" ) );
-        userInfo.setUserLastName( getValue( () -> agentInfoMap.get( "lastName"), "" ) );
-        userInfo.setUserEmailAddress (  getValue( () -> agentInfoMap.get( "email"), "" ) );
-        userInfo.setUserPhoneNumber(  getValue( () -> agentInfoMap.get( "phoneNumber"), "" ) );
+        String emailString = getValue( () -> agentInfoMap.get( "email" ).toString(), "@" );
+
+        String emailId = "";
+
+        if ( emailString.contains( "@" ) )
+        {
+            emailId = emailString.substring( 0, emailString.indexOf( "@" ) );
+        }
+        String userId = "JEWELERSNT/" + emailId;
+
+
+        userInfo.setUserId( userId );
+        userInfo.setUserFirstName( getValue( () -> agentInfoMap.get( "firstName" ), "" ) );
+        userInfo.setUserLastName( getValue( () -> agentInfoMap.get( "lastName" ), "" ) );
+        userInfo.setUserEmailAddress( getValue( () -> agentInfoMap.get( "email" ), "" ) );
+        userInfo.setUserPhoneNumber( getValue( () -> agentInfoMap.get( "phoneNumber" ), "" ) );
 
         addQuoteRequest.setUser( userInfo );
-
     }
 
-    private AddQuoteRequest.PrimaryWearer mapToWearer(ClientLoopIterationDto wearerDto, ActionJMSQuoteSpecDto actionJMSQuoteSpecDto) {
+
+    private AddQuoteRequest.PrimaryWearer mapToWearer( ClientLoopIterationDto wearerDto,
+                                                       ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
+    {
 
         AddQuoteRequest.PrimaryWearer primaryWearer = new AddQuoteRequest.PrimaryWearer();
 
@@ -483,7 +560,7 @@ public class JMAddQuoteHelperImpl
         );
 
         primaryWearer.setGender(
-              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getItemGender()).getAnswer().toString(), "" )
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getItemGender() ).getAnswer().toString(), "" )
 
         );
 
@@ -508,7 +585,7 @@ public class JMAddQuoteHelperImpl
               getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrState() ).getAnswer(), "" )
         );
         primaryWearerResidentialAddress.setPostalCode(
-              JMUtils.formatZipCode(    getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrPostalCode() ).getAnswer().toString(), "" ) )
+              JMUtils.formatZipCode( getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrPostalCode() ).getAnswer().toString(), "" ) )
         );
 
         primaryWearer.setResidentialAddress( primaryWearerResidentialAddress );
@@ -516,7 +593,10 @@ public class JMAddQuoteHelperImpl
         return primaryWearer;
     }
 
-    private AddQuoteRequest.PrimaryWearer mapToPrimary(ClientLoopIterationDto wearerDto, ActionJMSQuoteSpecDto actionJMSQuoteSpecDto) {
+
+    private AddQuoteRequest.PrimaryWearer mapToPrimary( ClientLoopIterationDto wearerDto,
+                                                        ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
+    {
 
         AddQuoteRequest.PrimaryWearer primaryWearer = new AddQuoteRequest.PrimaryWearer();
 
@@ -525,7 +605,7 @@ public class JMAddQuoteHelperImpl
         );
 
         primaryWearer.setFirstName(
-              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactFirstName()).getAnswer().toString(), "" )
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactFirstName() ).getAnswer().toString(), "" )
         );
 
         primaryWearer.setPhoneNumber(
@@ -541,20 +621,20 @@ public class JMAddQuoteHelperImpl
         );
 
         primaryWearer.setGender(
-              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getItemGender()).getAnswer().toString(), "" )
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getItemGender() ).getAnswer().toString(), "" )
 
         );
 
         AddQuoteRequest.ResidentialAddress primaryWearerResidentialAddress = new AddQuoteRequest.ResidentialAddress();
 
         primaryWearerResidentialAddress.setAddress1(
-              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactResAddr1()).getAnswer(), "" )
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactResAddr1() ).getAnswer(), "" )
         );
         primaryWearerResidentialAddress.setAddress2(
               getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactResAddr2() ).getAnswer(), "" )
         );
         primaryWearerResidentialAddress.setCity(
-              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactResAddrCity()).getAnswer(), "" )
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactResAddrCity() ).getAnswer(), "" )
         );
         primaryWearerResidentialAddress.setCountry(
               getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactResAddrCountry() ).getAnswer(), "" )
@@ -566,7 +646,7 @@ public class JMAddQuoteHelperImpl
               getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactResAddrState() ).getAnswer(), "" )
         );
         primaryWearerResidentialAddress.setPostalCode(
-              JMUtils.formatZipCode(    getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactResAddrPostalCode() ).getAnswer(), "" ) )
+              JMUtils.formatZipCode( getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactResAddrPostalCode() ).getAnswer(), "" ) )
         );
 
         primaryWearer.setResidentialAddress( primaryWearerResidentialAddress );
@@ -574,47 +654,61 @@ public class JMAddQuoteHelperImpl
         return primaryWearer;
     }
 
-    private void addPaymentPlan(AddQuoteRequest addQuoteRequest, String name, int installments ) {
+
+    private void addPaymentPlan( AddQuoteRequest addQuoteRequest,
+                                 String name,
+                                 int installments )
+    {
 
         AddQuoteRequest.SelectedPlan selectedPlan = new AddQuoteRequest.SelectedPlan();
         selectedPlan.setName( name );
         selectedPlan.setNumberOfInstallments( installments );
         addQuoteRequest.setSelectedPaymentPlan( selectedPlan );
     }
-    private void addProducerCode( AddQuoteRequest addQuoteRequest, ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,  LinkedHashMap<String, ClientAnswerDto> intake ) {
+
+
+    private void addProducerCode( AddQuoteRequest addQuoteRequest,
+                                  ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
+                                  LinkedHashMap<String, ClientAnswerDto> intake )
+    {
 
         String producerCode = "";
 
-        String customerInfoReferralSource =  getValue( () -> intake.get( actionJMSQuoteSpecDto.getCustomerInfoReferralSource() ).getAnswer(), "" );
+        String customerInfoReferralSource = getValue( () -> intake.get( actionJMSQuoteSpecDto.getCustomerInfoReferralSource() ).getAnswer(), "" );
 
-        if ( customerInfoReferralSource.equalsIgnoreCase( "Agency Express" )) {
-            producerCode =  getValue( () -> intake.get( actionJMSQuoteSpecDto.getCustomerInfoAgencyExpressOptions() ).getAnswer(), "" );
+        if ( customerInfoReferralSource.equalsIgnoreCase( "Agency Express" ) )
+        {
+            producerCode = getValue( () -> intake.get( actionJMSQuoteSpecDto.getCustomerInfoAgencyExpressOptions() ).getAnswer(), "" );
         }
-        else {
+        else
+        {
             producerCode = customerInfoReferralSource;
         }
 
-        if (producerCode.equalsIgnoreCase( "" )) {
+        if ( producerCode.equalsIgnoreCase( "" ) )
+        {
             producerCode = "DIRD";
         }
-        addQuoteRequest.setProducerCode( producerCode);
-
+        addQuoteRequest.setProducerCode( producerCode );
     }
 
-    private void addPaperLessOption( AddQuoteRequest addQuoteRequest, ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,  LinkedHashMap<String, ClientAnswerDto> intake ) {
+
+    private void addPaperLessOption( AddQuoteRequest addQuoteRequest,
+                                     ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
+                                     LinkedHashMap<String, ClientAnswerDto> intake )
+    {
 
         boolean paperlessOption = false;
 
-        String hasPaperlessDelivery =  getValue( () -> intake.get( actionJMSQuoteSpecDto.getHasPaperlessDelivery() ).getAnswer(), "" );
+        String hasPaperlessDelivery = getValue( () -> intake.get( actionJMSQuoteSpecDto.getHasPaperlessDelivery() ).getAnswer().toString(), "" );
 
-        if ( hasPaperlessDelivery.equalsIgnoreCase( "yes" )) {
-            paperlessOption =  true;
+        if ( hasPaperlessDelivery.equalsIgnoreCase( "true" ) )
+        {
+            paperlessOption = true;
         }
 
-        addQuoteRequest.setHasPaperlessDelivery( paperlessOption);
-
+        addQuoteRequest.setHasPaperlessDelivery( paperlessOption );
     }
-
 
 
 
@@ -659,7 +753,7 @@ public class JMAddQuoteHelperImpl
 
         externalDataBuilder.externalQuoteId( addQuoteResult.getQuoteId() );
 
-       quoteBuilder.externalData( externalDataBuilder.build() );
+        quoteBuilder.externalData( externalDataBuilder.build() );
 
         PubQuoteDetailsDto quoteDetailsDto = quoteBuilder.build();
 
