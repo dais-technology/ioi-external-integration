@@ -98,10 +98,13 @@ public class JMAddQuoteHelperImpl
 
             String planName = getValue( () -> ( (Map) firedTriggerDto.getPayload().get( "selectedPaymentPlan" ) ).get( "name" ).toString(), "" );
 
-            Integer numberOfInstallments = Integer.parseInt( getValue( () -> ( (Map) firedTriggerDto.getPayload().get( "selectedPaymentPlan" ) ).get( "numberOfInstallments" ).toString(), "" ) );
+            if ( firedTriggerDto.getPayload().containsKey( "selectedPaymentPlan" ) )
+            {
+                Integer numberOfInstallments = Integer.parseInt( getValue( () -> ( (Map) firedTriggerDto.getPayload().get( "selectedPaymentPlan" ) ).get( "numberOfInstallments" ).toString(), "" ) );
 
-            addPaymentPlan( addQuoteRequest, planName, numberOfInstallments );
-
+                addPaymentPlan( addQuoteRequest, planName, numberOfInstallments );
+            }
+            
             log.info( objectMapper.writeValueAsString( addQuoteRequest ) );
 
             AddQuoteResult updQuoteResult = jmQuoteClient.updateQuote( determinedBasePathUri,
