@@ -4,7 +4,6 @@ import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.domain.api.ExternalIntegrationApi;
 import com.dais.ioi.external.domain.dto.IntegrationDto;
-import com.dais.ioi.external.domain.dto.hubspot.HubspotTrackRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
@@ -35,12 +34,14 @@ public class ExternalIntegrationController
     private final ObjectMapper objectMapper;
 
 
+    @Override
     public IntegrationDto save( final IntegrationDto integrationDto )
     {
         return externalIntegrationService.create( integrationDto );
     }
 
 
+    @Override
     public IntegrationDto saveOrUpdate( final IntegrationDto integrationDto )
     {
         return externalIntegrationService.createOrUpdate( integrationDto );
@@ -48,9 +49,25 @@ public class ExternalIntegrationController
 
 
     @Override
-    public void trackEvent( final HubspotTrackRequest request )
+    public void deleteById( final UUID integrationId )
     {
-        externalIntegrationService.hubspotTrack( request );
+        externalIntegrationService.deleteById( integrationId );
+    }
+
+
+    @Override
+    public CreateAccountResponse create( final CreateAccountRequest createAccountRequest,
+                                         final UUID orgId )
+          throws IllegalAccessException
+    {
+        return externalIntegrationService.createAccount( createAccountRequest, orgId );
+    }
+
+
+    @Override
+    public IntegrationDto getById( final UUID integrationId )
+    {
+        return externalIntegrationService.getById( integrationId );
     }
 
 
@@ -116,21 +133,5 @@ public class ExternalIntegrationController
                                              final UUID orgId )
     {
         return externalIntegrationService.submitApplication( submitApplicationRequest, orgId );
-    }
-
-
-    @Override
-    public CreateAccountResponse create( final CreateAccountRequest createAccountRequest,
-                                         final UUID orgId )
-          throws IllegalAccessException
-    {
-        return externalIntegrationService.createAccount( createAccountRequest, orgId );
-    }
-
-
-    @Override
-    public IntegrationDto getById( final UUID integrationId )
-    {
-        return externalIntegrationService.getById( integrationId );
     }
 }

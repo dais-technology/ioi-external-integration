@@ -3,7 +3,6 @@ package com.dais.ioi.external.service;
 import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.domain.dto.IntegrationDto;
-import com.dais.ioi.external.domain.dto.hubspot.HubspotTrackRequest;
 import com.dais.ioi.external.domain.dto.internal.enums.IntegrationType;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
@@ -14,12 +13,10 @@ import com.dais.ioi.external.repository.ExternalIntegrationRepository;
 import com.dais.ioi.external.service.action.jm.JMCreateAccountServiceImpl;
 import com.dais.ioi.external.service.action.jm.JMQuoteServiceImpl;
 import com.dais.ioi.external.service.action.jm.JMSubmitApplicationServiceImpl;
-import com.dais.ioi.external.service.hubspot.HubSpotService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import ma.glasnost.orika.MapperFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -44,9 +41,6 @@ public class ExternalIntegrationServiceImpl
 
     @Autowired
     private JMQuoteServiceImpl jmsQuoteService;
-
-    @Autowired
-    private HubSpotService hubSpotService;
 
     @Autowired
     private JMSubmitApplicationServiceImpl jmSubmitApplication;
@@ -80,6 +74,13 @@ public class ExternalIntegrationServiceImpl
         IntegrationEntity integrationEntity = objectMapper.convertValue( integrationDto, IntegrationEntity.class );
         externalIntegrationRepository.save( integrationEntity );
         return objectMapper.convertValue( integrationEntity, IntegrationDto.class );
+    }
+
+
+    @Override
+    public void deleteById( final UUID integrationId )
+    {
+        externalIntegrationRepository.deleteById( integrationId );
     }
 
 
@@ -135,13 +136,6 @@ public class ExternalIntegrationServiceImpl
         }
 
         return triggerResponseDto;
-    }
-
-
-    @Override
-    public void hubspotTrack( final HubspotTrackRequest request )
-    {
-        hubSpotService.trackEvent( request );
     }
 
 
