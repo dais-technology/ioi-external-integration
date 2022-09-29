@@ -104,7 +104,7 @@ public class JMAddQuoteHelperImpl
 
                 addPaymentPlan( addQuoteRequest, planName, numberOfInstallments );
             }
-            
+
             log.info( objectMapper.writeValueAsString( addQuoteRequest ) );
 
             AddQuoteResult updQuoteResult = jmQuoteClient.updateQuote( determinedBasePathUri,
@@ -334,7 +334,25 @@ public class JMAddQuoteHelperImpl
 
         processAddQuoteIteration( addQuoteRequest, intake.get( actionJMSQuoteSpecDto.getItemLoop() ).getIterations(), actionJMSQuoteSpecDto, jewerlyWearers );
 
+        setCanadianParameters( addQuoteRequest, intake, actionJMSQuoteSpecDto );
+
         return addQuoteRequest;
+    }
+
+
+    private void setCanadianParameters( final AddQuoteRequest addQuoteRequest,
+                                        final LinkedHashMap<String, ClientAnswerDto> intake,
+                                        final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
+    {
+        if ( getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrCountry() ).getAnswer(), StringUtils.EMPTY ).equals( "CA" ) )
+        {
+            String consentToCredit = intake.get( actionJMSQuoteSpecDto.getConsentToCredit() ).getAnswer();
+            if ( !StringUtils.isEmpty( consentToCredit ) )
+            {
+                addQuoteRequest.setConsentToCredit( Boolean.parseBoolean( consentToCredit ) );
+                addQuoteRequest.getPrimaryContact().getMailingAddress().setCounty( StringUtils.EMPTY );
+            }
+        }
     }
 
 
@@ -392,7 +410,7 @@ public class JMAddQuoteHelperImpl
         convictionSentenceCompletionDate.setKey( "ConvictionSentenceCompletionDate" );
         convictionSentenceCompletionDate.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getConvictionSentenceCompletionDate() ).getAnswer(), "" ) );
         underwritingInfo.getUnderwritingQuestions().add( convictionSentenceCompletionDate );
-
+        //add underwriting questions here
 
         addQuoteRequest.setUnderwritingInfo( underwritingInfo );
 
@@ -578,12 +596,18 @@ public class JMAddQuoteHelperImpl
         primaryWearerResidentialAddress.setCity(
               getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrCity() ).getAnswer(), "" )
         );
-        primaryWearerResidentialAddress.setCountry(
-              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrCountry() ).getAnswer(), "" )
-        );
-        primaryWearerResidentialAddress.setCounty(
-              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrCounty() ).getAnswer(), "" )
-        );
+
+        String primaryWearerResidentialCountry = getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrCountry() ).getAnswer(), "" )
+        primaryWearerResidentialAddress.setCountry( primaryWearerResidentialCountry );
+
+        if ( !primaryWearerResidentialCountry.equals( "CA" ) )
+        {
+            primaryWearerResidentialAddress.setCounty(
+                  getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrCounty() ).getAnswer(), "" )
+            );
+        }
+
+
         primaryWearerResidentialAddress.setState(
               getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrState() ).getAnswer(), "" )
         );

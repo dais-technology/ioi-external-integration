@@ -97,7 +97,6 @@ public class ActionJMSQuoteSpecDto
 
     private String primaryWearerPhoneNumber;
 
-
     private String primaryWearerResAddr1;
 
     private String primaryWearerResAddr2;
@@ -125,6 +124,8 @@ public class ActionJMSQuoteSpecDto
     private String primaryContactMailingAddrCounty;
 
     private String primaryContactMailingAddrState;
+
+    private String consentToCredit;
 
     private String felonyConviction;
 
