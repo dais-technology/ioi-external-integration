@@ -81,11 +81,10 @@ public class JMSubmitApplicationServiceImpl
         quoteData = (Map<String, String>) externalQuoteData.getQuoteData();
 
     }
-    catch(Exception e) {
-            UUID randomUUID = UUID.randomUUID();
-                externalQuoteData.setExternalQuoteId( randomUUID.toString()  );
+    catch(org.springframework.web.server.ResponseStatusException e) {
+                externalQuoteData.setExternalQuoteId( externalQuoteId.toString()  );
                 externalQuoteData.setQuoteData( quoteData );
-            log.warn( "Could not get the external quote data for " + externalQuoteId + " created a random id of " + randomUUID);
+            log.warn( "Could not get the external quote data for " + externalQuoteId + " created a new record");
     }
 
 
