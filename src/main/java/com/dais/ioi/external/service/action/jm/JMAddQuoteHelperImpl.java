@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -309,15 +310,20 @@ public class JMAddQuoteHelperImpl
                 mailingAddress.setCity(
                       getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactMailingAddrCity() ).getAnswer(), "" )
                 );
-                mailingAddress.setCounty(
-                      getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactMailingAddrCounty() ).getAnswer(), "" )
-                );
                 mailingAddress.setState(
                       getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactMailingAddrState() ).getAnswer(), "" )
                 );
                 mailingAddress.setPostalCode(
                       JMUtils.formatZipCode( getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactMailingAddrPostalCode() ).getAnswer(), "" ) )
                 );
+                String mailingAddressCountry = getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactMailingAddrCounty() ).getAnswer(), "" );
+                mailingAddress.setCountry( mailingAddressCountry );
+                if ( !mailingAddressCountry.equals( "CA" ) )
+                {
+                    mailingAddress.setCounty(
+                          getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactMailingAddrCounty() ).getAnswer(), "" )
+                    );
+                }
                 primaryContact.setMailingAddress( mailingAddress );
             }
         }
@@ -346,11 +352,21 @@ public class JMAddQuoteHelperImpl
     {
         if ( getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrCountry() ).getAnswer(), StringUtils.EMPTY ).equals( "CA" ) )
         {
+            AddQuoteRequest.PrimaryContact primaryContact = addQuoteRequest.getPrimaryContact();
+            AddQuoteRequest.ResidentialAddress residential = primaryContact.getResidentialAddress();
+            residential.setCounty( StringUtils.EMPTY );
+            if ( Objects.nonNull( primaryContact.getResidentialAddress() ) )
+            {
+                AddQuoteRequest.ResidentialAddress mailingAddress = primaryContact.getResidentialAddress();
+                if ( mailingAddress.getCountry().equals( "CA" ) )
+                {
+                    mailingAddress.setCounty( StringUtils.EMPTY );
+                }
+            }
             String consentToCredit = intake.get( actionJMSQuoteSpecDto.getConsentToCredit() ).getAnswer();
             if ( !StringUtils.isEmpty( consentToCredit ) )
             {
                 addQuoteRequest.setConsentToCredit( Boolean.parseBoolean( consentToCredit ) );
-                addQuoteRequest.getPrimaryContact().getMailingAddress().setCounty( StringUtils.EMPTY );
             }
         }
     }
@@ -597,7 +613,7 @@ public class JMAddQuoteHelperImpl
               getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrCity() ).getAnswer(), "" )
         );
 
-        String primaryWearerResidentialCountry = getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrCountry() ).getAnswer(), "" )
+        String primaryWearerResidentialCountry = getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrCountry() ).getAnswer(), "" );
         primaryWearerResidentialAddress.setCountry( primaryWearerResidentialCountry );
 
         if ( !primaryWearerResidentialCountry.equals( "CA" ) )
@@ -663,12 +679,16 @@ public class JMAddQuoteHelperImpl
         primaryWearerResidentialAddress.setCity(
               getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactResAddrCity() ).getAnswer(), "" )
         );
-        primaryWearerResidentialAddress.setCountry(
-              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactResAddrCountry() ).getAnswer(), "" )
-        );
-        primaryWearerResidentialAddress.setCounty(
-              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactResAddrCounty() ).getAnswer(), "" )
-        );
+
+        String primaryWearerResidentialCountry = getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactResAddrCountry() ).getAnswer(), "" );
+        primaryWearerResidentialAddress.setCountry( primaryWearerResidentialCountry );
+        if ( !primaryWearerResidentialCountry.equals( "CA" ) )
+        {
+            primaryWearerResidentialAddress.setCounty(
+                  getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactResAddrCounty() ).getAnswer(), "" )
+            );
+        }
+
         primaryWearerResidentialAddress.setState(
               getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactResAddrState() ).getAnswer(), "" )
         );
