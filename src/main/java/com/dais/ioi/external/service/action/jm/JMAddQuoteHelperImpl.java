@@ -6,10 +6,12 @@ import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.internal.spec.QuoteRequestSpecDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.config.client.JMQuoteClient;
+import com.dais.ioi.external.domain.dto.ExternalQuoteDataDto;
 import com.dais.ioi.external.domain.dto.jm.AddQuoteRequest;
 import com.dais.ioi.external.domain.dto.jm.AddQuoteResult;
 import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
+import com.dais.ioi.external.service.ExternalQuoteDataService;
 import com.dais.ioi.external.util.NormalizedPremium;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
 import com.dais.ioi.quote.domain.dto.enums.AmountType;
@@ -58,12 +60,16 @@ public class JMAddQuoteHelperImpl
 
     private final ObjectMapper objectMapper;
 
+    private final ExternalQuoteDataService externalQuoteDataService;
+
 
     public JMAddQuoteHelperImpl( @Autowired final JMQuoteClient jmQuoteClient,
-                                 @Autowired final ObjectMapper objectMapper )
+                                 @Autowired final ObjectMapper objectMapper,
+                                 @Autowired final ExternalQuoteDataService externalQuoteDataService)
     {
         this.jmQuoteClient = jmQuoteClient;
         this.objectMapper = objectMapper;
+        this.externalQuoteDataService = externalQuoteDataService;
     }
 
 
@@ -79,7 +85,10 @@ public class JMAddQuoteHelperImpl
 
         QuoteRequestSpecDto triggerSpec = objectMapper.convertValue( firedTriggerDto.getPayload(), QuoteRequestSpecDto.class );
 
-        AddQuoteRequest addQuoteRequest = createAddQuoteRequest( triggerSpec.getIntake(), actionJMSQuoteSpecDto );
+// Collect plugin fields for email
+        HashMap<String,String> pluginFields = new HashMap<>();
+
+        AddQuoteRequest addQuoteRequest = createAddQuoteRequest( triggerSpec.getIntake(), actionJMSQuoteSpecDto, pluginFields );
 
         final String effectiveDateAnswer = triggerSpec.getIntake().get( actionJMSQuoteSpecDto.getEffectiveDate() ).getAnswer();
 
@@ -197,6 +206,9 @@ public class JMAddQuoteHelperImpl
 
         PubQuoteDetailsDto quoteDetails = getQuoteDetails( updQuoteResult );
 
+
+        saveFieldsForPlugin( requestId ,  addQuoteResult,  pluginFields);
+
         TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
 
         HashMap<String, Object> metaDatamap = new HashMap<>();
@@ -238,7 +250,8 @@ public class JMAddQuoteHelperImpl
 
     // Add Quote Methods
     public AddQuoteRequest createAddQuoteRequest( LinkedHashMap<String, ClientAnswerDto> intake,
-                                                  ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
+                                                  ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
+                                                  HashMap<String,String> pluginFields)
     {
         AddQuoteRequest addQuoteRequest = AddQuoteRequest.builder().build();
 
@@ -338,7 +351,7 @@ public class JMAddQuoteHelperImpl
 
         List<ClientLoopIterationDto> jewerlyWearers = intake.get( "jewelryWearers" ).getIterations();
 
-        processAddQuoteIteration( addQuoteRequest, intake.get( actionJMSQuoteSpecDto.getItemLoop() ).getIterations(), actionJMSQuoteSpecDto, jewerlyWearers );
+        processAddQuoteIteration( addQuoteRequest, intake.get( actionJMSQuoteSpecDto.getItemLoop() ).getIterations(), actionJMSQuoteSpecDto, jewerlyWearers,  pluginFields );
 
         setCanadianParameters( addQuoteRequest, intake, actionJMSQuoteSpecDto );
 
@@ -461,7 +474,8 @@ public class JMAddQuoteHelperImpl
     private void processAddQuoteIteration( AddQuoteRequest addQuoteRequest,
                                            List<ClientLoopIterationDto> iterations,
                                            ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
-                                           List<ClientLoopIterationDto> jewerlyWearers )
+                                           List<ClientLoopIterationDto> jewerlyWearers,
+                                           HashMap<String,String> pluginFields)
     {
         ArrayList<AddQuoteRequest.JeweleryItem> jeweleryItems = new ArrayList<>();
         int itemNumber = 1;
@@ -535,6 +549,11 @@ public class JMAddQuoteHelperImpl
 
             item.setPrimaryWearer( primaryWearer );
             jeweleryItems.add( item );
+
+            pluginFields.put( "ItemDamage" + itemNumber,
+                              getValue( () -> clientLoopIterationDto.getAnswers().get( "existingDamage" ).getAnswer().toString(), "" )
+                              );
+
             itemNumber++;
         }
         addQuoteRequest.setDeductibleOptions( deductibleOptions );
@@ -846,5 +865,19 @@ public class JMAddQuoteHelperImpl
             coverages.add( pubCoverageBuilder.build() );
         }
         return coverages;
+    }
+
+    private void saveFieldsForPlugin(UUID requestId , AddQuoteResult addQuoteResult, HashMap<String,String> fieldsForPlugin) {
+
+        ExternalQuoteDataDto externalQuoteDataDto = new ExternalQuoteDataDto();
+
+        externalQuoteDataDto.setQuoteId( requestId );
+
+        externalQuoteDataDto.setExternalQuoteId( addQuoteResult.getQuoteId() );
+
+        externalQuoteDataDto.setQuoteData( fieldsForPlugin );
+
+        externalQuoteDataService.saveOrUpdate( externalQuoteDataDto );
+
     }
 }
