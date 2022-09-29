@@ -364,10 +364,13 @@ public class JMAddQuoteHelperImpl
                 }
             }
             ClientAnswerDto consentToCreditQuestion = intake.get( actionJMSQuoteSpecDto.getConsentToCredit() );
-            String consentToCredit = consentToCreditQuestion.getAnswer();
-            if ( !StringUtils.isEmpty( consentToCredit ) )
+            if ( Objects.nonNull( consentToCreditQuestion ) )
             {
-                addQuoteRequest.setConsentToCredit( Boolean.parseBoolean( consentToCredit ) );
+                String consentToCredit = consentToCreditQuestion.getAnswer();
+                if ( !StringUtils.isEmpty( consentToCredit ) )
+                {
+                    addQuoteRequest.setConsentToCredit( Boolean.parseBoolean( consentToCredit ) );
+                }
             }
         }
     }
