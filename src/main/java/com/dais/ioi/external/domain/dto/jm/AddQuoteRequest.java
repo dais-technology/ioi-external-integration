@@ -10,157 +10,208 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 
 @Data
 @Builder
-public class AddQuoteRequest {
+public class AddQuoteRequest
+{
 
-    @JsonProperty("QuoteId")
+    @JsonProperty( "QuoteId" )
     public Object quoteId;
-    @JsonProperty("PrimaryContact")
+
+    @JsonProperty( "PrimaryContact" )
     public PrimaryContact primaryContact;
-    @JsonProperty("JeweleryItems")
+
+    @JsonProperty( "JeweleryItems" )
     public ArrayList<JeweleryItem> jeweleryItems;
-    @JsonProperty("EffectiveDate")
+
+    @JsonProperty( "EffectiveDate" )
     public String effectiveDate;
-    @JsonProperty("ProducerCode")
+
+    @JsonProperty( "ProducerCode" )
     public String producerCode;
-    @JsonProperty("HasPaperlessDelivery")
+
+    @JsonProperty( "HasPaperlessDelivery" )
     public boolean hasPaperlessDelivery;
-    @JsonProperty("ApplicationTakenBy")
+
+    @JsonProperty( "ConsentToCredit" )
+    public boolean consentToCredit;
+
+    @JsonProperty( "ApplicationTakenBy" )
     public Object applicationTakenBy;
+
     public UnderwritingInfo underwritingInfo;
-    @JsonProperty("deductibleOptions")
+
+    @JsonProperty( "deductibleOptions" )
 
     public ArrayList<DeductibleOption> deductibleOptions;
 
-    @JsonProperty("selectedPaymentPlan")
+    @JsonProperty( "selectedPaymentPlan" )
     public SelectedPlan selectedPaymentPlan;
 
-    @JsonProperty("User")
+    @JsonProperty( "User" )
     public User user;
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
+    public static class JeweleryItem
+    {
+        @JsonProperty( "JeweleryType" )
+        public String jeweleryType;
 
-public static class JeweleryItem{
+        @JsonProperty( "JewelerySubType" )
+        public String jewelerySubType;
 
+        @JsonProperty( "ItemValue" )
+        public int itemValue;
 
+        @JsonProperty( "ItemNumber" )
+        public int itemNumber;
 
-    @JsonProperty("JeweleryType")
-    public String jeweleryType;
-    @JsonProperty("JewelerySubType")
-    public String jewelerySubType;
-    @JsonProperty("ItemValue")
-    public int itemValue;
-    @JsonProperty("ItemNumber")
-    public int itemNumber;
-    @JsonProperty("ItemDamage")
-    private String itemDamage;
-    @JsonProperty("ItemPossession")
-    private String itemPossession;
-    @JsonProperty("PrimaryWearer")
-    public PrimaryWearer primaryWearer;
-}
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-public static class LossHistoryEvent{
-    @JsonProperty("LossType")
-    public String lossType;
-    @JsonProperty("Amount")
-    public Double amount;
-    @JsonProperty("LossDate")
-    public String lossDate;
-}
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-public static class PrimaryContact{
-    @JsonProperty("FirstName")
-    public String firstName;
-    @JsonProperty("LastName")
-    public String lastName;
-    @JsonProperty("Gender")
-    public Object gender;
-    @JsonProperty("DateOfBirth")
-    public String dateOfBirth;
-    @JsonProperty("EmailAddress")
-    public String emailAddress;
-    @JsonProperty("PhoneNumber")
-    public String phoneNumber;
-    @JsonProperty("ResidentialAddress")
-    public ResidentialAddress residentialAddress;
-    @JsonProperty("MailingAddress")
-    public ResidentialAddress mailingAddress;
-    @JsonProperty("ContactPreference")
-    public Object contactPreference;
-}
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-public static class PrimaryWearer{
-    @JsonProperty("FirstName")
-    public String firstName;
-    @JsonProperty("LastName")
-    public String lastName;
-    @JsonProperty("Gender")
-    public String gender;
-    @JsonProperty("DateOfBirth")
-    public String dateOfBirth;
-    @JsonProperty("EmailAddress")
-    public String emailAddress;
-    @JsonProperty("PhoneNumber")
-    public Object phoneNumber;
-    @JsonProperty("ResidentialAddress")
-    public ResidentialAddress residentialAddress;
-    @JsonProperty("MailingAddress")
-    public ResidentialAddress mailingAddress;
-    @JsonProperty("ContactPreference")
-    public Object contactPreference;
-}
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-public static class ResidentialAddress{
-    public String address1;
-    public String address2;
-    public String city;
-    public String country;
-    public String county;
-    public String state;
-    public String postalCode;
-}
+        @JsonProperty( "ItemDamage" )
+        private String itemDamage;
 
+        @JsonProperty( "ItemPossession" )
+        private String itemPossession;
 
+        @JsonProperty( "PrimaryWearer" )
+        public PrimaryWearer primaryWearer;
+    }
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-public static class UnderwritingInfo{
-    public ArrayList<UnderwritingQuestion> underwritingQuestions;
-    @JsonProperty("LossHistoryEvents")
-    public ArrayList<LossHistoryEvent> lossHistoryEvents;
-}
+    public static class LossHistoryEvent
+    {
+        @JsonProperty( "LossType" )
+        public String lossType;
+
+        @JsonProperty( "Amount" )
+        public Double amount;
+
+        @JsonProperty( "LossDate" )
+        public String lossDate;
+    }
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-public static class UnderwritingQuestion{
-    @JsonProperty("Key")
-    public String key;
-    @JsonProperty("Value")
-    public Object value;
-}
+    public static class PrimaryContact
+    {
+        @JsonProperty( "FirstName" )
+        public String firstName;
+
+        @JsonProperty( "LastName" )
+        public String lastName;
+
+        @JsonProperty( "Gender" )
+        public Object gender;
+
+        @JsonProperty( "DateOfBirth" )
+        public String dateOfBirth;
+
+        @JsonProperty( "EmailAddress" )
+        public String emailAddress;
+
+        @JsonProperty( "PhoneNumber" )
+        public String phoneNumber;
+
+        @JsonProperty( "ResidentialAddress" )
+        public ResidentialAddress residentialAddress;
+
+        @JsonProperty( "MailingAddress" )
+        public ResidentialAddress mailingAddress;
+
+        @JsonProperty( "ContactPreference" )
+        public Object contactPreference;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class PrimaryWearer
+    {
+        @JsonProperty( "FirstName" )
+        public String firstName;
+
+        @JsonProperty( "LastName" )
+        public String lastName;
+
+        @JsonProperty( "Gender" )
+        public String gender;
+
+        @JsonProperty( "DateOfBirth" )
+        public String dateOfBirth;
+
+        @JsonProperty( "EmailAddress" )
+        public String emailAddress;
+
+        @JsonProperty( "PhoneNumber" )
+        public Object phoneNumber;
+
+        @JsonProperty( "ResidentialAddress" )
+        public ResidentialAddress residentialAddress;
+
+        @JsonProperty( "MailingAddress" )
+        public ResidentialAddress mailingAddress;
+
+        @JsonProperty( "ContactPreference" )
+        public Object contactPreference;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class ResidentialAddress
+    {
+        public String address1;
+
+        public String address2;
+
+        public String city;
+
+        public String country;
+
+        public String county;
+
+        public String state;
+
+        public String postalCode;
+    }
+
+
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class UnderwritingInfo
+    {
+        public ArrayList<UnderwritingQuestion> underwritingQuestions;
+
+        @JsonProperty( "LossHistoryEvents" )
+        public ArrayList<LossHistoryEvent> lossHistoryEvents;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class UnderwritingQuestion
+    {
+        @JsonProperty( "Key" )
+        public String key;
+
+        @JsonProperty( "Value" )
+        public Object value;
+    }
 
 
     @Data
@@ -169,9 +220,10 @@ public static class UnderwritingQuestion{
     @Builder
     public static class DeductibleOption
     {
-        @JsonProperty("itemNumber")
+        @JsonProperty( "itemNumber" )
         public int itemNumber;
-        @JsonProperty("deductible")
+
+        @JsonProperty( "deductible" )
         public Double deductible;
     }
 
@@ -181,9 +233,10 @@ public static class UnderwritingQuestion{
     @Builder
     public static class SelectedPlan
     {
-        @JsonProperty("name")
+        @JsonProperty( "name" )
         public String name;
-        @JsonProperty("numberOfInstallments")
+
+        @JsonProperty( "numberOfInstallments" )
         public int numberOfInstallments;
     }
 
@@ -193,24 +246,20 @@ public static class UnderwritingQuestion{
     @Builder
     public static class User
     {
-        @JsonProperty("UserId")
-        public String  userId ;
+        @JsonProperty( "UserId" )
+        public String userId;
 
-        @JsonProperty("UserFirstName")
-        public String  userFirstName;
+        @JsonProperty( "UserFirstName" )
+        public String userFirstName;
 
-        @JsonProperty("UserLastName")
-        public String  userLastName ;
+        @JsonProperty( "UserLastName" )
+        public String userLastName;
 
-        @JsonProperty("UserEmailAddress")
+        @JsonProperty( "UserEmailAddress" )
         public String userEmailAddress;
 
-        @JsonProperty("UserPhoneNumber")
-        public String userPhoneNumber ;
+        @JsonProperty( "UserPhoneNumber" )
+        public String userPhoneNumber;
     }
-
-
-
-
 }
 
