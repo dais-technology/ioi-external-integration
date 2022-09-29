@@ -364,15 +364,10 @@ public class JMAddQuoteHelperImpl
                 }
             }
             String consentToCredit = getValue( () -> intake.get( actionJMSQuoteSpecDto.getConsentToCredit() ).getAnswer(), "" );
-            //            ClientAnswerDto consentToCreditQuestion = intake.get( actionJMSQuoteSpecDto.getConsentToCredit() );
-            //            if ( Objects.nonNull( consentToCreditQuestion ) )
-            //            {
-            //                String consentToCredit = consentToCreditQuestion.getAnswer();
             if ( !StringUtils.isEmpty( consentToCredit ) )
             {
                 addQuoteRequest.setConsentToCredit( Boolean.parseBoolean( consentToCredit ) );
             }
-            //            }
         }
     }
 
@@ -484,6 +479,9 @@ public class JMAddQuoteHelperImpl
                   Integer.parseInt( getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemValue() ).getAnswer(), "" ).toString() )
             );
 
+            item.setItemDescription(
+                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemDescription() ).getAnswer(), "" )
+            );
           /*  item.setItemDamage(
                   getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemDamage() ).getAnswer(), "" ).toString()
             );
