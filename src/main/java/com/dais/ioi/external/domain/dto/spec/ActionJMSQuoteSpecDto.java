@@ -151,6 +151,8 @@ public class ActionJMSQuoteSpecDto
 
     private String itemPossession;
 
+    private String itemDescription;
+
     private String deductible;
 
     private String effectiveDate;

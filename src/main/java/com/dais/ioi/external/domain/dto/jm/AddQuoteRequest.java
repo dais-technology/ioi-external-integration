@@ -77,6 +77,9 @@ public class AddQuoteRequest
         @JsonProperty( "ItemPossession" )
         private String itemPossession;
 
+        @JsonProperty( "ItemDescription" )
+        public String itemDescription;
+
         @JsonProperty( "PrimaryWearer" )
         public PrimaryWearer primaryWearer;
     }
