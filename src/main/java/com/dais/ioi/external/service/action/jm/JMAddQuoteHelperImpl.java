@@ -363,7 +363,8 @@ public class JMAddQuoteHelperImpl
                     mailingAddress.setCounty( StringUtils.EMPTY );
                 }
             }
-            String consentToCredit = intake.get( actionJMSQuoteSpecDto.getConsentToCredit() ).getAnswer();
+            ClientAnswerDto consentToCreditQuestion = intake.get( actionJMSQuoteSpecDto.getConsentToCredit() );
+            String consentToCredit = consentToCreditQuestion.getAnswer();
             if ( !StringUtils.isEmpty( consentToCredit ) )
             {
                 addQuoteRequest.setConsentToCredit( Boolean.parseBoolean( consentToCredit ) );
