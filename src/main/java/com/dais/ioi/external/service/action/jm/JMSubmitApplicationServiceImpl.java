@@ -67,11 +67,31 @@ public class JMSubmitApplicationServiceImpl
     private void persistExternalQuoteData( final SubmitApplicationResponse response,
                                            final UUID externalQuoteId )
     {
-        Map<String, String> quoteData = new HashMap<>();
+
+// At the time of the application submission
+
+    ExternalQuoteDataDto externalQuoteData = new ExternalQuoteDataDto() ;
+
+    Map<String, String> quoteData = new HashMap<String,String>();
+
+
+        try
+    {
+        externalQuoteData = externalQuoteDataService.getByExternalQuoteId( externalQuoteId.toString() );
+        quoteData = (Map<String, String>) externalQuoteData.getQuoteData();
+
+    }
+    catch(Exception e) {
+            UUID randomUUID = UUID.randomUUID();
+                externalQuoteData.setExternalQuoteId( randomUUID.toString()  );
+                externalQuoteData.setQuoteData( quoteData );
+            log.warn( "Could not get the external quote data for " + externalQuoteId + " created a random id of " + randomUUID);
+    }
+
+
         quoteData.put( "accountNumber", response.getAccountNumber() );
         quoteData.put( "policyNumber", response.getPolicyNumber() );
 
-        ExternalQuoteDataDto externalQuoteData = ExternalQuoteDataDto.builder().externalQuoteId( externalQuoteId.toString() ).quoteData( quoteData ).build();
         externalQuoteDataService.saveOrUpdate( externalQuoteData );
     }
 

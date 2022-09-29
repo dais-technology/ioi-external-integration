@@ -8,6 +8,7 @@ import com.dais.ioi.external.domain.dto.jm.AddQuoteRequest;
 import com.dais.ioi.external.domain.dto.jm.AddQuoteResult;
 import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
+import com.dais.ioi.external.service.ExternalQuoteDataService;
 import com.dais.utils.test.JsonComparisonUtils;
 import com.dais.utils.test.JsonFileUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,6 +21,7 @@ import org.skyscreamer.jsonassert.comparator.CustomComparator;
 
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -55,7 +57,7 @@ class JMAddQuoteHelperImplTest
     {
         // Create instance
         final JMQuoteClient mockJmQuoteClient = Mockito.mock( JMQuoteClient.class );
-        final JMAddQuoteHelperImpl addQuoteHelper = new JMAddQuoteHelperImpl( mockJmQuoteClient, OBJECT_MAPPER );
+        final JMAddQuoteHelperImpl addQuoteHelper = new JMAddQuoteHelperImpl( mockJmQuoteClient, OBJECT_MAPPER, null );
 
         // Prepare inputs
         final FiredTriggerDto firedTriggerDto = JsonFileUtils.loadResourceAs(
@@ -70,7 +72,7 @@ class JMAddQuoteHelperImplTest
         QuoteRequestSpecDto triggerSpec = OBJECT_MAPPER.convertValue( firedTriggerDto.getPayload(), QuoteRequestSpecDto.class );
 
 
-        AddQuoteRequest request = addQuoteHelper.createAddQuoteRequest( triggerSpec.getIntake(), spec );
+        AddQuoteRequest request = addQuoteHelper.createAddQuoteRequest( triggerSpec.getIntake(), spec, new HashMap<String,String>() );
 
 
         request.getPrimaryContact();
@@ -84,7 +86,9 @@ class JMAddQuoteHelperImplTest
     {
         // Create instance
         final JMQuoteClient mockJmQuoteClient = Mockito.mock( JMQuoteClient.class );
-        final JMAddQuoteHelperImpl addQuoteHelper = new JMAddQuoteHelperImpl( mockJmQuoteClient, OBJECT_MAPPER );
+        final   ExternalQuoteDataService externalQuoteDataService = Mockito.mock( ExternalQuoteDataService.class );
+
+        final JMAddQuoteHelperImpl addQuoteHelper = new JMAddQuoteHelperImpl( mockJmQuoteClient, OBJECT_MAPPER, externalQuoteDataService );
 
         // Prepare inputs
         final FiredTriggerDto firedTriggerDto = JsonFileUtils.loadResourceAs(
@@ -99,6 +103,7 @@ class JMAddQuoteHelperImplTest
 
         Mockito.when( mockJmQuoteClient.addQuote( any(), any(), any(), any() ) ).thenReturn( addQuoteResult );
         Mockito.when( mockJmQuoteClient.updateQuote( any(), any(), any(), any() ) ).thenReturn( addQuoteResult );
+        Mockito.when( externalQuoteDataService.saveOrUpdate(any()) ).thenReturn( null );
 
         // Execute
         final TriggerResponseDto triggerResponseDto = addQuoteHelper.processAddQuote( firedTriggerDto, jmAuthResult, spec );
@@ -117,7 +122,9 @@ class JMAddQuoteHelperImplTest
     {
         // Create instance
         final JMQuoteClient mockJmQuoteClient = Mockito.mock( JMQuoteClient.class );
-        final JMAddQuoteHelperImpl addQuoteHelper = new JMAddQuoteHelperImpl( mockJmQuoteClient, OBJECT_MAPPER );
+        final   ExternalQuoteDataService externalQuoteDataService = Mockito.mock( ExternalQuoteDataService.class );
+
+        final JMAddQuoteHelperImpl addQuoteHelper = new JMAddQuoteHelperImpl( mockJmQuoteClient, OBJECT_MAPPER, externalQuoteDataService );
 
         // Prepare inputs
         final FiredTriggerDto firedTriggerDto = JsonFileUtils.loadResourceAs(
