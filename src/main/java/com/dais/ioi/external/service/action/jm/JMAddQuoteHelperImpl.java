@@ -363,15 +363,16 @@ public class JMAddQuoteHelperImpl
                     mailingAddress.setCounty( StringUtils.EMPTY );
                 }
             }
-            ClientAnswerDto consentToCreditQuestion = intake.get( actionJMSQuoteSpecDto.getConsentToCredit() );
-            if ( Objects.nonNull( consentToCreditQuestion ) )
+            String consentToCredit = getValue( () -> intake.get( actionJMSQuoteSpecDto.getConsentToCredit() ).getAnswer(), "" );
+            //            ClientAnswerDto consentToCreditQuestion = intake.get( actionJMSQuoteSpecDto.getConsentToCredit() );
+            //            if ( Objects.nonNull( consentToCreditQuestion ) )
+            //            {
+            //                String consentToCredit = consentToCreditQuestion.getAnswer();
+            if ( !StringUtils.isEmpty( consentToCredit ) )
             {
-                String consentToCredit = consentToCreditQuestion.getAnswer();
-                if ( !StringUtils.isEmpty( consentToCredit ) )
-                {
-                    addQuoteRequest.setConsentToCredit( Boolean.parseBoolean( consentToCredit ) );
-                }
+                addQuoteRequest.setConsentToCredit( Boolean.parseBoolean( consentToCredit ) );
             }
+            //            }
         }
     }
 
