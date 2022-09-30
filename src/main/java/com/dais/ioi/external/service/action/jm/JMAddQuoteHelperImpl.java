@@ -437,7 +437,12 @@ public class JMAddQuoteHelperImpl
 
         AddQuoteRequest.UnderwritingQuestion convictionSentenceCompletionDate = new AddQuoteRequest.UnderwritingQuestion();
         convictionSentenceCompletionDate.setKey( "ConvictionSentenceCompletionDate" );
-        convictionSentenceCompletionDate.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getConvictionSentenceCompletionDate() ).getAnswer(), "" ) );
+
+        String completionDate =  getValue( () -> intake.get( actionJMSQuoteSpecDto.getConvictionSentenceCompletionDate() ).getAnswer(), "" ) ;
+        if (completionDate!= null && completionDate.length() > 10){
+            completionDate = completionDate.substring( 0,10 );
+        }
+        convictionSentenceCompletionDate.setValue(completionDate);
         underwritingInfo.getUnderwritingQuestions().add( convictionSentenceCompletionDate );
         //add underwriting questions here
 
