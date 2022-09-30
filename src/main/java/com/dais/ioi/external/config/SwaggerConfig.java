@@ -92,7 +92,7 @@ public class SwaggerConfig
 
     private ApiInfo metadata() {
         return new ApiInfoBuilder()
-                .title("Dais Action Service")
+                .title("Dais External Integration Service")
                 .version(version)
                 .description("Service description")
                 .termsOfServiceUrl(BLANK_STRING)
