@@ -85,6 +85,7 @@ public class JMQuoteServiceImpl
         Map<String, Object> payload = objectMapper.convertValue( triggerResponseDto.getMetadata().get( ap.getTriggerRequestId().toString()), Map.class );
         inboundResponseDataDto.setPayload( payload);
 
+        //call quoteservice.processQuotes
         ioiActionClient.processInboundData( inboundResponseDataDto );
 
         return triggerResponseDto;
