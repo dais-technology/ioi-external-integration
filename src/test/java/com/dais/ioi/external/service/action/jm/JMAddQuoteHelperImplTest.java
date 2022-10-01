@@ -72,7 +72,7 @@ class JMAddQuoteHelperImplTest
         QuoteRequestSpecDto triggerSpec = OBJECT_MAPPER.convertValue( firedTriggerDto.getPayload(), QuoteRequestSpecDto.class );
 
 
-        AddQuoteRequest request = addQuoteHelper.createAddQuoteRequest( triggerSpec.getIntake(), spec, new HashMap<String,String>() );
+        AddQuoteRequest request = addQuoteHelper.createAddQuoteRequest( triggerSpec.getIntake(), spec, new HashMap<String, String>() );
 
 
         request.getPrimaryContact();
@@ -86,7 +86,7 @@ class JMAddQuoteHelperImplTest
     {
         // Create instance
         final JMQuoteClient mockJmQuoteClient = Mockito.mock( JMQuoteClient.class );
-        final   ExternalQuoteDataService externalQuoteDataService = Mockito.mock( ExternalQuoteDataService.class );
+        final ExternalQuoteDataService externalQuoteDataService = Mockito.mock( ExternalQuoteDataService.class );
 
         final JMAddQuoteHelperImpl addQuoteHelper = new JMAddQuoteHelperImpl( mockJmQuoteClient, OBJECT_MAPPER, externalQuoteDataService );
 
@@ -103,7 +103,7 @@ class JMAddQuoteHelperImplTest
 
         Mockito.when( mockJmQuoteClient.addQuote( any(), any(), any(), any() ) ).thenReturn( addQuoteResult );
         Mockito.when( mockJmQuoteClient.updateQuote( any(), any(), any(), any() ) ).thenReturn( addQuoteResult );
-        Mockito.when( externalQuoteDataService.saveOrUpdate(any()) ).thenReturn( null );
+        Mockito.when( externalQuoteDataService.saveOrUpdate( any() ) ).thenReturn( null );
 
         // Execute
         final TriggerResponseDto triggerResponseDto = addQuoteHelper.processAddQuote( firedTriggerDto, jmAuthResult, spec );
@@ -122,7 +122,7 @@ class JMAddQuoteHelperImplTest
     {
         // Create instance
         final JMQuoteClient mockJmQuoteClient = Mockito.mock( JMQuoteClient.class );
-        final   ExternalQuoteDataService externalQuoteDataService = Mockito.mock( ExternalQuoteDataService.class );
+        final ExternalQuoteDataService externalQuoteDataService = Mockito.mock( ExternalQuoteDataService.class );
 
         final JMAddQuoteHelperImpl addQuoteHelper = new JMAddQuoteHelperImpl( mockJmQuoteClient, OBJECT_MAPPER, externalQuoteDataService );
 

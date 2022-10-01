@@ -204,7 +204,7 @@ public class JMAddQuoteHelperImpl
         }
 
 
-        PubQuoteDetailsDto quoteDetails = getQuoteDetails( updQuoteResult );
+        PubQuoteDetailsDto quoteDetails = getQuoteDetails( updQuoteResult, addQuoteRequest );
 
 
         saveFieldsForPlugin( requestId, addQuoteResult, pluginFields );
@@ -787,7 +787,8 @@ public class JMAddQuoteHelperImpl
 
 
 
-    private PubQuoteDetailsDto getQuoteDetails( AddQuoteResult addQuoteResult )
+    private PubQuoteDetailsDto getQuoteDetails( AddQuoteResult addQuoteResult,
+                                                final AddQuoteRequest addQuoteRequest )
     {
         PubQuoteDetailsDto.PubQuoteDetailsDtoBuilder quoteBuilder = PubQuoteDetailsDto.builder();
 
@@ -812,13 +813,22 @@ public class JMAddQuoteHelperImpl
 
             PubCoveragesDto.PubCoveragesDtoBuilder pubCoveragesBuilder = PubCoveragesDto.builder();
 
-            pubCoveragesBuilder.type( "todo" );
+            AddQuoteRequest.JeweleryItem jeweleryItem = addQuoteRequest.getJeweleryItems()
+                                                                       .stream()
+                                                                       .filter( item -> item.getItemNumber() == itemRateDetail.getItemNumber() )
+                                                                       .collect( Collectors.toList() )
+                                                                       .iterator()
+                                                                       .next();
+            pubCoveragesBuilder.type( jeweleryItem.getJeweleryType() );
 
-            String itemId = String.valueOf( itemRateDetail.getItemNumber() );
-
-            List<PubCoverageDto> coverages = getPubCoverages( itemRateDetail, itemId );
-
-            pubCoveragesBuilder.coverages( coverages );
+            ArrayList<AddQuoteRequest.DeductibleOption> deductibleOptions = addQuoteRequest.getDeductibleOptions();
+            deductibleOptions.forEach( deductibleOption -> {
+                if ( deductibleOption.getItemNumber() == itemRateDetail.getItemNumber() )
+                {
+                    List<PubCoverageDto> coverages = getPubCoverages( itemRateDetail, deductibleOption, jeweleryItem.getItemValue() );
+                    pubCoveragesBuilder.coverages( coverages );
+                }
+            } );
 
             pubCoverages.add( pubCoveragesBuilder.build() );
         } );
@@ -837,36 +847,42 @@ public class JMAddQuoteHelperImpl
 
 
     private List<PubCoverageDto> getPubCoverages( AddQuoteResult.ItemRateDetail itemRateDetail,
-                                                  String itemId )
+                                                  AddQuoteRequest.DeductibleOption deductibleOption,
+                                                  final int itemValue )
     {
-        PubCoveragesDto.PubCoveragesDtoBuilder builder = PubCoveragesDto.builder();
-        builder.type( "todo" );
-
         List<PubCoverageDto> coverages = new ArrayList<>();
         for ( AddQuoteResult.RateOption rateOption : itemRateDetail.getRateOptions() )
         {
-            PubCoverageDto.PubCoverageDtoBuilder pubCoverageBuilder = PubCoverageDto.builder();
-            BigDecimal premium = new BigDecimal( rateOption.getRateBreakdown().get( 0 ).getRateValue() ).setScale( 2, RoundingMode.HALF_EVEN );
-            pubCoverageBuilder.premium( premium );
-            Map<String, List<PubCoverageDetailDto>> details = new HashMap<>();
+            if ( Double.valueOf( rateOption.getDeductible() ).equals( deductibleOption.getDeductible() ) )
+            {
+                PubCoverageDto.PubCoverageDtoBuilder pubCoverageBuilder = PubCoverageDto.builder();
+                BigDecimal premium = new BigDecimal( rateOption.getRateBreakdown().get( 0 ).getRateValue() ).setScale( 2, RoundingMode.HALF_EVEN );
+                pubCoverageBuilder.premium( premium );
+                Map<String, List<PubCoverageDetailDto>> details = new HashMap<>();
 
-            PubCoverageDetailDto.PubCoverageDetailDtoBuilder deductibleBuilder = PubCoverageDetailDto.builder();
-            deductibleBuilder.amountType( AmountType.DOLLAR );
-            deductibleBuilder.amount( ( (Integer) rateOption.getDeductible() ).toString() );
-            details.put( "deductible", Collections.singletonList( deductibleBuilder.build() ) );
+                PubCoverageDetailDto.PubCoverageDetailDtoBuilder deductibleBuilder = PubCoverageDetailDto.builder();
+                deductibleBuilder.amountType( AmountType.DOLLAR );
+                deductibleBuilder.amount( ( (Integer) rateOption.getDeductible() ).toString() );
+                details.put( "deductible", Collections.singletonList( deductibleBuilder.build() ) );
 
-            PubCoverageDetailDto.PubCoverageDetailDtoBuilder itemTaxesAndSurchargesBuilder = PubCoverageDetailDto.builder();
-            itemTaxesAndSurchargesBuilder.amountType( AmountType.DOLLAR );
-            itemTaxesAndSurchargesBuilder.amount( ( (Double) rateOption.getRateBreakdown().get( 1 ).getRateValue() ).toString() );
-            details.put( "itemTaxesAndSurcharges", Collections.singletonList( itemTaxesAndSurchargesBuilder.build() ) );
+                PubCoverageDetailDto.PubCoverageDetailDtoBuilder itemTaxesAndSurchargesBuilder = PubCoverageDetailDto.builder();
+                itemTaxesAndSurchargesBuilder.amountType( AmountType.DOLLAR );
+                itemTaxesAndSurchargesBuilder.amount( ( (Double) rateOption.getRateBreakdown().get( 1 ).getRateValue() ).toString() );
+                details.put( "itemTaxesAndSurcharges", Collections.singletonList( itemTaxesAndSurchargesBuilder.build() ) );
 
-            PubCoverageDetailDto.PubCoverageDetailDtoBuilder itemIdBuilder = PubCoverageDetailDto.builder();
-            itemIdBuilder.amountType( AmountType.TEXT );
-            itemIdBuilder.amount( itemId );
-            details.put( "itemId", Collections.singletonList( itemIdBuilder.build() ) );
+                PubCoverageDetailDto.PubCoverageDetailDtoBuilder itemIdBuilder = PubCoverageDetailDto.builder();
+                itemIdBuilder.amountType( AmountType.TEXT );
+                itemIdBuilder.amount( String.valueOf( deductibleOption.getItemNumber() ) );
+                details.put( "itemId", Collections.singletonList( itemIdBuilder.build() ) );
 
-            pubCoverageBuilder.details( details );
-            coverages.add( pubCoverageBuilder.build() );
+                PubCoverageDetailDto.PubCoverageDetailDtoBuilder itemValueBuilder = PubCoverageDetailDto.builder();
+                itemValueBuilder.amountType( AmountType.DOLLAR );
+                itemValueBuilder.amount( String.valueOf( itemValue ) );
+                details.put( "itemValue", Collections.singletonList( itemValueBuilder.build() ) );
+
+                pubCoverageBuilder.details( details );
+                coverages.add( pubCoverageBuilder.build() );
+            }
         }
         return coverages;
     }
