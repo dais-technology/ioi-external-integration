@@ -7,6 +7,7 @@ import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
+import com.dais.ioi.quote.domain.dto.QuoteDto;
 
 import java.util.UUID;
 
@@ -20,6 +21,9 @@ public interface ExternalIntegrationService
     IntegrationDto createOrUpdate( final IntegrationDto integrationDto );
 
     TriggerResponseDto process( FiredTriggerDto firedTriggerDto )
+          throws Exception;
+
+    QuoteDto getQuickQuote( FiredTriggerDto firedTriggerDto )
           throws Exception;
 
     TriggerResponseDto processSynchronous( final FiredTriggerDto firedTriggerDto )

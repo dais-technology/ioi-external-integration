@@ -24,7 +24,7 @@ import com.dais.ioi.quote.domain.dto.pub.PubQuoteDetailsDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.math.BigDecimal;
+
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -40,11 +40,12 @@ import java.util.stream.Collectors;
 
 import static com.dais.ioi.external.service.action.jm.JMUtils.getValue;
 
+
 @Service
 public class JMQuickQuoteHelperImpl
 {
-  @Autowired
-  JMQuoteClient jmQuoteClient;
+    @Autowired
+    JMQuoteClient jmQuoteClient;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -54,8 +55,9 @@ public class JMQuickQuoteHelperImpl
 
 
     public TriggerResponseDto processQuickQuote( FiredTriggerDto firedTriggerDto,
-                                   JMAuthResult jmAuthResult,
-                                                 ActionJMSQuoteSpecDto actionJMSQuoteSpecDto ) throws Exception
+                                                 JMAuthResult jmAuthResult,
+                                                 ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
+          throws Exception
     {
         final UUID requestId = null == firedTriggerDto.getTriggerRequestId() ? UUID.randomUUID() : firedTriggerDto.getTriggerRequestId();
 
@@ -63,7 +65,7 @@ public class JMQuickQuoteHelperImpl
 
         QuickQuoteRequest quickQuoteRequest = createQuickQuoteRequest( triggerSpec.getIntake(), actionJMSQuoteSpecDto );
 
-        URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getQuickQuoteUrl());
+        URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getQuickQuoteUrl() );
 
         QuickQuoteResult quickQuoteResult = jmQuoteClient.getQuickQuote( determinedBasePathUri,
                                                                          "Bearer " + jmAuthResult.getAccess_token(),
@@ -71,11 +73,11 @@ public class JMQuickQuoteHelperImpl
                                                                          quickQuoteRequest );
 
 
-       if ( getValue( ()-> quickQuoteResult.getErrorMessages().size(),0 ) > 0) {
-          String errorMessage = quickQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
-           throw new Exception(errorMessage);
-
-       }
+        if ( getValue( () -> quickQuoteResult.getErrorMessages().size(), 0 ) > 0 )
+        {
+            String errorMessage = quickQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
+            throw new Exception( errorMessage );
+        }
 
         // Map to the ioi generic quote DTO
         PubQuoteDetailsDto quoteDetails = getQuoteDetails( quickQuoteResult );
@@ -84,18 +86,18 @@ public class JMQuickQuoteHelperImpl
 
 
         HashMap<String, Object> metaDatamap = new HashMap<>();
-        metaDatamap.put( "totalTaxesAndSurcharges",  (Double) quickQuoteResult.getTotalTaxesAndSurcharges() );
-        metaDatamap.put( "minimumPremium" ,quickQuoteResult.getMinimumPremium());
-        metaDatamap.put( "minimumTaxesAndSurcharges" ,quickQuoteResult.getMinimumTaxesAndSurcharges());
+        metaDatamap.put( "totalTaxesAndSurcharges", (Double) quickQuoteResult.getTotalTaxesAndSurcharges() );
+        metaDatamap.put( "minimumPremium", quickQuoteResult.getMinimumPremium() );
+        metaDatamap.put( "minimumTaxesAndSurcharges", quickQuoteResult.getMinimumTaxesAndSurcharges() );
 
 
         QuoteDto newQuote = QuoteDto.builder()
-                                /*    .actionId( ap.actionEntity.getId() )
-                                    .pipelineId( ap.triggerEntity.getPipeline().getId() )
-                                    .triggerRequestId( ap.triggerResponse.getTriggerRequestId() )
-                                    .bundleId( ap.firedTrigger.getBundleId() )
-                                    .lineId( ap.line.getId() )
-                                    )*/
+                                    /*    .actionId( ap.actionEntity.getId() )
+                                        .pipelineId( ap.triggerEntity.getPipeline().getId() )
+                                        .triggerRequestId( ap.triggerResponse.getTriggerRequestId() )
+                                        .bundleId( ap.firedTrigger.getBundleId() )
+                                        .lineId( ap.line.getId() )
+                                        )*/
                                     .clientOrganizationId( firedTriggerDto.getSource().getOrganizationId() )
                                     .quoteTimestamp( OffsetDateTime.now() )
                                     .source( firedTriggerDto.getSource() )
@@ -104,16 +106,76 @@ public class JMQuickQuoteHelperImpl
                                     .clientId( triggerSpec.getClientId() )
                                     .requestId( requestId )
                                     .bindable( false )
-                                    .effectiveDate( LocalDate.now()    )
+                                    .effectiveDate( LocalDate.now() )
                                     .quoteDetails( quoteDetails )
                                     .metadata( metaDatamap )
                                     .build();
 
-        triggerResponseDto.getMetadata().put( requestId.toString(),  newQuote );
+        triggerResponseDto.getMetadata().put( requestId.toString(), newQuote );
 
         triggerResponseDto.setTriggerRequestId( requestId );
 
         return triggerResponseDto;
+    }
+
+
+    public QuoteDto getQuickQuote( FiredTriggerDto firedTriggerDto,
+                                   JMAuthResult jmAuthResult,
+                                   ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
+          throws Exception
+    {
+        {
+            QuoteRequestSpecDto triggerSpec = objectMapper.convertValue( firedTriggerDto.getPayload(), QuoteRequestSpecDto.class );
+
+            QuickQuoteRequest quickQuoteRequest = createQuickQuoteRequest( triggerSpec.getIntake(), actionJMSQuoteSpecDto );
+
+            URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getQuickQuoteUrl() );
+
+            QuickQuoteResult quickQuoteResult = jmQuoteClient.getQuickQuote( determinedBasePathUri,
+                                                                             "Bearer " + jmAuthResult.getAccess_token(),
+                                                                             actionJMSQuoteSpecDto.getApiSubscriptionkey(),
+                                                                             quickQuoteRequest );
+
+
+            if ( getValue( () -> quickQuoteResult.getErrorMessages().size(), 0 ) > 0 )
+            {
+                String errorMessage = quickQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
+                throw new Exception( errorMessage );
+            }
+
+            // Map to the ioi generic quote DTO
+            PubQuoteDetailsDto quoteDetails = getQuoteDetails( quickQuoteResult );
+
+            TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
+
+
+            HashMap<String, Object> metaDatamap = new HashMap<>();
+            metaDatamap.put( "totalTaxesAndSurcharges", (Double) quickQuoteResult.getTotalTaxesAndSurcharges() );
+            metaDatamap.put( "minimumPremium", quickQuoteResult.getMinimumPremium() );
+            metaDatamap.put( "minimumTaxesAndSurcharges", quickQuoteResult.getMinimumTaxesAndSurcharges() );
+
+
+            QuoteDto newQuote = QuoteDto.builder()
+                                        /*    .actionId( ap.actionEntity.getId() )
+                                            .pipelineId( ap.triggerEntity.getPipeline().getId() )
+                                            .triggerRequestId( ap.triggerResponse.getTriggerRequestId() )
+                                            .bundleId( ap.firedTrigger.getBundleId() )
+                                            .lineId( ap.line.getId() )
+                                            )*/
+                                        .clientOrganizationId( firedTriggerDto.getSource().getOrganizationId() )
+                                        .quoteTimestamp( OffsetDateTime.now() )
+                                        .source( firedTriggerDto.getSource() )
+                                        .clientOrganizationId( firedTriggerDto.getSource().getOrganizationId() )
+                                        .type( QuoteType.QUOTE )
+                                        .clientId( triggerSpec.getClientId() )
+                                        .bindable( false )
+                                        .effectiveDate( LocalDate.now() )
+                                        .quoteDetails( quoteDetails )
+                                        .metadata( metaDatamap )
+                                        .build();
+
+            return newQuote;
+        }
     }
 
 
@@ -148,7 +210,7 @@ public class JMQuickQuoteHelperImpl
             pubCoverages.add( pubCoveragesBuilder.build() );
         } );
 
-        Collections.sort( pubCoverages, Comparator.comparingDouble( s -> Double.parseDouble( s.getCoverages().get( 0).getDetails().get( "itemId" ).get(0).getAmount() )));
+        Collections.sort( pubCoverages, Comparator.comparingDouble( s -> Double.parseDouble( s.getCoverages().get( 0 ).getDetails().get( "itemId" ).get( 0 ).getAmount() ) ) );
 
         quoteBuilder.coverageTypes( pubCoverages );
 
@@ -172,7 +234,7 @@ public class JMQuickQuoteHelperImpl
         {
 
             quickQuoteRequest.setPostalCode(
-                  JMUtils.formatZipCode(  getValue( () -> intake.get( actionJMSQuoteSpecDto.getZip() ).getAnswer(), "" ) )
+                  JMUtils.formatZipCode( getValue( () -> intake.get( actionJMSQuoteSpecDto.getZip() ).getAnswer(), "" ) )
             );
 
             processQuickQuoteIterations( quickQuoteRequest, getValue( () -> intake.get( actionJMSQuoteSpecDto.getItemLoop() ).getIterations(), new ArrayList<>() ), actionJMSQuoteSpecDto );
@@ -197,7 +259,7 @@ public class JMQuickQuoteHelperImpl
         for ( ClientLoopIterationDto iteration : iterations )
         {
             QuickQuoteRequest.JeweleryItem item = new QuickQuoteRequest.JeweleryItem();
-            item.setItemId( ( String.valueOf( itemId )) ) ;
+            item.setItemId( ( String.valueOf( itemId ) ) );
             item.setItemValue( getValue( () -> Integer.parseInt( iteration.getAnswers().get( actionJMSQuoteSpecDto.getItemValue() ).getAnswer() ), 0 ) );
             item.setJeweleryType( getValue( () -> iteration.getAnswers().get( actionJMSQuoteSpecDto.getItemType() ).getAnswer().toLowerCase(), "" ) );
             jeweleryItems.add( item );
@@ -243,7 +305,7 @@ public class JMQuickQuoteHelperImpl
             pubCoverageBuilder.details( details );
             coverages.add( pubCoverageBuilder.build() );
         }
-        Collections.sort( coverages, Comparator.comparingDouble( s -> Double.parseDouble( s.getDetails().get( "deductible").get( 0 ).getAmount()) ));
+        Collections.sort( coverages, Comparator.comparingDouble( s -> Double.parseDouble( s.getDetails().get( "deductible" ).get( 0 ).getAmount() ) ) );
 
         return coverages;
     }
