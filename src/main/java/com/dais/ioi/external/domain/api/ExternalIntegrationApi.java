@@ -7,6 +7,7 @@ import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
+import com.dais.ioi.quote.domain.dto.QuoteDto;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,6 +29,12 @@ public interface ExternalIntegrationApi
     @ApiOperation( value = "Process external data request" )
     TriggerResponseDto fire( @RequestBody @Valid final FiredTriggerDto firedTriggerDto )
           throws IllegalAccessException;
+
+    @ResponseStatus( HttpStatus.OK )
+    @RequestMapping( value = "/quote/jm/quickQuote",
+                     method = RequestMethod.POST )
+    @ApiOperation( value = "Get JM quickQuote" )
+    QuoteDto getQuickQuote( @RequestBody @Valid FiredTriggerDto firedTriggerDto );
 
     @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/process-synchronous",

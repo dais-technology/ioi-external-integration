@@ -9,6 +9,7 @@ import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import com.dais.ioi.external.service.ExternalIntegrationService;
+import com.dais.ioi.quote.domain.dto.QuoteDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
 import lombok.AllArgsConstructor;
@@ -96,6 +97,31 @@ public class ExternalIntegrationController
         }
 
         return triggerResponseDto;
+    }
+
+
+    @Override
+    public QuoteDto getQuickQuote( @Valid final FiredTriggerDto firedTriggerDto )
+    {
+        TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
+        try
+        {
+            log.info( "Received {}", objectMapper.writeValueAsString( firedTriggerDto ) );
+
+            QuoteDto quoteDto = externalIntegrationService.getQuickQuote( firedTriggerDto );
+
+            log.info( "Responded with {} ", objectMapper.writeValueAsString( triggerResponseDto ) );
+            return quoteDto;
+        }
+        catch ( FeignException e )
+        {
+            throw new ResponseStatusException( HttpStatus.BAD_REQUEST, new String( e.content() ) );
+        }
+        catch ( Exception e )
+        {
+            e.printStackTrace();
+            throw new ResponseStatusException( HttpStatus.BAD_REQUEST, e.getMessage() );
+        }
     }
 
 

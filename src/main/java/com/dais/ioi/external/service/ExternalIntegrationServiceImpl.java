@@ -13,6 +13,7 @@ import com.dais.ioi.external.repository.ExternalIntegrationRepository;
 import com.dais.ioi.external.service.action.jm.JMCreateAccountServiceImpl;
 import com.dais.ioi.external.service.action.jm.JMQuoteServiceImpl;
 import com.dais.ioi.external.service.action.jm.JMSubmitApplicationServiceImpl;
+import com.dais.ioi.quote.domain.dto.QuoteDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -107,6 +108,14 @@ public class ExternalIntegrationServiceImpl
           throws Exception
     {
         return jmsQuoteService.fire( firedTriggerDto );
+    }
+
+
+    @Override
+    public QuoteDto getQuickQuote( final FiredTriggerDto firedTriggerDto )
+          throws Exception
+    {
+        return jmsQuoteService.getQuickQuote( firedTriggerDto );
     }
 
 

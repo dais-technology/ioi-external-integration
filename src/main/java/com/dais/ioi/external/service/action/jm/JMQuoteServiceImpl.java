@@ -10,6 +10,7 @@ import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
 import com.dais.ioi.external.entity.IntegrationEntity;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
+import com.dais.ioi.quote.domain.dto.QuoteDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,8 +31,10 @@ public class JMQuoteServiceImpl
 {
     @Autowired
     JMAuthClient jmAuthClient;
+
     @Autowired
     private ObjectMapper objectMapper;
+
     @Autowired
     JMQuickQuoteHelperImpl jmQuickQuoteHelper;
 
@@ -43,50 +46,64 @@ public class JMQuoteServiceImpl
 
     @Autowired
     private ExternalIntegrationRepository externalIntegrationRepository;
-     public TriggerResponseDto fire( final FiredTriggerDto ap ) throws Exception
+
+
+    public TriggerResponseDto fire( final FiredTriggerDto ap )
+          throws Exception
     {
 
-       String externalIntegrationType = (String) ap.getPayload().get( "externalIntegrationType");
+        String externalIntegrationType = (String) ap.getPayload().get( "externalIntegrationType" );
 
-        IntegrationEntity entity = externalIntegrationRepository.getIntegrationEntityByOrganizationIdAndType( ap.getLineId(), IntegrationType.valueOf( externalIntegrationType )  );
+        IntegrationEntity entity = externalIntegrationRepository.getIntegrationEntityByOrganizationIdAndType( ap.getLineId(), IntegrationType.valueOf( externalIntegrationType ) );
 
         ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( entity.getSpec(), ActionJMSQuoteSpecDto.class );
 
-        final JMAuthResult jmAuthResult = getAuth(actionJMSQuoteSpecDto, jmAuthClient);
+        final JMAuthResult jmAuthResult = getAuth( actionJMSQuoteSpecDto, jmAuthClient );
 
         TriggerResponseDto triggerResponseDto;
 
-        if ( entity.getType().equals( IntegrationType.JM_ADDQUOTE) ) {
+        if ( entity.getType().equals( IntegrationType.JM_ADDQUOTE ) )
+        {
 
-            triggerResponseDto  = jmAddQuoteHelper.processAddQuote( ap, jmAuthResult, actionJMSQuoteSpecDto );
+            triggerResponseDto = jmAddQuoteHelper.processAddQuote( ap, jmAuthResult, actionJMSQuoteSpecDto );
 
-            String externalQuoteId = (String) ap.getPayload().get( "externalQuoteId");
+            String externalQuoteId = (String) ap.getPayload().get( "externalQuoteId" );
 
-            if ( externalQuoteId != null && !externalQuoteId.equalsIgnoreCase( "" )) {
+            if ( externalQuoteId != null && !externalQuoteId.equalsIgnoreCase( "" ) )
+            {
 
                 return triggerResponseDto;
             }
 
-           if ( getValue (() -> triggerResponseDto.getMetadata().get( "isCoverageAvailable" ).toString(), "true" ).equalsIgnoreCase( "false" ) ) {
+            if ( getValue( () -> triggerResponseDto.getMetadata().get( "isCoverageAvailable" ).toString(), "true" ).equalsIgnoreCase( "false" ) )
+            {
 
                 return triggerResponseDto;
-
             }
-
-
         }
-        else {
-            triggerResponseDto =  jmQuickQuoteHelper.processQuickQuote( ap, jmAuthResult, actionJMSQuoteSpecDto );
-
+        else
+        {
+            triggerResponseDto = jmQuickQuoteHelper.processQuickQuote( ap, jmAuthResult, actionJMSQuoteSpecDto );
         }
         InboundResponseDataDto inboundResponseDataDto = new InboundResponseDataDto();
         inboundResponseDataDto.setRequestId( triggerResponseDto.getTriggerRequestId() );
 
-        Map<String, Object> payload = objectMapper.convertValue( triggerResponseDto.getMetadata().get( ap.getTriggerRequestId().toString()), Map.class );
-        inboundResponseDataDto.setPayload( payload);
+        Map<String, Object> payload = objectMapper.convertValue( triggerResponseDto.getMetadata().get( ap.getTriggerRequestId().toString() ), Map.class );
+        inboundResponseDataDto.setPayload( payload );
 
         ioiActionClient.processInboundData( inboundResponseDataDto );
 
         return triggerResponseDto;
+    }
+
+
+    public QuoteDto getQuickQuote( final FiredTriggerDto ap )
+          throws Exception
+    {
+        IntegrationEntity entity = externalIntegrationRepository.getIntegrationEntityByOrganizationIdAndType( ap.getLineId(), IntegrationType.JM_QUICKQUOTE );
+        ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( entity.getSpec(), ActionJMSQuoteSpecDto.class );
+        final JMAuthResult jmAuthResult = getAuth( actionJMSQuoteSpecDto, jmAuthClient );
+
+        return jmQuickQuoteHelper.getQuickQuote( ap, jmAuthResult, actionJMSQuoteSpecDto );
     }
 }
