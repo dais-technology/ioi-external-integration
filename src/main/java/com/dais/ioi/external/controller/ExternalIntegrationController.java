@@ -3,6 +3,7 @@ package com.dais.ioi.external.controller;
 import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.domain.api.ExternalIntegrationApi;
+import com.dais.ioi.external.domain.dto.GetQuoteDto;
 import com.dais.ioi.external.domain.dto.IntegrationDto;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
@@ -101,7 +102,7 @@ public class ExternalIntegrationController
 
 
     @Override
-    public QuoteDto getQuickQuote( @Valid final FiredTriggerDto firedTriggerDto )
+    public QuoteDto getQuickQuote( @Valid final GetQuoteDto firedTriggerDto )
     {
         TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
         try
