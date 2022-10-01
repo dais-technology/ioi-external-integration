@@ -31,7 +31,7 @@ public interface ExternalIntegrationApi
           throws IllegalAccessException;
 
     @ResponseStatus( HttpStatus.OK )
-    @RequestMapping( value = "/quote/jm/quickQuote",
+    @RequestMapping( value = "/quote/jm/quickquote",
                      method = RequestMethod.POST )
     @ApiOperation( value = "Get JM quickQuote" )
     QuoteDto getQuickQuote( @RequestBody @Valid FiredTriggerDto firedTriggerDto );
