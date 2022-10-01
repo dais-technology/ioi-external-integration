@@ -6,6 +6,7 @@ import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.internal.spec.QuoteRequestSpecDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.config.client.JMQuoteClient;
+import com.dais.ioi.external.domain.dto.GetQuoteDto;
 import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
 import com.dais.ioi.external.domain.dto.jm.QuickQuoteRequest;
 import com.dais.ioi.external.domain.dto.jm.QuickQuoteResult;
@@ -119,15 +120,13 @@ public class JMQuickQuoteHelperImpl
     }
 
 
-    public QuoteDto getQuickQuote( FiredTriggerDto firedTriggerDto,
+    public QuoteDto getQuickQuote( GetQuoteDto firedTriggerDto,
                                    JMAuthResult jmAuthResult,
                                    ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
           throws Exception
     {
         {
-            QuoteRequestSpecDto triggerSpec = objectMapper.convertValue( firedTriggerDto.getPayload(), QuoteRequestSpecDto.class );
-
-            QuickQuoteRequest quickQuoteRequest = createQuickQuoteRequest( triggerSpec.getIntake(), actionJMSQuoteSpecDto );
+            QuickQuoteRequest quickQuoteRequest = createQuickQuoteRequest( firedTriggerDto.getIntake(), actionJMSQuoteSpecDto );
 
             URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getQuickQuoteUrl() );
 
@@ -162,12 +161,11 @@ public class JMQuickQuoteHelperImpl
                                             .bundleId( ap.firedTrigger.getBundleId() )
                                             .lineId( ap.line.getId() )
                                             )*/
-                                        .clientOrganizationId( firedTriggerDto.getSource().getOrganizationId() )
+                                        .clientOrganizationId( firedTriggerDto.getOrganizationId() )
                                         .quoteTimestamp( OffsetDateTime.now() )
-                                        .source( firedTriggerDto.getSource() )
-                                        .clientOrganizationId( firedTriggerDto.getSource().getOrganizationId() )
                                         .type( QuoteType.QUOTE )
-                                        .clientId( triggerSpec.getClientId() )
+                                        .lineId( firedTriggerDto.getLineId() )
+                                        .clientId( firedTriggerDto.getClientId() )
                                         .bindable( false )
                                         .effectiveDate( LocalDate.now() )
                                         .quoteDetails( quoteDetails )

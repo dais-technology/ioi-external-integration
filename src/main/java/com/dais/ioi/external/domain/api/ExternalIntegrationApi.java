@@ -2,6 +2,7 @@ package com.dais.ioi.external.domain.api;
 
 import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
+import com.dais.ioi.external.domain.dto.GetQuoteDto;
 import com.dais.ioi.external.domain.dto.IntegrationDto;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
@@ -34,7 +35,7 @@ public interface ExternalIntegrationApi
     @RequestMapping( value = "/quote/jm/quickquote",
                      method = RequestMethod.POST )
     @ApiOperation( value = "Get JM quickQuote" )
-    QuoteDto getQuickQuote( @RequestBody @Valid FiredTriggerDto firedTriggerDto );
+    QuoteDto getQuickQuote( @RequestBody @Valid GetQuoteDto firedTriggerDto );
 
     @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/process-synchronous",

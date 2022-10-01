@@ -5,6 +5,7 @@ import com.dais.ioi.action.domain.dto.internal.InboundResponseDataDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.config.client.IOIActionClient;
 import com.dais.ioi.external.config.client.JMAuthClient;
+import com.dais.ioi.external.domain.dto.GetQuoteDto;
 import com.dais.ioi.external.domain.dto.internal.enums.IntegrationType;
 import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
@@ -97,7 +98,7 @@ public class JMQuoteServiceImpl
     }
 
 
-    public QuoteDto getQuickQuote( final FiredTriggerDto ap )
+    public QuoteDto getQuickQuote( final GetQuoteDto ap )
           throws Exception
     {
         IntegrationEntity entity = externalIntegrationRepository.getIntegrationEntityByOrganizationIdAndType( ap.getLineId(), IntegrationType.JM_QUICKQUOTE );
