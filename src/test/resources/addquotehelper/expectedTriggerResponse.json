@@ -23,7 +23,7 @@
         },
         "coverageTypes": [
           {
-            "type": "todo",
+            "type": "brooch",
             "coverages": [
               {
                 "metadata": null,
@@ -56,176 +56,10 @@
                       "scope": null,
                       "scopeLabel": null
                     }
-                  ]
-                },
-                "adjustments": null
-              },
-              {
-                "metadata": null,
-                "location": null,
-                "premium": 40.00,
-                "details": {
-                  "itemId": [
-                    {
-                      "amount": "1",
-                      "amountType": "TEXT",
-                      "description": null,
-                      "scope": null,
-                      "scopeLabel": null
-                    }
                   ],
-                  "itemTaxesAndSurcharges": [
+                  "itemValue": [
                     {
-                      "amount": "0.0",
-                      "amountType": "DOLLAR",
-                      "description": null,
-                      "scope": null,
-                      "scopeLabel": null
-                    }
-                  ],
-                  "deductible": [
-                    {
-                      "amount": "100",
-                      "amountType": "DOLLAR",
-                      "description": null,
-                      "scope": null,
-                      "scopeLabel": null
-                    }
-                  ]
-                },
-                "adjustments": null
-              },
-              {
-                "metadata": null,
-                "location": null,
-                "premium": 38.00,
-                "details": {
-                  "itemId": [
-                    {
-                      "amount": "1",
-                      "amountType": "TEXT",
-                      "description": null,
-                      "scope": null,
-                      "scopeLabel": null
-                    }
-                  ],
-                  "itemTaxesAndSurcharges": [
-                    {
-                      "amount": "0.0",
-                      "amountType": "DOLLAR",
-                      "description": null,
-                      "scope": null,
-                      "scopeLabel": null
-                    }
-                  ],
-                  "deductible": [
-                    {
-                      "amount": "250",
-                      "amountType": "DOLLAR",
-                      "description": null,
-                      "scope": null,
-                      "scopeLabel": null
-                    }
-                  ]
-                },
-                "adjustments": null
-              },
-              {
-                "metadata": null,
-                "location": null,
-                "premium": 37.00,
-                "details": {
-                  "itemId": [
-                    {
-                      "amount": "1",
-                      "amountType": "TEXT",
-                      "description": null,
-                      "scope": null,
-                      "scopeLabel": null
-                    }
-                  ],
-                  "itemTaxesAndSurcharges": [
-                    {
-                      "amount": "0.0",
-                      "amountType": "DOLLAR",
-                      "description": null,
-                      "scope": null,
-                      "scopeLabel": null
-                    }
-                  ],
-                  "deductible": [
-                    {
-                      "amount": "500",
-                      "amountType": "DOLLAR",
-                      "description": null,
-                      "scope": null,
-                      "scopeLabel": null
-                    }
-                  ]
-                },
-                "adjustments": null
-              },
-              {
-                "metadata": null,
-                "location": null,
-                "premium": 35.00,
-                "details": {
-                  "itemId": [
-                    {
-                      "amount": "1",
-                      "amountType": "TEXT",
-                      "description": null,
-                      "scope": null,
-                      "scopeLabel": null
-                    }
-                  ],
-                  "itemTaxesAndSurcharges": [
-                    {
-                      "amount": "0.0",
-                      "amountType": "DOLLAR",
-                      "description": null,
-                      "scope": null,
-                      "scopeLabel": null
-                    }
-                  ],
-                  "deductible": [
-                    {
-                      "amount": "1000",
-                      "amountType": "DOLLAR",
-                      "description": null,
-                      "scope": null,
-                      "scopeLabel": null
-                    }
-                  ]
-                },
-                "adjustments": null
-              },
-              {
-                "metadata": null,
-                "location": null,
-                "premium": 33.00,
-                "details": {
-                  "itemId": [
-                    {
-                      "amount": "1",
-                      "amountType": "TEXT",
-                      "description": null,
-                      "scope": null,
-                      "scopeLabel": null
-                    }
-                  ],
-                  "itemTaxesAndSurcharges": [
-                    {
-                      "amount": "0.0",
-                      "amountType": "DOLLAR",
-                      "description": null,
-                      "scope": null,
-                      "scopeLabel": null
-                    }
-                  ],
-                  "deductible": [
-                    {
-                      "amount": "2500",
+                      "amount": "3000",
                       "amountType": "DOLLAR",
                       "description": null,
                       "scope": null,
@@ -257,8 +91,8 @@
       "clientId": "de97d4ae-09b3-4a39-96e4-a4313acba90d",
       "clientOrganizationId": "3eda8351-f3ad-4476-85eb-3d2b99953e65",
       "metadata": {
-        "minimumPremium" : 25.00,
-        "minimumTaxesAndSurcharges" : 0.0,
+        "minimumPremium": 25.00,
+        "minimumTaxesAndSurcharges": 0.0,
         "ratePlans": [
           {
             "downPaymentAmount": 43.0,
