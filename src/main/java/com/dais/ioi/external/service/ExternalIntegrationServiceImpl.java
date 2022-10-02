@@ -7,6 +7,7 @@ import com.dais.ioi.external.domain.dto.IntegrationDto;
 import com.dais.ioi.external.domain.dto.internal.enums.IntegrationType;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
+import com.dais.ioi.external.domain.dto.jm.JmQuoteOptionDto;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import com.dais.ioi.external.entity.IntegrationEntity;
@@ -14,6 +15,8 @@ import com.dais.ioi.external.repository.ExternalIntegrationRepository;
 import com.dais.ioi.external.service.action.jm.JMCreateAccountServiceImpl;
 import com.dais.ioi.external.service.action.jm.JMQuoteServiceImpl;
 import com.dais.ioi.external.service.action.jm.JMSubmitApplicationServiceImpl;
+import com.dais.ioi.external.service.jm.JmQuoteOptionsService;
+import com.dais.ioi.external.util.CompareJsonUtil;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +30,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.OffsetDateTime;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -42,7 +47,7 @@ public class ExternalIntegrationServiceImpl
     private ExternalIntegrationRepository externalIntegrationRepository;
 
     @Autowired
-    private JMQuoteServiceImpl jmsQuoteService;
+    private JMQuoteServiceImpl jmQuoteService;
 
     @Autowired
     private JMSubmitApplicationServiceImpl jmSubmitApplication;
@@ -51,8 +56,13 @@ public class ExternalIntegrationServiceImpl
     private JMCreateAccountServiceImpl createAccountService;
 
     @Autowired
+    private JmQuoteOptionsService jmQuoteOptionsService;
+
+    @Autowired
     @Qualifier( "primaryObjectMapper" )
     private ObjectMapper objectMapper;
+
+    private CompareJsonUtil compareJson = new CompareJsonUtil();
 
 
     @Override
@@ -108,15 +118,100 @@ public class ExternalIntegrationServiceImpl
     public TriggerResponseDto process( final FiredTriggerDto firedTriggerDto )
           throws Exception
     {
-        return jmsQuoteService.fire( firedTriggerDto );
+        return jmQuoteService.fire( firedTriggerDto );
     }
 
 
     @Override
-    public QuoteDto getQuickQuote( final GetQuoteDto firedTriggerDto )
+    public QuoteDto getQuickQuote( final GetQuoteDto quoteDto )
           throws Exception
     {
-        return jmsQuoteService.getQuickQuote( firedTriggerDto );
+        log.info( "Received JM QuickQuote {}", objectMapper.writeValueAsString( quoteDto ) );
+        QuoteDto quickQuote = jmQuoteService.getQuickQuote( quoteDto );
+        log.info( "JM QuickQuote Response {} ", objectMapper.writeValueAsString( quickQuote ) );
+        return quickQuote;
+    }
+
+
+    @Override
+    public QuoteDto getCachedQuickQuote( final GetQuoteDto quoteDto )
+          throws Exception
+    {
+        try
+        {
+            log.info( String.format( "Fetching quote option for ClientId: %s LineId: %s ", quoteDto.getClientId().toString(), quoteDto.getLineId().toString() ) );
+            JmQuoteOptionDto jmQuoteOption = jmQuoteOptionsService.getByClientIdLineId( quoteDto.getClientId(), quoteDto.getLineId() );
+            log.info( "Existing quote Option exist for given intake key.  Performing cache hit checks..." );
+            OffsetDateTime now = OffsetDateTime.now();
+            OffsetDateTime cachedDate = jmQuoteOption.getSubmissionDate();
+
+            log.info( String.format( "Performing submission date Check. Cached Submission Date: %s, new Submission Date: %s", cachedDate, now ) );
+            long days = Duration.between( cachedDate, now ).toDays();
+            log.info( "days between quoteOptions: " + days );
+            if ( days >= 60 )
+            {
+                log.info( "Cached quote options have expired, fetching new quote options" );
+                QuoteDto quickQuote = jmQuoteService.getQuickQuote( quoteDto );
+
+                JmQuoteOptionDto quoteOption = JmQuoteOptionDto.builder()
+                                                               .clientId( quoteDto.getClientId() )
+                                                               .lineId( quoteDto.getLineId() )
+                                                               .quoteOption( quickQuote )
+                                                               .submissionDate( OffsetDateTime.now() )
+                                                               .intakeKey( objectMapper.writeValueAsString( quoteDto.getIntake() ) )
+                                                               .build();
+
+                jmQuoteOptionsService.save( quoteOption );
+                return quickQuote;
+            }
+            else
+            {
+                log.info( "Cached quote is within expiry period.  Continuing with intake key comparison." );
+            }
+            Boolean intakeEqual = compareJson.isEqual( jmQuoteOption.getIntakeKey(), objectMapper.writeValueAsString( quoteDto.getIntake() ) );
+            if ( intakeEqual )
+            {
+                log.info( "intake key for Existing quote Option is unchanged.  Returning cached quote option" );
+                return jmQuoteOption.getQuoteOption();
+            }
+            else
+            {
+                log.info( "intake key for Existing quote Option has changed.  Fetching new quote option for getQuickQuote:" + objectMapper.writeValueAsString( quoteDto ) );
+                QuoteDto quickQuote = jmQuoteService.getQuickQuote( quoteDto );
+
+                log.info( "creating/updating quote option cache entry." );
+                JmQuoteOptionDto quoteOption = JmQuoteOptionDto.builder()
+                                                               .clientId( quoteDto.getClientId() )
+                                                               .lineId( quoteDto.getLineId() )
+                                                               .quoteOption( quickQuote )
+                                                               .submissionDate( now )
+                                                               .intakeKey( objectMapper.writeValueAsString( quoteDto.getIntake() ) )
+                                                               .build();
+
+                jmQuoteOptionsService.save( quoteOption );
+
+                return quickQuote;
+            }
+        }
+        catch ( ResponseStatusException ex )
+        {
+            log.info( String.format( "No quote option found for ClientId: %s LineId: %s ", quoteDto.getClientId().toString(), quoteDto.getLineId().toString() ) );
+            log.info( "Fetching quote option for getQuickQuote:" + objectMapper.writeValueAsString( quoteDto ) );
+
+            QuoteDto quickQuote = jmQuoteService.getQuickQuote( quoteDto );
+
+            JmQuoteOptionDto quoteOption = JmQuoteOptionDto.builder()
+                                                           .clientId( quoteDto.getClientId() )
+                                                           .lineId( quoteDto.getLineId() )
+                                                           .quoteOption( quickQuote )
+                                                           .submissionDate( OffsetDateTime.now() )
+                                                           .intakeKey( objectMapper.writeValueAsString( quoteDto.getIntake() ) )
+                                                           .build();
+
+            jmQuoteOptionsService.save( quoteOption );
+
+            return quickQuote;
+        }
     }
 
 

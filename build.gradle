@@ -121,6 +121,7 @@ dependencies {
     implementation( "com.dais:commons-spring-data-jpa-autoconfiguration:0.0.1" )
     compile( 'com.dais:ioi-plugin-service-domain:0.0.148' )
     compile( 'com.dais:ioi-policy-service-domain:0.0.304' )
+    implementation( 'org.skyscreamer:jsonassert:1.5.0' )
 
 
     testImplementation( "com.dais:test-utils:0.0.6" )
