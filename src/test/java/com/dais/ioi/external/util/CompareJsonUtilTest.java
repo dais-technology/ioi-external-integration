@@ -89,7 +89,7 @@ public class CompareJsonUtilTest
     private String givenAnIntakeWithChangedItemValue()
           throws IOException
     {
-        return JsonFileUtils.loadResourceAs( "compareJsonUtil/newItemChangePrice.json", String.class );
+        return JsonFileUtils.loadResourceAs( "compareJsonUtil/changedPrice.json", String.class );
     }
 
 
