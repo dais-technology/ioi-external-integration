@@ -102,16 +102,12 @@ public class ExternalIntegrationController
 
 
     @Override
-    public QuoteDto getQuickQuote( @Valid final GetQuoteDto firedTriggerDto )
+    public QuoteDto getQuickQuote( @Valid final GetQuoteDto getQuoteDto )
     {
-        TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
         try
         {
-            log.info( "Received {}", objectMapper.writeValueAsString( firedTriggerDto ) );
 
-            QuoteDto quoteDto = externalIntegrationService.getQuickQuote( firedTriggerDto );
-
-            log.info( "Responded with {} ", objectMapper.writeValueAsString( triggerResponseDto ) );
+            QuoteDto quoteDto = externalIntegrationService.getCachedQuickQuote( getQuoteDto );
             return quoteDto;
         }
         catch ( FeignException e )

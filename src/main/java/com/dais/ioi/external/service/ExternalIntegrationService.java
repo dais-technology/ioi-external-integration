@@ -27,6 +27,9 @@ public interface ExternalIntegrationService
     QuoteDto getQuickQuote( GetQuoteDto firedTriggerDto )
           throws Exception;
 
+    QuoteDto getCachedQuickQuote( final GetQuoteDto quoteDto )
+          throws Exception;
+
     TriggerResponseDto processSynchronous( final FiredTriggerDto firedTriggerDto )
           throws Exception;
 
