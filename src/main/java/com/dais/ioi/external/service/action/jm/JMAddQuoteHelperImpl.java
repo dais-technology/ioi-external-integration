@@ -397,20 +397,25 @@ public class JMAddQuoteHelperImpl
 
 
         String conviction = getValue( () -> intake.get( "conviction" ).getAnswer(), "" );
-
+        String misdemeanorFlag = "no";
+        String felonyFlag = "no";
         if ( conviction.contains( "Misdemeanor" ) ) {
-            AddQuoteRequest.UnderwritingQuestion misdemeanor = new AddQuoteRequest.UnderwritingQuestion();
-            misdemeanor.setKey( "misdemeanorConviction" );
-            misdemeanor.setValue( "yes" );
-            underwritingInfo.getUnderwritingQuestions().add( misdemeanor );
+            misdemeanorFlag = "yes";
+        }
+        if ( conviction.contains( "Felony" ) ) {
+            felonyFlag = "yes";
         }
 
-        if ( conviction.contains( "Felony" ) ) {
-            AddQuoteRequest.UnderwritingQuestion felony = new AddQuoteRequest.UnderwritingQuestion();
-            felony.setKey( "felonyConviction" );
-            felony.setValue( "yes" );
-            underwritingInfo.getUnderwritingQuestions().add( felony );
-        }
+        AddQuoteRequest.UnderwritingQuestion misdemeanor = new AddQuoteRequest.UnderwritingQuestion();
+        misdemeanor.setKey( "misdemeanorConviction" );
+        misdemeanor.setValue( misdemeanorFlag );
+        underwritingInfo.getUnderwritingQuestions().add( misdemeanor );
+
+
+        AddQuoteRequest.UnderwritingQuestion felony = new AddQuoteRequest.UnderwritingQuestion();
+        felony.setKey( "felonyConviction" );
+        felony.setValue( felonyFlag );
+        underwritingInfo.getUnderwritingQuestions().add( felony );
 
         AddQuoteRequest.UnderwritingQuestion lostWithin7Years = new AddQuoteRequest.UnderwritingQuestion();
         lostWithin7Years.setKey( "lostWithin7Years" );
