@@ -329,7 +329,7 @@ public class JMAddQuoteHelperImpl
                 mailingAddress.setPostalCode(
                       JMUtils.formatZipCode( getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactMailingAddrPostalCode() ).getAnswer(), "" ) )
                 );
-                String mailingAddressCountry = getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactMailingAddrCounty() ).getAnswer(), "" );
+                String mailingAddressCountry = getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrCountry() ).getAnswer(), "" );
                 mailingAddress.setCountry( mailingAddressCountry );
                 if ( !mailingAddressCountry.equals( "CA" ) )
                 {
