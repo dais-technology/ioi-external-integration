@@ -176,34 +176,6 @@ public class JMAddQuoteHelperImpl
 
             triggerResponseDto.setMetadata( metaDatamap );
 
-            PubQuoteDetailsDto quoteDetails = new PubQuoteDetailsDto();
-                PubPremiumDto premiumDto = new PubPremiumDto();
-                premiumDto.setAmount( BigDecimal.valueOf( -1 ) );
-            quoteDetails.setPremium( premiumDto );
-
-            QuoteDto negativePremiumQuote = QuoteDto.builder()
-                                        /*  .actionId( firedTriggerDto.actionEntity.getId() )
-                                          .pipelineId( firedTriggerDto.triggerEntity.getPipeline().getId() )
-                                          .quotingOrganizationId( firedTriggerDto.triggerEntity.getPipeline().getOrganizationId() )
-                                          .triggerRequestId( firedTriggerDto.triggerResponse.getTriggerRequestId() )
-                                          .bundleId( firedTriggerDto.firedTrigger.getBundleId() )
-                                          .lineId( firedTriggerDto.line.getId() )
-                                          .source( firedTriggerDto.firedTrigger.getSource() )*/
-                                        .clientOrganizationId( firedTriggerDto.getSource().getOrganizationId() )
-                                        .quoteTimestamp( OffsetDateTime.now() )
-                                        .source( firedTriggerDto.getSource() )
-                                        .clientOrganizationId( firedTriggerDto.getSource().getOrganizationId() )
-                                        .type( QuoteType.QUOTE )
-                                        .clientId( triggerSpec.getClientId() )
-                                        .requestId( requestId )
-                                        .effectiveDate( effectiveDate )
-                                        .bindable( true )
-                                        .quoteDetails( quoteDetails )
-                                        .metadata( metaDatamap )
-                                        .build();
-
-        //    triggerResponseDto.getMetadata().put( requestId.toString(), negativePremiumQuote );
-
             return triggerResponseDto;
         }
 
