@@ -157,6 +157,7 @@ public class JMAddQuoteHelperImpl
 
 
         // This block will be hit if there is no coverage and the http response is 200
+        //TODO add a quoteDTO with negative premium
         if ( addQuoteResult.isCoverageAvailable == false )
         {
 
@@ -174,6 +175,34 @@ public class JMAddQuoteHelperImpl
             triggerResponseDto.setTriggerRequestId( requestId );
 
             triggerResponseDto.setMetadata( metaDatamap );
+
+            PubQuoteDetailsDto quoteDetails = new PubQuoteDetailsDto();
+                PubPremiumDto premiumDto = new PubPremiumDto();
+                premiumDto.setAmount( BigDecimal.valueOf( -1 ) );
+            quoteDetails.setPremium( premiumDto );
+
+            QuoteDto negativePremiumQuote = QuoteDto.builder()
+                                        /*  .actionId( firedTriggerDto.actionEntity.getId() )
+                                          .pipelineId( firedTriggerDto.triggerEntity.getPipeline().getId() )
+                                          .quotingOrganizationId( firedTriggerDto.triggerEntity.getPipeline().getOrganizationId() )
+                                          .triggerRequestId( firedTriggerDto.triggerResponse.getTriggerRequestId() )
+                                          .bundleId( firedTriggerDto.firedTrigger.getBundleId() )
+                                          .lineId( firedTriggerDto.line.getId() )
+                                          .source( firedTriggerDto.firedTrigger.getSource() )*/
+                                        .clientOrganizationId( firedTriggerDto.getSource().getOrganizationId() )
+                                        .quoteTimestamp( OffsetDateTime.now() )
+                                        .source( firedTriggerDto.getSource() )
+                                        .clientOrganizationId( firedTriggerDto.getSource().getOrganizationId() )
+                                        .type( QuoteType.QUOTE )
+                                        .clientId( triggerSpec.getClientId() )
+                                        .requestId( requestId )
+                                        .effectiveDate( effectiveDate )
+                                        .bindable( true )
+                                        .quoteDetails( quoteDetails )
+                                        .metadata( metaDatamap )
+                                        .build();
+
+            triggerResponseDto.getMetadata().put( requestId.toString(), negativePremiumQuote );
 
             return triggerResponseDto;
         }
@@ -394,20 +423,28 @@ public class JMAddQuoteHelperImpl
         underwritingInfo.setUnderwritingQuestions( new ArrayList<>() );
         underwritingInfo.setLossHistoryEvents( new ArrayList<>() );
 
-        AddQuoteRequest.UnderwritingQuestion felony = new AddQuoteRequest.UnderwritingQuestion();
-        felony.setKey( "felonyConviction" );
-        felony.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getFelonyConviction() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( felony );
+
+        String conviction = getValue( () -> intake.get( "conviction" ).getAnswer(), "" );
+
+        if ( conviction.contains( "Misdemeanor" ) ) {
+            AddQuoteRequest.UnderwritingQuestion misdemeanor = new AddQuoteRequest.UnderwritingQuestion();
+            misdemeanor.setKey( "misdemeanorConviction" );
+            misdemeanor.setValue( "yes" );
+            underwritingInfo.getUnderwritingQuestions().add( misdemeanor );
+        }
+
+        if ( conviction.contains( "Felony" ) ) {
+            AddQuoteRequest.UnderwritingQuestion felony = new AddQuoteRequest.UnderwritingQuestion();
+            felony.setKey( "felonyConviction" );
+            felony.setValue( "yes" );
+            underwritingInfo.getUnderwritingQuestions().add( felony );
+        }
 
         AddQuoteRequest.UnderwritingQuestion lostWithin7Years = new AddQuoteRequest.UnderwritingQuestion();
         lostWithin7Years.setKey( "lostWithin7Years" );
         lostWithin7Years.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getLostWithin7Years() ).getAnswer(), "" ) );
         underwritingInfo.getUnderwritingQuestions().add( lostWithin7Years );
 
-        AddQuoteRequest.UnderwritingQuestion misdemeanor = new AddQuoteRequest.UnderwritingQuestion();
-        misdemeanor.setKey( "misdemeanorConviction" );
-        misdemeanor.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getMisdemeanorConviction() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( misdemeanor );
 
         AddQuoteRequest.UnderwritingQuestion crimeForProfit = new AddQuoteRequest.UnderwritingQuestion();
         crimeForProfit.setKey( "crimeForProfit" );
