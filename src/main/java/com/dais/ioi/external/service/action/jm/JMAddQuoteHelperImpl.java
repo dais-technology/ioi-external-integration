@@ -202,7 +202,7 @@ public class JMAddQuoteHelperImpl
                                         .metadata( metaDatamap )
                                         .build();
 
-            triggerResponseDto.getMetadata().put( requestId.toString(), negativePremiumQuote );
+        //    triggerResponseDto.getMetadata().put( requestId.toString(), negativePremiumQuote );
 
             return triggerResponseDto;
         }
