@@ -157,6 +157,7 @@ public class JMAddQuoteHelperImpl
 
 
         // This block will be hit if there is no coverage and the http response is 200
+        //TODO add a quoteDTO with negative premium
         if ( addQuoteResult.isCoverageAvailable == false )
         {
 
@@ -394,20 +395,28 @@ public class JMAddQuoteHelperImpl
         underwritingInfo.setUnderwritingQuestions( new ArrayList<>() );
         underwritingInfo.setLossHistoryEvents( new ArrayList<>() );
 
-        AddQuoteRequest.UnderwritingQuestion felony = new AddQuoteRequest.UnderwritingQuestion();
-        felony.setKey( "felonyConviction" );
-        felony.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getFelonyConviction() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( felony );
+
+        String conviction = getValue( () -> intake.get( "conviction" ).getAnswer(), "" );
+
+        if ( conviction.contains( "Misdemeanor" ) ) {
+            AddQuoteRequest.UnderwritingQuestion misdemeanor = new AddQuoteRequest.UnderwritingQuestion();
+            misdemeanor.setKey( "misdemeanorConviction" );
+            misdemeanor.setValue( "yes" );
+            underwritingInfo.getUnderwritingQuestions().add( misdemeanor );
+        }
+
+        if ( conviction.contains( "Felony" ) ) {
+            AddQuoteRequest.UnderwritingQuestion felony = new AddQuoteRequest.UnderwritingQuestion();
+            felony.setKey( "felonyConviction" );
+            felony.setValue( "yes" );
+            underwritingInfo.getUnderwritingQuestions().add( felony );
+        }
 
         AddQuoteRequest.UnderwritingQuestion lostWithin7Years = new AddQuoteRequest.UnderwritingQuestion();
         lostWithin7Years.setKey( "lostWithin7Years" );
         lostWithin7Years.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getLostWithin7Years() ).getAnswer(), "" ) );
         underwritingInfo.getUnderwritingQuestions().add( lostWithin7Years );
 
-        AddQuoteRequest.UnderwritingQuestion misdemeanor = new AddQuoteRequest.UnderwritingQuestion();
-        misdemeanor.setKey( "misdemeanorConviction" );
-        misdemeanor.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getMisdemeanorConviction() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( misdemeanor );
 
         AddQuoteRequest.UnderwritingQuestion crimeForProfit = new AddQuoteRequest.UnderwritingQuestion();
         crimeForProfit.setKey( "crimeForProfit" );
