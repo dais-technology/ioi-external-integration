@@ -8,6 +8,9 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 
 @Slf4j
 public abstract class JMAuth
@@ -19,10 +22,10 @@ public abstract class JMAuth
         final String authTokenRequest = String.join("&",
                 "grant_type=password",
                 "scope=partyAPI offline_access",
-                "username=" + actionJMSQuoteSpecDto.getUserName(),
-                "client_id=" + actionJMSQuoteSpecDto.getClientId(),
-                "client_secret=" + actionJMSQuoteSpecDto.getClientSecret(),
-                "password=" + actionJMSQuoteSpecDto.getClientPassword());
+                "username=" +  URLEncoder.encode (actionJMSQuoteSpecDto.getUserName(),  StandardCharsets.UTF_8.toString() ),
+                "client_id=" +  URLEncoder.encode  ( actionJMSQuoteSpecDto.getClientId(),  StandardCharsets.UTF_8.toString() ),
+                "client_secret=" +  URLEncoder.encode ( actionJMSQuoteSpecDto.getClientSecret(),  StandardCharsets.UTF_8.toString() ),
+                "password=" +  URLEncoder.encode ( actionJMSQuoteSpecDto.getClientPassword(), StandardCharsets.UTF_8.toString() ));
 
         final URI determinedBasePathUri = URI.create(actionJMSQuoteSpecDto.getAuthUrl());
 //        log.info(String.format("createAccount->getAuth: %s -> %s", determinedBasePathUri.toString(), new ObjectMapper().writeValueAsString(authTokenRequest)));
