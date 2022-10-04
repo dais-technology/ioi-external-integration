@@ -1,9 +1,7 @@
 package com.dais.ioi.external.service.action.jm;
 
 import com.dais.ioi.action.domain.dto.FiredTriggerDto;
-import com.dais.ioi.action.domain.dto.internal.InboundResponseDataDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
-import com.dais.ioi.external.config.client.IOIActionClient;
 import com.dais.ioi.external.config.client.JMAuthClient;
 import com.dais.ioi.external.domain.dto.GetQuoteDto;
 import com.dais.ioi.external.domain.dto.internal.enums.IntegrationType;
@@ -17,8 +15,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Map;
 
 import static com.dais.ioi.external.service.action.jm.JMAuth.getAuth;
 import static com.dais.ioi.external.service.action.jm.JMUtils.getValue;
@@ -41,9 +37,6 @@ public class JMQuoteServiceImpl
 
     @Autowired
     JMAddQuoteHelperImpl jmAddQuoteHelper;
-
-    @Autowired
-    IOIActionClient ioiActionClient;
 
     @Autowired
     private ExternalIntegrationRepository externalIntegrationRepository;
@@ -86,14 +79,6 @@ public class JMQuoteServiceImpl
         {
             triggerResponseDto = jmQuickQuoteHelper.processQuickQuote( ap, jmAuthResult, actionJMSQuoteSpecDto );
         }
-        InboundResponseDataDto inboundResponseDataDto = new InboundResponseDataDto();
-        inboundResponseDataDto.setRequestId( triggerResponseDto.getTriggerRequestId() );
-
-        Map<String, Object> payload = objectMapper.convertValue( triggerResponseDto.getMetadata().get( ap.getTriggerRequestId().toString() ), Map.class );
-        inboundResponseDataDto.setPayload( payload );
-
-        ioiActionClient.processInboundData( inboundResponseDataDto );
-
         return triggerResponseDto;
     }
 

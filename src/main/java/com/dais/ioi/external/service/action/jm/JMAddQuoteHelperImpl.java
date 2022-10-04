@@ -56,6 +56,8 @@ public class JMAddQuoteHelperImpl
 {
     public static final DateTimeFormatter EFFECTIVE_DATE_FORMAT = DateTimeFormatter.ofPattern( "yyyy-MM-dd" );
 
+    private static final String EXTERNAL_QUOTE_METADATA_KEY = "EXTERNAL_QUOTE";
+
     private final JMQuoteClient jmQuoteClient;
 
     private final ObjectMapper objectMapper;
@@ -241,7 +243,7 @@ public class JMAddQuoteHelperImpl
                                     .metadata( metaDatamap )
                                     .build();
 
-        triggerResponseDto.getMetadata().put( requestId.toString(), newQuote );
+        triggerResponseDto.getMetadata().put( EXTERNAL_QUOTE_METADATA_KEY, newQuote );
 
         triggerResponseDto.setTriggerRequestId( requestId );
 
@@ -399,10 +401,12 @@ public class JMAddQuoteHelperImpl
         String conviction = getValue( () -> intake.get( "conviction" ).getAnswer(), "" );
         String misdemeanorFlag = "no";
         String felonyFlag = "no";
-        if ( conviction.contains( "Misdemeanor" ) ) {
+        if ( conviction.contains( "Misdemeanor" ) )
+        {
             misdemeanorFlag = "yes";
         }
-        if ( conviction.contains( "Felony" ) ) {
+        if ( conviction.contains( "Felony" ) )
+        {
             felonyFlag = "yes";
         }
 

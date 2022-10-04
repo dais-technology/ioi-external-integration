@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import javax.validation.Valid;
 
 
+@Deprecated
 @FeignClient( "ioi-action-service" )
 public interface IOIActionClient
 {
