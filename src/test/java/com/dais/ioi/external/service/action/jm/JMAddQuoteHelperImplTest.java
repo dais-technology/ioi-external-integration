@@ -154,7 +154,7 @@ class JMAddQuoteHelperImplTest
     private CustomComparator getComparator()
     {
         return new CustomComparator( NON_EXTENSIBLE,
-                                     new Customization( "metadata.c5213585-ea28-4ce2-bf76-f9c402aa7489.quoteTimestamp",
+                                     new Customization( "metadata.EXTERNAL_QUOTE.quoteTimestamp",
                                                         ( request, response ) -> true )
         );
     }
