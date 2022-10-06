@@ -34,6 +34,7 @@ jobs:
       - name: Build with Gradle
         env:
           GRADLE_PROPERTIES: ${{ secrets.GRADLE_PROPERTIES }}
+          GRADLE_HOME: "~/.gradle"
         run: |
           mkdir -p ~/.gradle/
           echo ${GRADLE_PROPERTIES} > ~/.gradle/gradle.properties
