@@ -43,6 +43,8 @@ jobs:
           git fetch --tags
           git status --porcelain
           ./gradlew --refresh-dependencies version
+          ./gradlew release -x test
+          ./gradlew -x test artifactoryPublish pushDocker
       - name: Read value from Properties-file
         id: read_version
         uses: christian-draeger/read-properties@1.1.0
@@ -50,4 +52,4 @@ jobs:
           path: 'version.txt'
           properties: 'build.version'
       - name: Do something with your bumped release version
-        run: echo ${{ steps.read_property.outputs.build.version }}
+        run: echo ${{ steps.read_version.outputs.build.version }}
