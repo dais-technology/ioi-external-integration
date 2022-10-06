@@ -34,6 +34,8 @@ jobs:
           GRADLE_PROPERTIES: ${{ secrets.GRADLE_PROPERTIES }}
         shell: bash
         run: |
+          git config user.name ${{ secrets.DAIS_MACHINE_GITHUB_USERNAME }}
+          git config user.email ${{ secrets.DAIS_MACHINE_GITHUB_EMAIL }}
           mkdir -p ~/.gradle/
           echo "GRADLE_USER_HOME=${HOME}/.gradle" >> $GITHUB_ENV
           echo "${GRADLE_PROPERTIES}" > ~/.gradle/gradle.properties
