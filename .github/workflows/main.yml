@@ -34,8 +34,9 @@ jobs:
       - name: Build with Gradle
         env:
           GRADLE_PROPERTIES: ${{ secrets.GRADLE_PROPERTIES }}
-          GRADLE_HOME: "~/.gradle"
+        shell: bash
         run: |
           mkdir -p ~/.gradle/
-          echo ${GRADLE_PROPERTIES} > ~/.gradle/gradle.properties
+          echo "GRADLE_USER_HOME=${HOME}/.gradle" >> $GITHUB_ENV
+          echo "${GRADLE_PROPERTIES}" > ~/.gradle/gradle.properties
           ./gradlew --refresh-dependencies version
