@@ -27,6 +27,14 @@ jobs:
           role-to-assume: arn:aws:iam::991853876083:role/spiderman-eks-master-NodeInstanceRole-1CGN6EINNA20W
           aws-region: us-west-2
           role-session-name: AWSSession
+      - name: Read Project Name
+        id: read_project_name
+        uses: christian-draeger/read-properties@1.1.0
+        with:
+          path: 'settings.gradle'
+          properties: 'rootProject.name'
+      - name: Show Name
+        run: echo ${{ steps.read_project_name.outputs.rootProject.name }}
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
@@ -43,13 +51,19 @@ jobs:
           git fetch --tags
           git status --porcelain
           ./gradlew --refresh-dependencies version
-          ./gradlew release -x test
-          ./gradlew -x test artifactoryPublish pushDocker
-      - name: Read value from Properties-file
+          ./ggradlew release -x test
+          ./ggradlew -x test artifactoryPublish pushDocker
+      - name: Read Version
         id: read_version
         uses: christian-draeger/read-properties@1.1.0
         with:
           path: 'version.txt'
           properties: 'build.version'
-      - name: Do something with your bumped release version
+      - name: Read Project Name
+        id: read_name
+        uses: christian-draeger/read-properties@1.1.0
+        with:
+          path: 'settings.gradle'
+          properties: 'rootProject.name'
+      - name: Show Version
         run: echo ${{ steps.read_version.outputs.build.version }}
