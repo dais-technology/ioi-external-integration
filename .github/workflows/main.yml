@@ -40,3 +40,11 @@ jobs:
           echo "GRADLE_USER_HOME=${HOME}/.gradle" >> $GITHUB_ENV
           echo "${GRADLE_PROPERTIES}" > ~/.gradle/gradle.properties
           ./gradlew --refresh-dependencies version
+      - name: Read value from Properties-file
+        id: read_version
+        uses: christian-draeger/read-properties@1.1.0
+        with:
+          path: 'versions.txt'
+          properties: 'build.version'
+      - name: Do something with your bumped release version
+        run: echo ${{ steps.read_property.outputs.build.version }}
