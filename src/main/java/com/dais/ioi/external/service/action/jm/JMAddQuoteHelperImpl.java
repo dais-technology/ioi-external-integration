@@ -366,7 +366,7 @@ public class JMAddQuoteHelperImpl
                                         final LinkedHashMap<String, ClientAnswerDto> intake,
                                         final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
     {
-        if ( getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrCountry() ).getAnswer(), StringUtils.EMPTY ).equals( "CA" ) )
+        if ( getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrCountry() ).getAnswer().toString(), StringUtils.EMPTY ).equals( "CA" ) )
         {
             AddQuoteRequest.PrimaryContact primaryContact = addQuoteRequest.getPrimaryContact();
             AddQuoteRequest.ResidentialAddress residential = primaryContact.getResidentialAddress();
@@ -445,7 +445,22 @@ public class JMAddQuoteHelperImpl
 
         AddQuoteRequest.UnderwritingQuestion alarmId = new AddQuoteRequest.UnderwritingQuestion();
         alarmId.setKey( "AlarmId" );
-        alarmId.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getAlarmId() ).getAnswer(), "" ) );
+
+        String alarmText = getValue( () -> intake.get( actionJMSQuoteSpecDto.getAlarmId() ).getAnswer().toString(), "" );
+        String alarmIdValue = "";
+        if ( alarmText.equalsIgnoreCase( "Monitored Alarm System" )) {
+            alarmIdValue = "1";
+        }
+        else if (alarmText.equalsIgnoreCase( "Local Alarm" )) {
+            alarmIdValue = "2";
+
+        }
+        else {
+            alarmIdValue = "No Alarm";
+
+        }
+
+        alarmId.setValue( alarmIdValue );
         underwritingInfo.getUnderwritingQuestions().add( alarmId );
 
         AddQuoteRequest.UnderwritingQuestion convictionType = new AddQuoteRequest.UnderwritingQuestion();
