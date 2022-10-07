@@ -380,6 +380,8 @@ public class JMAddQuoteHelperImpl
                 }
             }
             String consentToCredit = getValue( () -> intake.get( actionJMSQuoteSpecDto.getConsentToCredit() ).getAnswer(), "" );
+            addQuoteRequest.setConsentToCredit( false );
+
             if ( !StringUtils.isEmpty( consentToCredit ) )
             {
                 addQuoteRequest.setConsentToCredit( Boolean.parseBoolean( consentToCredit ) );
