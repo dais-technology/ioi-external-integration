@@ -447,7 +447,7 @@ public class JMAddQuoteHelperImpl
         alarmId.setKey( "AlarmId" );
 
         String alarmText = getValue( () -> intake.get( actionJMSQuoteSpecDto.getAlarmId() ).getAnswer().toString(), "" );
-        String alarmIdValue = "";
+       /* String alarmIdValue = "";
         if ( alarmText.equalsIgnoreCase( "Monitored Alarm System" )) {
             alarmIdValue = "1";
         }
@@ -458,9 +458,9 @@ public class JMAddQuoteHelperImpl
         else {
             alarmIdValue = "No Alarm";
 
-        }
+        }*/
 
-        alarmId.setValue( alarmIdValue );
+        alarmId.setValue( alarmText );
         underwritingInfo.getUnderwritingQuestions().add( alarmId );
 
         AddQuoteRequest.UnderwritingQuestion convictionType = new AddQuoteRequest.UnderwritingQuestion();
