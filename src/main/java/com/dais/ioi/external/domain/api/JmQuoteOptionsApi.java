@@ -35,7 +35,7 @@ public interface JmQuoteOptionsApi
     @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/{id}",
                      method = RequestMethod.DELETE )
-    @ApiOperation( value = "delete JmQuoteOption Record by Id" )
+    @ApiOperation( value = "Remove JmQuoteOption Record by Id" )
     void deleteById( @PathVariable @Valid final UUID id );
 
     @ResponseStatus( HttpStatus.OK )
