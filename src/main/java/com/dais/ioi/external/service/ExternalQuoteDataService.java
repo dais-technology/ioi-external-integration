@@ -11,7 +11,7 @@ public interface ExternalQuoteDataService
 
     ExternalQuoteDataDto saveOrUpdate( ExternalQuoteDataDto externalQuoteData );
 
-    void delete( UUID externalQuoteDataId );
+    void deleteExternalQuote( UUID externalQuoteDataId );
 
     ExternalQuoteDataDto getByExternalQuoteId( String externalQuoteId );
 }

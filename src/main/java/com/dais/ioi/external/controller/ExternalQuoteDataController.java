@@ -35,9 +35,9 @@ public class ExternalQuoteDataController
 
 
     @Override
-    public void delete( final UUID externalQuoteDataId )
+    public void deleteExternalQuote( final UUID externalQuoteDataId )
     {
-        externalQuoteDataService.delete( externalQuoteDataId );
+        externalQuoteDataService.deleteExternalQuote( externalQuoteDataId );
     }
 
 

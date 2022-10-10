@@ -56,7 +56,7 @@ public class ExternalQuoteDataServiceImpl
 
 
     @Override
-    public void delete( final UUID externalQuoteDataId )
+    public void deleteExternalQuote( final UUID externalQuoteDataId )
     {
         externalQuoteDataRepository.deleteById( externalQuoteDataId );
     }

@@ -31,7 +31,7 @@ public interface ExternalQuoteDataControllerApi
     @RequestMapping( value = "/{externalQuoteDataId}",
                      method = RequestMethod.DELETE )
     @ApiOperation( value = "create or update an ExternalQuoteData Record" )
-    void delete( @PathVariable final UUID externalQuoteDataId );
+    void deleteExternalQuote( @PathVariable final UUID externalQuoteDataId );
 
     @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/external-quote-id/{externalQuoteId}",
