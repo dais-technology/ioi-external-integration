@@ -129,6 +129,7 @@ public class JMAddQuoteHelperImpl
 
                 String errorMessage = updQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
 
+                //TODO DONT THROW EXCEPTION
                 throw new Exception( errorMessage );
             }
 
@@ -142,6 +143,7 @@ public class JMAddQuoteHelperImpl
 
             triggerResponseDto.setMetadata( idMap );
 
+            //TODO CHECK RESPONSE
             return triggerResponseDto;
         }
 
@@ -178,6 +180,7 @@ public class JMAddQuoteHelperImpl
 
             triggerResponseDto.setMetadata( metaDatamap );
 
+            //TODO CHECK RESPONSE
             return triggerResponseDto;
         }
 
@@ -186,6 +189,7 @@ public class JMAddQuoteHelperImpl
         if ( getValue( () -> addQuoteResult.getErrorMessages().size(), 0 ) > 0 )
         {
             String errorMessage = addQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
+            //TODO DONT THROW EXCEPTION
             throw new Exception( errorMessage );
         }
 
@@ -203,6 +207,7 @@ public class JMAddQuoteHelperImpl
         if ( getValue( () -> updQuoteResult.getErrorMessages().size(), 0 ) > 0 )
         {
             String errorMessage = updQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
+            //TODO DONT THROW EXCEPTION
             throw new Exception( errorMessage );
         }
 
