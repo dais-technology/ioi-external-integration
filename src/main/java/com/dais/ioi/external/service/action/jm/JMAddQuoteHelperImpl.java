@@ -10,8 +10,10 @@ import com.dais.ioi.external.domain.dto.ExternalQuoteDataDto;
 import com.dais.ioi.external.domain.dto.jm.AddQuoteRequest;
 import com.dais.ioi.external.domain.dto.jm.AddQuoteResult;
 import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
+import com.dais.ioi.external.domain.dto.jm.JmQuoteOptionDto;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
 import com.dais.ioi.external.service.ExternalQuoteDataService;
+import com.dais.ioi.external.service.jm.JmQuoteOptionsService;
 import com.dais.ioi.external.util.NormalizedPremium;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
 import com.dais.ioi.quote.domain.dto.enums.AmountType;
@@ -64,14 +66,18 @@ public class JMAddQuoteHelperImpl
 
     private final ExternalQuoteDataService externalQuoteDataService;
 
+    private final JmQuoteOptionsService jmQuoteOptionsService;
+
 
     public JMAddQuoteHelperImpl( @Autowired final JMQuoteClient jmQuoteClient,
                                  @Autowired final ObjectMapper objectMapper,
-                                 @Autowired final ExternalQuoteDataService externalQuoteDataService )
+                                 @Autowired final ExternalQuoteDataService externalQuoteDataService,
+                                 @Autowired final JmQuoteOptionsService jmQuoteOptionsService )
     {
         this.jmQuoteClient = jmQuoteClient;
         this.objectMapper = objectMapper;
         this.externalQuoteDataService = externalQuoteDataService;
+        this.jmQuoteOptionsService = jmQuoteOptionsService;
     }
 
 
@@ -207,7 +213,8 @@ public class JMAddQuoteHelperImpl
         }
 
 
-        PubQuoteDetailsDto quoteDetails = getQuoteDetails( updQuoteResult, addQuoteRequest );
+        PubQuoteDetailsDto quoteDetailsForQuoteOption = getQuoteDetailsForQuoteOption( updQuoteResult, addQuoteRequest );
+        PubQuoteDetailsDto quoteDetailsForIOI = getQuoteDetailsForIOI( updQuoteResult, addQuoteRequest );
 
 
         saveFieldsForPlugin( requestId, addQuoteResult, pluginFields );
@@ -239,13 +246,26 @@ public class JMAddQuoteHelperImpl
                                     .requestId( requestId )
                                     .effectiveDate( effectiveDate )
                                     .bindable( true )
-                                    .quoteDetails( quoteDetails )
+                                    .quoteDetails( quoteDetailsForIOI )
                                     .metadata( metaDatamap )
                                     .build();
-
         triggerResponseDto.getMetadata().put( EXTERNAL_QUOTE_METADATA_KEY, newQuote );
 
         triggerResponseDto.setTriggerRequestId( requestId );
+
+        //Override details for quote option
+        newQuote.setQuoteDetails( quoteDetailsForQuoteOption );
+
+        String intakeKey = objectMapper.writeValueAsString( firedTriggerDto.getPayload() );
+
+        JmQuoteOptionDto jmQuoteOptionDto = JmQuoteOptionDto.builder().quoteOption( newQuote )
+                .clientId( newQuote.getClientId() )
+                .lineId( firedTriggerDto.getLineId() )
+                .submissionDate( newQuote.getQuoteTimestamp() )
+                .intakeKey( intakeKey )
+                .build();
+
+        jmQuoteOptionsService.save(jmQuoteOptionDto);
 
         return triggerResponseDto;
     }
@@ -822,25 +842,12 @@ public class JMAddQuoteHelperImpl
 
 
 
-    private PubQuoteDetailsDto getQuoteDetails( AddQuoteResult addQuoteResult,
+    private PubQuoteDetailsDto getQuoteDetailsForIOI( AddQuoteResult addQuoteResult,
                                                 final AddQuoteRequest addQuoteRequest )
     {
         PubQuoteDetailsDto.PubQuoteDetailsDtoBuilder quoteBuilder = PubQuoteDetailsDto.builder();
 
-        PubPremiumDto.PubPremiumDtoBuilder premiumBuilder = PubPremiumDto.builder();
-
-        final NormalizedPremium normalizedPremium = new NormalizedPremium( addQuoteResult.ratingInfo );
-
-        premiumBuilder.amount( normalizedPremium.getPremiumOnly() );
-
-        premiumBuilder.taxesAndFees( Arrays.asList( PubPremiumTaxesDto.builder()
-                                                                      .amount( normalizedPremium.getTotalTaxesAndSurcharges() )
-                                                                      .type( "Taxes and Surcharges" ).build(),
-                                                    PubPremiumTaxesDto.builder()
-                                                                      .amount( normalizedPremium.getDiscount() )
-                                                                      .type( "Discount" ).build() ) );
-
-        quoteBuilder.premium( premiumBuilder.build() );
+        quoteBuilder.premium( buildPremium( addQuoteResult ) );
 
         List<PubCoveragesDto> pubCoverages = new ArrayList<>();
 
@@ -881,6 +888,69 @@ public class JMAddQuoteHelperImpl
     }
 
 
+
+    private PubQuoteDetailsDto getQuoteDetailsForQuoteOption( AddQuoteResult addQuoteResult,
+                                                      final AddQuoteRequest addQuoteRequest )
+    {
+        PubQuoteDetailsDto.PubQuoteDetailsDtoBuilder quoteBuilder = PubQuoteDetailsDto.builder();
+
+        quoteBuilder.premium( buildPremium( addQuoteResult ) );
+
+        List<PubCoveragesDto> pubCoverages = new ArrayList<>();
+
+        addQuoteResult.getRatingInfo().getItemRateDetails().forEach( itemRateDetail -> {
+
+            addQuoteRequest.getJeweleryItems().forEach( jeweleryItem -> {
+
+                PubCoveragesDto.PubCoveragesDtoBuilder pubCoveragesBuilder = PubCoveragesDto.builder();
+
+                pubCoveragesBuilder.type( jeweleryItem.getJeweleryType() );
+
+                ArrayList<AddQuoteRequest.DeductibleOption> deductibleOptions = addQuoteRequest.getDeductibleOptions();
+                deductibleOptions.forEach( deductibleOption ->
+                {
+                    if (deductibleOption.getItemNumber() == itemRateDetail.getItemNumber())
+                    {
+                        List<PubCoverageDto> coverages = getPubCoverages( itemRateDetail, deductibleOption, jeweleryItem.getItemValue() );
+                        pubCoveragesBuilder.coverages( coverages );
+                    }
+                } );
+
+                pubCoverages.add( pubCoveragesBuilder.build() );
+            } );
+
+        } );
+        quoteBuilder.coverageTypes( pubCoverages );
+
+        PubExternalDataDto.PubExternalDataDtoBuilder externalDataBuilder = PubExternalDataDto.builder();
+
+        externalDataBuilder.externalQuoteId( addQuoteResult.getQuoteId() );
+
+        quoteBuilder.externalData( externalDataBuilder.build() );
+
+        PubQuoteDetailsDto quoteDetailsDto = quoteBuilder.build();
+
+        return quoteDetailsDto;
+    }
+
+    private PubPremiumDto buildPremium( AddQuoteResult addQuoteResult )
+    {
+        PubPremiumDto.PubPremiumDtoBuilder premiumBuilder = PubPremiumDto.builder();
+
+        final NormalizedPremium normalizedPremium = new NormalizedPremium( addQuoteResult.ratingInfo );
+
+        premiumBuilder.amount( normalizedPremium.getPremiumOnly() );
+
+        premiumBuilder.taxesAndFees( Arrays.asList( PubPremiumTaxesDto.builder()
+                        .amount( normalizedPremium.getTotalTaxesAndSurcharges() )
+                        .type( "Taxes and Surcharges" ).build(),
+                PubPremiumTaxesDto.builder()
+                        .amount( normalizedPremium.getDiscount() )
+                        .type( "Discount" ).build() ) );
+
+
+        return premiumBuilder.build();
+    }
     private List<PubCoverageDto> getPubCoverages( AddQuoteResult.ItemRateDetail itemRateDetail,
                                                   AddQuoteRequest.DeductibleOption deductibleOption,
                                                   final int itemValue )
