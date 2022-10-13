@@ -6,6 +6,7 @@ import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.internal.spec.QuoteRequestSpecDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.config.client.JMQuoteClient;
+import com.dais.ioi.external.domain.dto.AgentInfoDto;
 import com.dais.ioi.external.domain.dto.ExternalQuoteDataDto;
 import com.dais.ioi.external.domain.dto.jm.AddQuoteRequest;
 import com.dais.ioi.external.domain.dto.jm.AddQuoteResult;
@@ -282,11 +283,11 @@ public class JMAddQuoteHelperImpl
 
 
     public void addPaymentPlan( final String externalQuoteId,
-                                Map<String, String> agentInfoMap,
-                                Map<String, ClientAnswerDto> intake,
-                                Map<String, Object> selectedPaymentPlan,
-                                JMAuthResult jmAuthResult,
-                                ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
+                                final AgentInfoDto agentInfoDto,
+                                final Map<String, ClientAnswerDto> intake,
+                                final Map<String, Object> selectedPaymentPlan,
+                                final JMAuthResult jmAuthResult,
+                                final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
           throws Exception
     {
         HashMap<String, String> pluginFields = new HashMap<>();
@@ -294,7 +295,7 @@ public class JMAddQuoteHelperImpl
         final String effectiveDateAnswer = intake.get( actionJMSQuoteSpecDto.getEffectiveDate() ).getAnswer();
         final LocalDate effectiveDate = OffsetDateTime.parse( effectiveDateAnswer ).toLocalDate();
         addQuoteRequest.setEffectiveDate( effectiveDate.format( EFFECTIVE_DATE_FORMAT ) );
-        addUserInfo( addQuoteRequest, agentInfoMap );
+        addUserInfo( addQuoteRequest, objectMapper.convertValue( agentInfoDto, Map.class ) );
 
         URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl() );
         addQuoteRequest.setQuoteId( externalQuoteId );
