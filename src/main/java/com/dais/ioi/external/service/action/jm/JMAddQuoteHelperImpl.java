@@ -282,8 +282,8 @@ public class JMAddQuoteHelperImpl
 
 
     public void addPaymentPlan( final String externalQuoteId,
-                                LinkedHashMap<String, String> agentInfoMap,
-                                LinkedHashMap<String, ClientAnswerDto> intake,
+                                Map<String, String> agentInfoMap,
+                                Map<String, ClientAnswerDto> intake,
                                 Map<String, Object> selectedPaymentPlan,
                                 JMAuthResult jmAuthResult,
                                 ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
@@ -419,9 +419,9 @@ public class JMAddQuoteHelperImpl
 
 
     // Add Quote Methods
-    public AddQuoteRequest createAddQuoteRequest( LinkedHashMap<String, ClientAnswerDto> intake,
+    public AddQuoteRequest createAddQuoteRequest( Map<String, ClientAnswerDto> intake,
                                                   ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
-                                                  HashMap<String, String> pluginFields )
+                                                  Map<String, String> pluginFields )
     {
         AddQuoteRequest addQuoteRequest = AddQuoteRequest.builder().build();
 
@@ -530,7 +530,7 @@ public class JMAddQuoteHelperImpl
 
 
     private void setCanadianParameters( final AddQuoteRequest addQuoteRequest,
-                                        final LinkedHashMap<String, ClientAnswerDto> intake,
+                                        final Map<String, ClientAnswerDto> intake,
                                         final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
     {
         if ( getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryWearerResAddrCountry() ).getAnswer().toString(), StringUtils.EMPTY ).equals( "CA" ) )
@@ -558,7 +558,7 @@ public class JMAddQuoteHelperImpl
 
 
     private void processUnderWriting( AddQuoteRequest addQuoteRequest,
-                                      LinkedHashMap<String, ClientAnswerDto> intake,
+                                      Map<String, ClientAnswerDto> intake,
                                       ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
     {
 
@@ -678,7 +678,7 @@ public class JMAddQuoteHelperImpl
                                            List<ClientLoopIterationDto> iterations,
                                            ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
                                            List<ClientLoopIterationDto> jewerlyWearers,
-                                           HashMap<String, String> pluginFields )
+                                           Map<String, String> pluginFields )
     {
         ArrayList<AddQuoteRequest.JeweleryItem> jeweleryItems = new ArrayList<>();
         int itemNumber = 1;
@@ -768,7 +768,7 @@ public class JMAddQuoteHelperImpl
 
 
     private void addUserInfo( AddQuoteRequest addQuoteRequest,
-                              final LinkedHashMap<String, String> agentInfoMap )
+                              final Map<String, String> agentInfoMap )
     {
 
         AddQuoteRequest.User userInfo = new AddQuoteRequest.User();
@@ -945,7 +945,7 @@ public class JMAddQuoteHelperImpl
 
     private void addProducerCode( AddQuoteRequest addQuoteRequest,
                                   ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
-                                  LinkedHashMap<String, ClientAnswerDto> intake )
+                                  Map<String, ClientAnswerDto> intake )
     {
 
         String producerCode = "";
@@ -971,7 +971,7 @@ public class JMAddQuoteHelperImpl
 
     private void addPaperLessOption( AddQuoteRequest addQuoteRequest,
                                      ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
-                                     LinkedHashMap<String, ClientAnswerDto> intake )
+                                     Map<String, ClientAnswerDto> intake )
     {
 
         boolean paperlessOption = false;

@@ -85,8 +85,7 @@ public class JMQuoteServiceImpl
 
     public void addPaymentPlan()
     {
-//        IntegrationEntity entity = externalIntegrationRepository.getIntegrationEntityByOrganizationIdAndType( ap.getLineId(), IntegrationType.JM_ADDQUOTE );
-        //
+//        IntegrationEntity entity = externalIntegrationRepository.getIntegrationEntityByOrganizationIdAndType( lineId, IntegrationType.JM_ADDQUOTE );
         //        ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( entity.getSpec(), ActionJMSQuoteSpecDto.class );
     }
 
