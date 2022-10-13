@@ -235,7 +235,7 @@ public class JMAddQuoteHelperImpl
         triggerResponseDto.setTriggerRequestId( requestId );
 
         //Override details for quote option
-        newQuote.setQuoteDetails( quoteDetailsForQuoteOption );
+        quoteOptions.setQuoteDetails( quoteDetailsForQuoteOption );
 
         String intakeKey = objectMapper.writeValueAsString( triggerSpec.getIntake() );
 
