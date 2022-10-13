@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
 @Data
@@ -23,13 +24,14 @@ public class AddQuoteResult
 
     public boolean isCoverageAvailable;
 
-    public ArrayList<Object> errorMessages;
+    //TODO: List<String>
+    public List<Object> errorMessages;
 
     public RatingInfo ratingInfo;
 
-    public ArrayList<PaymentPlan> paymentPlans;
+    public List<PaymentPlan> paymentPlans;
 
-    public ArrayList<String> respMessageList;
+    public List<String> respMessageList;
 
     @Data
     @Builder
@@ -39,7 +41,7 @@ public class AddQuoteResult
     {
         public int itemNumber;
 
-        public ArrayList<RateOption> rateOptions;
+        public List<RateOption> rateOptions;
     }
 
     @Data
@@ -62,7 +64,7 @@ public class AddQuoteResult
 
         public int numberOfInstallments;
 
-        public ArrayList<Schedule> schedules;
+        public List<Schedule> schedules;
     }
 
     @Data

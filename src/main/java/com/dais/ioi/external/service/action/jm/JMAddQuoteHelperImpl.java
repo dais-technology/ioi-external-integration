@@ -15,16 +15,22 @@ import com.dais.ioi.external.service.ExternalQuoteDataService;
 import com.dais.ioi.external.util.NormalizedPremium;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
 import com.dais.ioi.quote.domain.dto.enums.AmountType;
+import com.dais.ioi.quote.domain.dto.enums.ContentScopeType;
+import com.dais.ioi.quote.domain.dto.enums.PremiumScaleType;
 import com.dais.ioi.quote.domain.dto.enums.QuoteType;
 import com.dais.ioi.quote.domain.dto.pub.PubCoverageDetailDto;
 import com.dais.ioi.quote.domain.dto.pub.PubCoverageDto;
 import com.dais.ioi.quote.domain.dto.pub.PubCoveragesDto;
+import com.dais.ioi.quote.domain.dto.pub.PubDurationDto;
 import com.dais.ioi.quote.domain.dto.pub.PubExternalDataDto;
+import com.dais.ioi.quote.domain.dto.pub.PubMessageDto;
 import com.dais.ioi.quote.domain.dto.pub.PubPremiumDto;
 import com.dais.ioi.quote.domain.dto.pub.PubPremiumTaxesDto;
 import com.dais.ioi.quote.domain.dto.pub.PubQuoteDetailsDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -98,10 +104,12 @@ public class JMAddQuoteHelperImpl
 
         addQuoteRequest.setEffectiveDate( effectiveDate.format( EFFECTIVE_DATE_FORMAT ) );
 
-        addUserInfo( addQuoteRequest, firedTriggerDto );
+        final LinkedHashMap<String, String> agentInfoMap = (LinkedHashMap<String, String>) firedTriggerDto.getPayload().get( "agent" );
+        addUserInfo( addQuoteRequest, agentInfoMap );
 
 
         // If the external quote id is sent, its treated as exclusively for updating
+        // TODO: This should be a completely separate call
         if ( externalQuoteId != null && !externalQuoteId.equalsIgnoreCase( "" ) )
         {
             URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl() );
@@ -154,14 +162,10 @@ public class JMAddQuoteHelperImpl
 
 
 
-        AddQuoteResult addQuoteResult = jmQuoteClient.addQuote( determinedBasePathUri,
-                                                                "Bearer " + jmAuthResult.getAccess_token(),
-                                                                actionJMSQuoteSpecDto.getApiSubscriptionkey(),
-                                                                addQuoteRequest );
+        AddQuoteResult addQuoteResult = getAddQuoteResult( jmAuthResult, actionJMSQuoteSpecDto, addQuoteRequest, determinedBasePathUri );
 
 
         // This block will be hit if there is no coverage and the http response is 200
-        //TODO add a quoteDTO with negative premium
         if ( addQuoteResult.isCoverageAvailable == false )
         {
 
@@ -178,9 +182,8 @@ public class JMAddQuoteHelperImpl
             log.info( "setting request Id to " + requestId );
             triggerResponseDto.setTriggerRequestId( requestId );
 
-            triggerResponseDto.setMetadata( metaDatamap );
-
-            //TODO CHECK RESPONSE
+            QuoteDto rejectedQuote = getRejectedQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate, addQuoteResult, metaDatamap );
+            triggerResponseDto.getMetadata().put( EXTERNAL_QUOTE_METADATA_KEY, rejectedQuote );
             return triggerResponseDto;
         }
 
@@ -188,27 +191,24 @@ public class JMAddQuoteHelperImpl
 
         if ( getValue( () -> addQuoteResult.getErrorMessages().size(), 0 ) > 0 )
         {
-            String errorMessage = addQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
-            //TODO DONT THROW EXCEPTION
-            throw new Exception( errorMessage );
+            TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
+            QuoteDto rejectedQuote = getRejectedQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate, addQuoteResult, Collections.emptyMap() );
+            triggerResponseDto.getMetadata().put( EXTERNAL_QUOTE_METADATA_KEY, rejectedQuote );
+            return triggerResponseDto;
         }
-
-
 
         addQuoteRequest.setQuoteId( externalQuoteId );
 
         determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl() );
 
-        AddQuoteResult updQuoteResult = jmQuoteClient.updateQuote( determinedBasePathUri,
-                                                                   "Bearer " + jmAuthResult.getAccess_token(),
-                                                                   actionJMSQuoteSpecDto.getApiSubscriptionkey(),
-                                                                   addQuoteRequest );
+        AddQuoteResult updQuoteResult = getQuoteResult( jmAuthResult, actionJMSQuoteSpecDto, addQuoteRequest, determinedBasePathUri );
 
         if ( getValue( () -> updQuoteResult.getErrorMessages().size(), 0 ) > 0 )
         {
-            String errorMessage = updQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
-            //TODO DONT THROW EXCEPTION
-            throw new Exception( errorMessage );
+            TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
+            QuoteDto rejectedQuote = getRejectedQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate, addQuoteResult, Collections.emptyMap() );
+            triggerResponseDto.getMetadata().put( EXTERNAL_QUOTE_METADATA_KEY, rejectedQuote );
+            return triggerResponseDto;
         }
 
 
@@ -253,6 +253,143 @@ public class JMAddQuoteHelperImpl
         triggerResponseDto.setTriggerRequestId( requestId );
 
         return triggerResponseDto;
+    }
+
+
+    public void addPaymentPlan( final String externalQuoteId,
+                                LinkedHashMap<String, String> agentInfoMap,
+                                LinkedHashMap<String, ClientAnswerDto> intake,
+                                Map<String, Object> selectedPaymentPlan,
+                                JMAuthResult jmAuthResult,
+                                ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
+          throws Exception
+    {
+        HashMap<String, String> pluginFields = new HashMap<>();
+        AddQuoteRequest addQuoteRequest = createAddQuoteRequest( intake, actionJMSQuoteSpecDto, pluginFields );
+        final String effectiveDateAnswer = intake.get( actionJMSQuoteSpecDto.getEffectiveDate() ).getAnswer();
+        final LocalDate effectiveDate = OffsetDateTime.parse( effectiveDateAnswer ).toLocalDate();
+        addQuoteRequest.setEffectiveDate( effectiveDate.format( EFFECTIVE_DATE_FORMAT ) );
+        addUserInfo( addQuoteRequest, agentInfoMap );
+
+        URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl() );
+        addQuoteRequest.setQuoteId( externalQuoteId );
+
+        String planName = getValue( () -> ( (Map) selectedPaymentPlan ).get( "name" ).toString(), "" );
+
+        Integer numberOfInstallments = Integer.parseInt( getValue( () -> ( (Map) selectedPaymentPlan ).get( "numberOfInstallments" ).toString(), "" ) );
+
+        addPaymentPlan( addQuoteRequest, planName, numberOfInstallments );
+
+        log.info( objectMapper.writeValueAsString( addQuoteRequest ) );
+
+        AddQuoteResult updQuoteResult = jmQuoteClient.updateQuote( determinedBasePathUri,
+                                                                   "Bearer " + jmAuthResult.getAccess_token(),
+                                                                   actionJMSQuoteSpecDto.getApiSubscriptionkey(),
+                                                                   addQuoteRequest );
+
+        if ( getValue( () -> updQuoteResult.getErrorMessages().size(), 0 ) > 0 )
+        {
+
+            String errorMessage = updQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
+            throw new Exception( errorMessage );
+        }
+    }
+
+
+    private AddQuoteResult getQuoteResult( final JMAuthResult jmAuthResult,
+                                           final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
+                                           final AddQuoteRequest addQuoteRequest,
+                                           final URI determinedBasePathUri )
+    {
+        try
+        {
+            return jmQuoteClient.updateQuote( determinedBasePathUri,
+                                              "Bearer " + jmAuthResult.getAccess_token(),
+                                              actionJMSQuoteSpecDto.getApiSubscriptionkey(),
+                                              addQuoteRequest );
+        }
+        catch ( FeignException e )
+        {
+            log.error( e.getMessage() );
+            List<Object> errorMessages = new ArrayList<>();
+            errorMessages.add( "An Error Occured when calling JM UpdateQuote." );
+            //TODO: Parse out error message to extract cause
+            errorMessages.add( e.contentUTF8() );
+
+            List<String> respMessages = new ArrayList<>();
+            respMessages.add( "We are unable to provide a quote at this time." );
+            return AddQuoteResult.builder().errorMessages( errorMessages ).respMessageList( respMessages ).build();
+        }
+    }
+
+
+    private AddQuoteResult getAddQuoteResult( final JMAuthResult jmAuthResult,
+                                              final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
+                                              final AddQuoteRequest addQuoteRequest,
+                                              final URI determinedBasePathUri )
+    {
+        try
+        {
+            AddQuoteResult addQuoteResult = jmQuoteClient.addQuote( determinedBasePathUri,
+                                                                    "Bearer " + jmAuthResult.getAccess_token(),
+                                                                    actionJMSQuoteSpecDto.getApiSubscriptionkey(),
+                                                                    addQuoteRequest );
+            return addQuoteResult;
+        }
+        catch ( FeignException e )
+        {
+            log.error( e.getMessage() );
+            List<Object> errorMessages = new ArrayList<>();
+            errorMessages.add( "An Error Occured when calling JM AddQuote." );
+            //TODO: Parse out error message to extract cause
+            errorMessages.add( e.contentUTF8() );
+
+            List<String> respMessages = new ArrayList<>();
+            respMessages.add( "We are unable to provide a quote at this time." );
+            return AddQuoteResult.builder().errorMessages( errorMessages ).respMessageList( respMessages ).build();
+        }
+    }
+
+
+    private QuoteDto getRejectedQuoteDto( final FiredTriggerDto firedTriggerDto,
+                                          final UUID requestId,
+                                          final QuoteRequestSpecDto triggerSpec,
+                                          final LocalDate effectiveDate,
+                                          final AddQuoteResult addQuoteResult,
+                                          final Map<String, Object> metaDatamap )
+    {
+        final List<PubMessageDto> errorMessages = addQuoteResult.getErrorMessages().stream().map( message ->
+                                                                                                        PubMessageDto.builder()
+                                                                                                                     .type( ContentScopeType.ERROR )
+                                                                                                                     .message( message.toString() )
+                                                                                                                     .build()
+        ).collect( Collectors.toList() );
+
+        final List<PubMessageDto> responseMessages = addQuoteResult.getRespMessageList().stream().map( message -> PubMessageDto.builder()
+                                                                                                                               .type( ContentScopeType.CONSUMER )
+                                                                                                                               .message( message )
+                                                                                                                               .build()
+        ).collect( Collectors.toList() );
+
+        final PubPremiumDto premiumDto = PubPremiumDto.builder().amount( new BigDecimal( -1 ) ).per( PremiumScaleType.YEAR ).build();
+        final PubDurationDto durationDto = PubDurationDto.builder().length( 12 ).scale( PremiumScaleType.MONTH ).build();
+        final PubQuoteDetailsDto quoteDetails = PubQuoteDetailsDto.builder().premium( premiumDto ).duration( durationDto ).build();
+
+        final QuoteDto rejectedQuote = QuoteDto.builder()
+                                               .clientOrganizationId( firedTriggerDto.getSource().getOrganizationId() )
+                                               .quoteTimestamp( OffsetDateTime.now() )
+                                               .source( firedTriggerDto.getSource() )
+                                               .clientOrganizationId( firedTriggerDto.getSource().getOrganizationId() )
+                                               .type( QuoteType.QUOTE )
+                                               .clientId( triggerSpec.getClientId() )
+                                               .requestId( requestId )
+                                               .effectiveDate( effectiveDate )
+                                               .bindable( true )
+                                               .quoteDetails( quoteDetails )
+                                               .metadata( metaDatamap )
+                                               .messages( ListUtils.union( responseMessages, errorMessages ) )
+                                               .build();
+        return rejectedQuote;
     }
 
 
@@ -606,12 +743,11 @@ public class JMAddQuoteHelperImpl
 
 
     private void addUserInfo( AddQuoteRequest addQuoteRequest,
-                              FiredTriggerDto firedTriggerDto )
+                              final LinkedHashMap<String, String> agentInfoMap )
     {
 
         AddQuoteRequest.User userInfo = new AddQuoteRequest.User();
 
-        final LinkedHashMap<String, String> agentInfoMap = (LinkedHashMap<String, String>) firedTriggerDto.getPayload().get( "agent" );
 
         String emailString = getValue( () -> agentInfoMap.get( "email" ).toString(), "@" );
 

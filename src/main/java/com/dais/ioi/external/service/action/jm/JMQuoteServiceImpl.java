@@ -83,6 +83,14 @@ public class JMQuoteServiceImpl
     }
 
 
+    public void addPaymentPlan()
+    {
+//        IntegrationEntity entity = externalIntegrationRepository.getIntegrationEntityByOrganizationIdAndType( ap.getLineId(), IntegrationType.JM_ADDQUOTE );
+        //
+        //        ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( entity.getSpec(), ActionJMSQuoteSpecDto.class );
+    }
+
+
     public QuoteDto getQuickQuote( final GetQuoteDto ap )
           throws Exception
     {
