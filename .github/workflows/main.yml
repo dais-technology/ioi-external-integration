@@ -43,8 +43,7 @@ jobs:
           git fetch --tags
           git status --porcelain
           ./gradlew --refresh-dependencies version
-          ./ggradlew release -x test
-          ./ggradlew -x test artifactoryPublish pushDocker
+          ./gradlew release -x test
       - name: Read Version
         id: read_version
         uses: christian-draeger/read-properties@1.1.0
@@ -61,4 +60,4 @@ jobs:
         run: |
           echo ${{ steps.read_version.outputs.build-version }}
           echo ${{ steps.read_project_name.outputs.rootProject-name }}
-
+          ./gradlew -x test artifactoryPublish pushDocker
