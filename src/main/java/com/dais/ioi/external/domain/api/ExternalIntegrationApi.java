@@ -5,6 +5,7 @@ import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.domain.dto.GetQuoteDto;
 import com.dais.ioi.external.domain.dto.IntegrationDto;
 import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanRequestDto;
+import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
@@ -42,7 +43,7 @@ public interface ExternalIntegrationApi
     @RequestMapping( value = "/quote/jm/paymentplan",
                      method = RequestMethod.POST )
     @ApiOperation( value = "Get JM quickQuote" )
-    void addPaymentPlan( @Valid final AddPaymentPlanRequestDto addPaymentPlanRequest )
+    AddPaymentPlanResponseDto addPaymentPlan( @RequestBody @Valid final AddPaymentPlanRequestDto addPaymentPlanRequest );
 
     @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/process-synchronous",

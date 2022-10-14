@@ -8,6 +8,7 @@ import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.config.client.JMQuoteClient;
 import com.dais.ioi.external.domain.dto.AgentInfoDto;
 import com.dais.ioi.external.domain.dto.ExternalQuoteDataDto;
+import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
 import com.dais.ioi.external.domain.dto.jm.AddQuoteRequest;
 import com.dais.ioi.external.domain.dto.jm.AddQuoteResult;
 import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
@@ -282,12 +283,12 @@ public class JMAddQuoteHelperImpl
     }
 
 
-    public void addPaymentPlan( final String externalQuoteId,
-                                final AgentInfoDto agentInfoDto,
-                                final Map<String, ClientAnswerDto> intake,
-                                final Map<String, Object> selectedPaymentPlan,
-                                final JMAuthResult jmAuthResult,
-                                final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
+    public AddPaymentPlanResponseDto addPaymentPlan( final String externalQuoteId,
+                                                     final AgentInfoDto agentInfoDto,
+                                                     final Map<String, ClientAnswerDto> intake,
+                                                     final Map<String, Object> selectedPaymentPlan,
+                                                     final JMAuthResult jmAuthResult,
+                                                     final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
           throws Exception
     {
         HashMap<String, String> pluginFields = new HashMap<>();
@@ -306,7 +307,7 @@ public class JMAddQuoteHelperImpl
 
         addPaymentPlan( addQuoteRequest, planName, numberOfInstallments );
 
-        log.info( objectMapper.writeValueAsString( addQuoteRequest ) );
+        log.info( "Add Quote Request going to JM: " + objectMapper.writeValueAsString( addQuoteRequest ) );
 
         AddQuoteResult updQuoteResult = jmQuoteClient.updateQuote( determinedBasePathUri,
                                                                    "Bearer " + jmAuthResult.getAccess_token(),
@@ -319,6 +320,7 @@ public class JMAddQuoteHelperImpl
             String errorMessage = updQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
             throw new Exception( errorMessage );
         }
+        return new AddPaymentPlanResponseDto( UUID.fromString( updQuoteResult.getQuoteId() ) );
     }
 
 

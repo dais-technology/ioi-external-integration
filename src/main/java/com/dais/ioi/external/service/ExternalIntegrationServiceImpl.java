@@ -6,6 +6,7 @@ import com.dais.ioi.external.domain.dto.GetQuoteDto;
 import com.dais.ioi.external.domain.dto.IntegrationDto;
 import com.dais.ioi.external.domain.dto.internal.enums.IntegrationType;
 import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanRequestDto;
+import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.JmQuoteOptionDto;
@@ -124,10 +125,10 @@ public class ExternalIntegrationServiceImpl
 
 
     @Override
-    public void addPaymentPlan( final AddPaymentPlanRequestDto paymentPlan )
+    public AddPaymentPlanResponseDto addPaymentPlan( final AddPaymentPlanRequestDto paymentPlan )
           throws Exception
     {
-        jmQuoteService.addPaymentPlan( paymentPlan );
+        return jmQuoteService.addPaymentPlan( paymentPlan );
     }
 
 

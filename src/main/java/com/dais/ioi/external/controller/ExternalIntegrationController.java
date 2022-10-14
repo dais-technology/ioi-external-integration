@@ -6,6 +6,7 @@ import com.dais.ioi.external.domain.api.ExternalIntegrationApi;
 import com.dais.ioi.external.domain.dto.GetQuoteDto;
 import com.dais.ioi.external.domain.dto.IntegrationDto;
 import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanRequestDto;
+import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
@@ -124,11 +125,11 @@ public class ExternalIntegrationController
 
 
     @Override
-    public void addPaymentPlan( @Valid final AddPaymentPlanRequestDto addPaymentPlanRequest )
+    public AddPaymentPlanResponseDto addPaymentPlan( @Valid final AddPaymentPlanRequestDto addPaymentPlanRequest )
     {
         try
         {
-            externalIntegrationService.addPaymentPlan( addPaymentPlanRequest );
+            return externalIntegrationService.addPaymentPlan( addPaymentPlanRequest );
         }
         catch ( FeignException e )
         {
