@@ -1049,17 +1049,26 @@ public class JMAddQuoteHelperImpl
 
         addQuoteResult.getRatingInfo().getItemRateDetails().forEach( itemRateDetail -> {
 
-            addQuoteRequest.getJeweleryItems().forEach( jeweleryItem -> {
+            PubCoveragesDto.PubCoveragesDtoBuilder pubCoveragesBuilder = PubCoveragesDto.builder();
 
-                PubCoveragesDto.PubCoveragesDtoBuilder pubCoveragesBuilder = PubCoveragesDto.builder();
+            AddQuoteRequest.JeweleryItem jeweleryItem = addQuoteRequest.getJeweleryItems()
+                                                                       .stream()
+                                                                       .filter( item -> item.getItemNumber() == itemRateDetail.getItemNumber() )
+                                                                       .collect( Collectors.toList() )
+                                                                       .iterator()
+                                                                       .next();
+            pubCoveragesBuilder.type( jeweleryItem.getJeweleryType() );
 
-                pubCoveragesBuilder.type( jeweleryItem.getJeweleryType() );
-
-                List<PubCoverageDto> coverages = getPubCoverages( itemRateDetail, jeweleryItem.getItemValue() );
-                pubCoveragesBuilder.coverages( coverages );
-
-                pubCoverages.add( pubCoveragesBuilder.build() );
+            ArrayList<AddQuoteRequest.DeductibleOption> deductibleOptions = addQuoteRequest.getDeductibleOptions();
+            deductibleOptions.forEach( deductibleOption -> {
+                if ( deductibleOption.getItemNumber() == itemRateDetail.getItemNumber() )
+                {
+                    List<PubCoverageDto> coverages = getPubCoverages( itemRateDetail, jeweleryItem.getItemValue() );
+                    pubCoveragesBuilder.coverages( coverages );
+                }
             } );
+
+            pubCoverages.add( pubCoveragesBuilder.build() );
         } );
         quoteBuilder.coverageTypes( pubCoverages );
 

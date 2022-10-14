@@ -1,9 +1,9 @@
 name: CI
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "none" ]
   pull_request:
-    branches: [ "develop" ]
+    branches: [ "none" ]
   workflow_dispatch:
 permissions:
   id-token: write
