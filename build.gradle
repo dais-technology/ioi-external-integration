@@ -108,6 +108,8 @@ dependencies {
     implementation( "org.springframework.cloud:spring-cloud-starter-netflix-ribbon" )
     implementation( "org.springframework:spring-context-support" )
     implementation( "net.rakugakibox.spring.boot:orika-spring-boot-starter:1.8.0" )
+    implementation( "org.apache.commons:commons-collections4:4.4" )
+
 
     implementation( 'com.dais:ioi-quote-service-domain:0.0.113' )
     compile( 'com.dais:dais-commons:7.1.+' )

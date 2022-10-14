@@ -4,6 +4,8 @@ import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.domain.dto.GetQuoteDto;
 import com.dais.ioi.external.domain.dto.IntegrationDto;
+import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanRequestDto;
+import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
@@ -22,6 +24,9 @@ public interface ExternalIntegrationService
     IntegrationDto createOrUpdate( final IntegrationDto integrationDto );
 
     TriggerResponseDto process( FiredTriggerDto firedTriggerDto )
+          throws Exception;
+
+    AddPaymentPlanResponseDto addPaymentPlan( final AddPaymentPlanRequestDto paymentPlan )
           throws Exception;
 
     QuoteDto getQuickQuote( GetQuoteDto firedTriggerDto )

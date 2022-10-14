@@ -5,6 +5,8 @@ import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.config.client.JMAuthClient;
 import com.dais.ioi.external.domain.dto.GetQuoteDto;
 import com.dais.ioi.external.domain.dto.internal.enums.IntegrationType;
+import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanRequestDto;
+import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
 import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
 import com.dais.ioi.external.entity.IntegrationEntity;
@@ -80,6 +82,16 @@ public class JMQuoteServiceImpl
             triggerResponseDto = jmQuickQuoteHelper.processQuickQuote( ap, jmAuthResult, actionJMSQuoteSpecDto );
         }
         return triggerResponseDto;
+    }
+
+
+    public AddPaymentPlanResponseDto addPaymentPlan( final AddPaymentPlanRequestDto paymentPlan )
+          throws Exception
+    {
+        IntegrationEntity entity = externalIntegrationRepository.getIntegrationEntityByOrganizationIdAndType( paymentPlan.getLineId(), IntegrationType.JM_ADDQUOTE );
+        ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( entity.getSpec(), ActionJMSQuoteSpecDto.class );
+        final JMAuthResult jmAuthResult = getAuth( actionJMSQuoteSpecDto, jmAuthClient );
+        return jmAddQuoteHelper.addPaymentPlan( paymentPlan.getExternalQuoteId(), paymentPlan.getAgentInfo(), paymentPlan.getIntake(), paymentPlan.getSelectedPaymentPlan(), jmAuthResult, actionJMSQuoteSpecDto );
     }
 
 

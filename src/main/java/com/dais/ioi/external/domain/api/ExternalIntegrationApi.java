@@ -4,6 +4,8 @@ import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.domain.dto.GetQuoteDto;
 import com.dais.ioi.external.domain.dto.IntegrationDto;
+import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanRequestDto;
+import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
@@ -27,8 +29,8 @@ public interface ExternalIntegrationApi
     @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/process",
                      method = RequestMethod.POST )
-    @ApiOperation( value = "Process external data request" )
-    TriggerResponseDto fire( @RequestBody @Valid final FiredTriggerDto firedTriggerDto )
+    @ApiOperation( value = "Get JM Quote" )
+    TriggerResponseDto getQuote( @RequestBody @Valid final FiredTriggerDto firedTriggerDto )
           throws IllegalAccessException;
 
     @ResponseStatus( HttpStatus.OK )
@@ -36,6 +38,12 @@ public interface ExternalIntegrationApi
                      method = RequestMethod.POST )
     @ApiOperation( value = "Get JM quickQuote" )
     QuoteDto getQuickQuote( @RequestBody @Valid GetQuoteDto firedTriggerDto );
+
+    @ResponseStatus( HttpStatus.OK )
+    @RequestMapping( value = "/quote/jm/paymentplan",
+                     method = RequestMethod.POST )
+    @ApiOperation( value = "Get JM quickQuote" )
+    AddPaymentPlanResponseDto addPaymentPlan( @RequestBody @Valid final AddPaymentPlanRequestDto addPaymentPlanRequest );
 
     @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/process-synchronous",

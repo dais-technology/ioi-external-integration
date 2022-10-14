@@ -5,6 +5,8 @@ import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.domain.api.ExternalIntegrationApi;
 import com.dais.ioi.external.domain.dto.GetQuoteDto;
 import com.dais.ioi.external.domain.dto.IntegrationDto;
+import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanRequestDto;
+import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
@@ -74,7 +76,7 @@ public class ExternalIntegrationController
 
 
     @Override
-    public TriggerResponseDto fire( @Valid final FiredTriggerDto firedTriggerDto )
+    public TriggerResponseDto getQuote( @Valid final FiredTriggerDto firedTriggerDto )
     {
         TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
         try
@@ -93,7 +95,7 @@ public class ExternalIntegrationController
 
         catch ( Exception e )
         {
-            e.printStackTrace();
+            log.error( e.getMessage(), e );
             throw new ResponseStatusException( HttpStatus.BAD_REQUEST, e.getMessage() );
         }
 
@@ -112,11 +114,30 @@ public class ExternalIntegrationController
         }
         catch ( FeignException e )
         {
-            throw new ResponseStatusException( HttpStatus.BAD_REQUEST, new String( e.content() ) );
+            throw new ResponseStatusException( HttpStatus.BAD_REQUEST, e.contentUTF8() );
         }
         catch ( Exception e )
         {
-            e.printStackTrace();
+            log.error( e.getMessage(), e );
+            throw new ResponseStatusException( HttpStatus.BAD_REQUEST, e.getMessage() );
+        }
+    }
+
+
+    @Override
+    public AddPaymentPlanResponseDto addPaymentPlan( @Valid final AddPaymentPlanRequestDto addPaymentPlanRequest )
+    {
+        try
+        {
+            return externalIntegrationService.addPaymentPlan( addPaymentPlanRequest );
+        }
+        catch ( FeignException e )
+        {
+            throw new ResponseStatusException( HttpStatus.BAD_REQUEST, e.contentUTF8() );
+        }
+        catch ( Exception e )
+        {
+            log.error( e.getMessage(), e );
             throw new ResponseStatusException( HttpStatus.BAD_REQUEST, e.getMessage() );
         }
     }
