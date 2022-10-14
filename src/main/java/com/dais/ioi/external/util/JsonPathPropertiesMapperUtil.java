@@ -34,6 +34,10 @@ public class JsonPathPropertiesMapperUtil
                 {
                     returnProperties.put( property, (String) value );
                 }
+                else if ( value instanceof Number )
+                {
+                    returnProperties.put( property, String.valueOf( value ) );
+                }
                 else if ( value instanceof Collection )
                 {
                     Collection values = (Collection) value;
@@ -45,7 +49,6 @@ public class JsonPathPropertiesMapperUtil
                             returnProperties.put( StringUtils.replace( property, "<#>", i.toString() ), (String) item );
                             i++;
                         }
-                        logInvalidQuery( source, jsonPath, "jsonPath does not resolve to String: %s" );
                     }
                 }
                 else
