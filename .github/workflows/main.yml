@@ -6,7 +6,7 @@ jobs:
   java-gradle-build:
     uses: dais-technology/workflow-templates/.github/workflows/java-gradle.yml@main
     with:
-      aws-role-to-assume: ${{ secrets.DEFAULT_AWS_ROLE_TO_ASSUME }}
+      aws-role-to-assume: arn:aws:iam::991853876083:role/spiderman-eks-master-NodeInstanceRole-1CGN6EINNA20W
     secrets:
       github-token: ${{ secrets.DAIS_MACHINE_GITHUB_TOKEN }}
       gradle-properties: ${{ secrets.GRADLE_PROPERTIES }}
