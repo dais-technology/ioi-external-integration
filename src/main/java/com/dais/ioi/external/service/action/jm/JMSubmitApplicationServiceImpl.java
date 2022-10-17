@@ -47,10 +47,10 @@ public class JMSubmitApplicationServiceImpl
 
 
     public SubmitApplicationResponse submit( final SubmitApplicationRequest submitApplicationRequest,
-                                             final UUID orgId )
+                                             final UUID lineId )
     {
 
-        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByOrganizationIdAndType( orgId, IntegrationType.JM_SUBMIT_APPLICATION ); // TODO check should tis be lineId or orgId
+        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( lineId, IntegrationType.JM_SUBMIT_APPLICATION ); // TODO check should tis be lineId or lineId
 
         final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( integrationEntity.getSpec(), ActionJMSQuoteSpecDto.class );
 
@@ -68,24 +68,24 @@ public class JMSubmitApplicationServiceImpl
                                            final UUID externalQuoteId )
     {
 
-// At the time of the application submission
+        // At the time of the application submission
 
-    ExternalQuoteDataDto externalQuoteData = new ExternalQuoteDataDto() ;
+        ExternalQuoteDataDto externalQuoteData = new ExternalQuoteDataDto();
 
-    Map<String, String> quoteData = new HashMap<String,String>();
+        Map<String, String> quoteData = new HashMap<String, String>();
 
 
         try
-    {
-        externalQuoteData = externalQuoteDataService.getByExternalQuoteId( externalQuoteId.toString() );
-        quoteData = (Map<String, String>) externalQuoteData.getQuoteData();
-
-    }
-    catch(org.springframework.web.server.ResponseStatusException e) {
-                externalQuoteData.setExternalQuoteId( externalQuoteId.toString()  );
-                externalQuoteData.setQuoteData( quoteData );
-            log.warn( "Could not get the external quote data for " + externalQuoteId + " created a new record");
-    }
+        {
+            externalQuoteData = externalQuoteDataService.getByExternalQuoteId( externalQuoteId.toString() );
+            quoteData = (Map<String, String>) externalQuoteData.getQuoteData();
+        }
+        catch ( org.springframework.web.server.ResponseStatusException e )
+        {
+            externalQuoteData.setExternalQuoteId( externalQuoteId.toString() );
+            externalQuoteData.setQuoteData( quoteData );
+            log.warn( "Could not get the external quote data for " + externalQuoteId + " created a new record" );
+        }
 
 
         quoteData.put( "accountNumber", response.getAccountNumber() );

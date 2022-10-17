@@ -33,9 +33,9 @@ import java.util.UUID;
 public class IntegrationEntity
       extends BaseIdEntity
 {
-    @Column( name = "organization_id" )
+    @Column( name = "line_id" )
     @NotNull
-    private UUID organizationId;
+    private UUID lineId;
 
     @Column( name = "type" )
     @Enumerated( EnumType.STRING )
