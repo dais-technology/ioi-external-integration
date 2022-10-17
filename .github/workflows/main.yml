@@ -1,63 +1,14 @@
 name: CI
 on:
-  push:
-    branches: [ "none" ]
-  pull_request:
-    branches: [ "none" ]
+  workflow_call:
   workflow_dispatch:
-permissions:
-  id-token: write
-  contents: read
 jobs:
   build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.DAIS_MACHINE_GITHUB_TOKEN }}
-          fetch-depth: 0
-      - name: Set up JDK 11
-        uses: actions/setup-java@v3
-        with:
-          java-version: '11'
-          distribution: 'adopt'
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          role-to-assume: arn:aws:iam::991853876083:role/spiderman-eks-master-NodeInstanceRole-1CGN6EINNA20W
-          aws-region: us-west-2
-          role-session-name: AWSSession
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-      - name: Build with Gradle
-        env:
-          GRADLE_PROPERTIES: ${{ secrets.GRADLE_PROPERTIES }}
-        shell: bash
-        run: |
-          git config user.name ${{ secrets.DAIS_MACHINE_GITHUB_USERNAME }}
-          git config user.email ${{ secrets.DAIS_MACHINE_GITHUB_EMAIL }}
-          mkdir -p ~/.gradle/
-          echo "GRADLE_USER_HOME=${HOME}/.gradle" >> $GITHUB_ENV
-          echo "${GRADLE_PROPERTIES}" > ~/.gradle/gradle.properties
-          git fetch --tags
-          git status --porcelain
-          ./gradlew --refresh-dependencies version
-          ./gradlew release -x test
-      - name: Read Version
-        id: read_version
-        uses: christian-draeger/read-properties@1.1.0
-        with:
-          path: 'version.txt'
-          properties: 'build.version'
-      - name: Read Project Name
-        id: read_project_name
-        uses: christian-draeger/read-properties@1.1.0
-        with:
-          path: 'settings.gradle'
-          properties: 'rootProject.name'
-      - name: Show Version and Project Name
-        run: |
-          echo ${{ steps.read_version.outputs.build-version }}
-          echo ${{ steps.read_project_name.outputs.rootProject-name }}
-          ./gradlew -x test artifactoryPublish pushDocker
+    uses: dais-technology/workflow-templates/.github/workflows/java-gradle-build.yml@main
+    with:
+      aws-role-to-assum: ${{ secrets.DEFAULT_AWS_ROLE_TO_ASSUMEarn }}
+    secrets:
+      github-token: ${{ secrets.DAIS_MACHINE_GITHUB_TOKEN }}
+      gradle-properties: ${{ secrets.GRADLE_PROPERTIES }}
+      dais-machine-github-username: ${{ secrets.DAIS_MACHINE_GITHUB_USERNAME }}
+      dais-machine-github-email: ${{ secrets.DAIS_MACHINE_GITHUB_EMAIL }}
