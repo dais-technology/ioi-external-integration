@@ -8,11 +8,14 @@ import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanRequestDto;
 import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
+import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -91,4 +94,11 @@ public interface ExternalIntegrationApi
                      method = RequestMethod.DELETE )
     @ApiOperation( value = "Delete Integration Record by Id" )
     void deleteById( @PathVariable final UUID integrationId );
+
+    @ResponseStatus( HttpStatus.OK )
+    @RequestMapping( value = "/download/application/{orgId}",
+                     method = RequestMethod.POST )
+    @ApiOperation( value = "Download Application PDF" )
+    ResponseEntity<Resource> downloadApplication( @RequestBody @Valid final DownloadApplicationRequest downloadApplicationRequest,
+                                                  @PathVariable final UUID orgId );
 }

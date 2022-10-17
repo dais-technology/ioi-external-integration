@@ -9,12 +9,14 @@ import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanRequestDto;
 import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
+import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.JmQuoteOptionDto;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import com.dais.ioi.external.entity.IntegrationEntity;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
 import com.dais.ioi.external.service.action.jm.JMCreateAccountServiceImpl;
+import com.dais.ioi.external.service.action.jm.JMDownloadApplicationServiceImpl;
 import com.dais.ioi.external.service.action.jm.JMQuoteServiceImpl;
 import com.dais.ioi.external.service.action.jm.JMSubmitApplicationServiceImpl;
 import com.dais.ioi.external.service.jm.JmQuoteOptionsService;
@@ -26,7 +28,9 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -56,6 +60,9 @@ public class ExternalIntegrationServiceImpl
 
     @Autowired
     private JMCreateAccountServiceImpl createAccountService;
+
+    @Autowired
+    private JMDownloadApplicationServiceImpl jmDownloadApplicationService;
 
     @Autowired
     private JmQuoteOptionsService jmQuoteOptionsService;
@@ -272,5 +279,15 @@ public class ExternalIntegrationServiceImpl
     {
         log.info( String.format( "createAccount: %s -> %s", orgId.toString(), new ObjectMapper().writeValueAsString( createAccountRequest ) ) );
         return createAccountService.createAccount( createAccountRequest, orgId );
+    }
+
+
+    @SneakyThrows
+    @Override
+    public ResponseEntity<Resource> downloadApplication( final DownloadApplicationRequest downloadApplicationRequest,
+                                                         final UUID orgId )
+    {
+        log.info( String.format( "downloadApplication: %s -> %s", orgId.toString(), new ObjectMapper().writeValueAsString( downloadApplicationRequest ) ) );
+        return jmDownloadApplicationService.downloadApplication( downloadApplicationRequest, orgId );
     }
 }

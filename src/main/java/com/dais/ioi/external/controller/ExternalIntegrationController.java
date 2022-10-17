@@ -9,6 +9,7 @@ import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanRequestDto;
 import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
+import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import com.dais.ioi.external.service.ExternalIntegrationService;
@@ -17,7 +18,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -177,5 +180,13 @@ public class ExternalIntegrationController
                                              final UUID orgId )
     {
         return externalIntegrationService.submitApplication( submitApplicationRequest, orgId );
+    }
+
+
+    @Override
+    public ResponseEntity<Resource> downloadApplication( final DownloadApplicationRequest downloadApplicationRequest,
+                                                         final UUID orgId )
+    {
+        return externalIntegrationService.downloadApplication( downloadApplicationRequest, orgId );
     }
 }
