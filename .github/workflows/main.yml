@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 jobs:
   java-gradle-build:
-    uses: dais-technology/workflow-templates/.github/workflows/java_gradle.yml@main
+    uses: dais-technology/workflow-templates/.github/workflows/java-gradle.yml@main
     with:
       aws-role-to-assum: ${{ secrets.DEFAULT_AWS_ROLE_TO_ASSUME }}
     secrets:
