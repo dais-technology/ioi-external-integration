@@ -6,5 +6,6 @@ jobs:
     uses: dais-technology/workflow-templates/.github/workflows/java-gradle.yml@main
     with:
       aws-role-to-assume: arn:aws:iam::991853876083:role/spiderman-eks-master-NodeInstanceRole-1CGN6EINNA20W
+      github-token:  ${{ secrets.DAIS_MACHINE_GITHUB_TOKEN }}
     secrets: 
       DAIS_MACHINE_GITHUB_TOKEN: ${{ secrets.DAIS_MACHINE_GITHUB_TOKEN }}
