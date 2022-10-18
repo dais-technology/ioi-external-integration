@@ -1,6 +1,5 @@
 name: CI
 on:
-  workflow_call:
   workflow_dispatch:
 jobs:
   java-gradle-build:
