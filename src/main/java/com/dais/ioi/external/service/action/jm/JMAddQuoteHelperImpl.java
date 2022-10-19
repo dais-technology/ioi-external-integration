@@ -133,12 +133,14 @@ public class JMAddQuoteHelperImpl
                 addPaymentPlan( addQuoteRequest, planName, numberOfInstallments );
             }
 
-            log.info( objectMapper.writeValueAsString( addQuoteRequest ) );
+            log.info( "JM ADDQUOTE request body: " + objectMapper.writeValueAsString( addQuoteRequest ) );
 
             AddQuoteResult updQuoteResult = jmQuoteClient.updateQuote( determinedBasePathUri,
                                                                        "Bearer " + jmAuthResult.getAccess_token(),
                                                                        actionJMSQuoteSpecDto.getApiSubscriptionkey(),
                                                                        addQuoteRequest );
+
+            log.info( "JM ADDQUOTE request response: " + objectMapper.writeValueAsString( updQuoteResult ) );
 
             if ( getValue( () -> updQuoteResult.getErrorMessages().size(), 0 ) > 0 )
             {
@@ -166,11 +168,9 @@ public class JMAddQuoteHelperImpl
 
         URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getAddQuoteUrl() );
 
-        log.info( objectMapper.writeValueAsString( addQuoteRequest ) );
-
-
-
+        log.info( "JM ADDQUOTE request body: " + objectMapper.writeValueAsString( addQuoteRequest ) );
         AddQuoteResult addQuoteResult = getAddQuoteResult( jmAuthResult, actionJMSQuoteSpecDto, addQuoteRequest, determinedBasePathUri );
+        log.info( "JM ADDQUOTE request response: " + objectMapper.writeValueAsString( addQuoteResult ) );
 
 
         // This block will be hit if there is no coverage and the http response is 200
@@ -237,6 +237,8 @@ public class JMAddQuoteHelperImpl
 
         QuoteDto newQuote = getQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate, quoteDetailsForIOI, metaDatamap );
         QuoteDto quoteOptions = getQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate, quoteDetailsForQuoteOption, metaDatamap );
+        log.info( "IOI QuoteDto: " + objectMapper.writeValueAsString( newQuote ) );
+        
         triggerResponseDto.getMetadata().put( EXTERNAL_QUOTE_METADATA_KEY, newQuote );
 
         triggerResponseDto.setTriggerRequestId( requestId );
