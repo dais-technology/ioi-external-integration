@@ -130,11 +130,13 @@ public class JMQuickQuoteHelperImpl
 
             URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getQuickQuoteUrl() );
 
+            log.info( "requesting JM QUICK QUOTE with body: " + objectMapper.writeValueAsString( quickQuoteRequest ) );
             QuickQuoteResult quickQuoteResult = jmQuoteClient.getQuickQuote( determinedBasePathUri,
                                                                              "Bearer " + jmAuthResult.getAccess_token(),
                                                                              actionJMSQuoteSpecDto.getApiSubscriptionkey(),
                                                                              quickQuoteRequest );
 
+            log.info( "JM QUICK QUOTE response: " + objectMapper.writeValueAsString( quickQuoteRequest ) );
 
             if ( getValue( () -> quickQuoteResult.getErrorMessages().size(), 0 ) > 0 )
             {
@@ -165,7 +167,7 @@ public class JMQuickQuoteHelperImpl
                                         .quoteDetails( quoteDetails )
                                         .metadata( metaDatamap )
                                         .build();
-
+            log.info( "JM Response transformed to ioi quoteOptions: " + objectMapper.writeValueAsString( newQuote ) );
             return newQuote;
         }
     }
