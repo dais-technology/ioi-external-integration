@@ -1159,7 +1159,7 @@ public class JMAddQuoteHelperImpl
 
         PubCoverageDetailDto.PubCoverageDetailDtoBuilder itemValueBuilder = PubCoverageDetailDto.builder();
         itemValueBuilder.amountType( AmountType.DOLLAR );
-        itemValueBuilder.amount( String.valueOf( itemValue ) );
+        itemValueBuilder.amount( Double.valueOf( itemValue ).toString() );
         details.put( "itemValue", Collections.singletonList( itemValueBuilder.build() ) );
 
         pubCoverageBuilder.details( details );

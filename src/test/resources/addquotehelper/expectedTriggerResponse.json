@@ -59,7 +59,7 @@
                   ],
                   "itemValue": [
                     {
-                      "amount": "3000",
+                      "amount": "3000.0",
                       "amountType": "DOLLAR",
                       "description": null,
                       "scope": null,
