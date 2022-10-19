@@ -7,6 +7,7 @@ import com.dais.ioi.action.domain.dto.internal.spec.QuoteRequestSpecDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.config.client.JMQuoteClient;
 import com.dais.ioi.external.domain.dto.GetQuoteDto;
+import com.dais.ioi.external.domain.dto.jm.AdditionalItemInfoDto;
 import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
 import com.dais.ioi.external.domain.dto.jm.QuickQuoteRequest;
 import com.dais.ioi.external.domain.dto.jm.QuickQuoteResult;
@@ -23,10 +24,14 @@ import com.dais.ioi.quote.domain.dto.pub.PubExternalDataDto;
 import com.dais.ioi.quote.domain.dto.pub.PubPremiumDto;
 import com.dais.ioi.quote.domain.dto.pub.PubQuoteDetailsDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.net.URI;
+import java.security.InvalidParameterException;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -42,6 +47,7 @@ import java.util.stream.Collectors;
 import static com.dais.ioi.external.service.action.jm.JMUtils.getValue;
 
 
+@Slf4j
 @Service
 public class JMQuickQuoteHelperImpl
 {
@@ -81,7 +87,7 @@ public class JMQuickQuoteHelperImpl
         }
 
         // Map to the ioi generic quote DTO
-        PubQuoteDetailsDto quoteDetails = getQuoteDetails( quickQuoteResult );
+        PubQuoteDetailsDto quoteDetails = getQuoteDetails( quickQuoteResult, triggerSpec.getIntake(), actionJMSQuoteSpecDto );
 
         TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
 
@@ -93,12 +99,6 @@ public class JMQuickQuoteHelperImpl
 
 
         QuoteDto newQuote = QuoteDto.builder()
-                                    /*    .actionId( ap.actionEntity.getId() )
-                                        .pipelineId( ap.triggerEntity.getPipeline().getId() )
-                                        .triggerRequestId( ap.triggerResponse.getTriggerRequestId() )
-                                        .bundleId( ap.firedTrigger.getBundleId() )
-                                        .lineId( ap.line.getId() )
-                                        )*/
                                     .clientOrganizationId( firedTriggerDto.getSource().getOrganizationId() )
                                     .quoteTimestamp( OffsetDateTime.now() )
                                     .source( firedTriggerDto.getSource() )
@@ -120,13 +120,13 @@ public class JMQuickQuoteHelperImpl
     }
 
 
-    public QuoteDto getQuickQuote( GetQuoteDto firedTriggerDto,
+    public QuoteDto getQuickQuote( GetQuoteDto getQuickQuote,
                                    JMAuthResult jmAuthResult,
                                    ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
           throws Exception
     {
         {
-            QuickQuoteRequest quickQuoteRequest = createQuickQuoteRequest( firedTriggerDto.getIntake(), actionJMSQuoteSpecDto );
+            QuickQuoteRequest quickQuoteRequest = createQuickQuoteRequest( getQuickQuote.getIntake(), actionJMSQuoteSpecDto );
 
             URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getQuickQuoteUrl() );
 
@@ -143,7 +143,7 @@ public class JMQuickQuoteHelperImpl
             }
 
             // Map to the ioi generic quote DTO
-            PubQuoteDetailsDto quoteDetails = getQuoteDetails( quickQuoteResult );
+            PubQuoteDetailsDto quoteDetails = getQuoteDetails( quickQuoteResult, getQuickQuote.getIntake(), actionJMSQuoteSpecDto );
 
             TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
 
@@ -155,17 +155,11 @@ public class JMQuickQuoteHelperImpl
 
 
             QuoteDto newQuote = QuoteDto.builder()
-                                        /*    .actionId( ap.actionEntity.getId() )
-                                            .pipelineId( ap.triggerEntity.getPipeline().getId() )
-                                            .triggerRequestId( ap.triggerResponse.getTriggerRequestId() )
-                                            .bundleId( ap.firedTrigger.getBundleId() )
-                                            .lineId( ap.line.getId() )
-                                            )*/
-                                        .clientOrganizationId( firedTriggerDto.getOrganizationId() )
+                                        .clientOrganizationId( getQuickQuote.getOrganizationId() )
                                         .quoteTimestamp( OffsetDateTime.now() )
                                         .type( QuoteType.QUOTE )
-                                        .lineId( firedTriggerDto.getLineId() )
-                                        .clientId( firedTriggerDto.getClientId() )
+                                        .lineId( getQuickQuote.getLineId() )
+                                        .clientId( getQuickQuote.getClientId() )
                                         .bindable( false )
                                         .effectiveDate( LocalDate.now() )
                                         .quoteDetails( quoteDetails )
@@ -177,8 +171,50 @@ public class JMQuickQuoteHelperImpl
     }
 
 
-    private PubQuoteDetailsDto getQuoteDetails( QuickQuoteResult quickQuoteResult )
+    private Map<String, AdditionalItemInfoDto> getItemIdToAdditionalItemInfo( final QuickQuoteResult quickQuoteResult,
+                                                                              final LinkedHashMap<String, ClientAnswerDto> intake,
+                                                                              final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
     {
+        final Map<String, AdditionalItemInfoDto> itemIdToIterationId = new HashMap<>();
+        if ( intake.containsKey( actionJMSQuoteSpecDto.getItemLoop() ) )
+        {
+            final List<ClientLoopIterationDto> intakeItems = getValue( () -> intake.get( actionJMSQuoteSpecDto.getItemLoop() ).getIterations(), new ArrayList<>() );
+            final ArrayList<QuickQuoteResult.ItemWiseRateInfo> jmItemInfo = quickQuoteResult.getItemWiseRateInfo();
+            final Integer jmItemCount = quickQuoteResult.getItemWiseRateInfo().size();
+            final Integer intakeItemCount = intakeItems.size();
+            if ( NumberUtils.compare( jmItemCount, intakeItemCount ) != 0 )
+            {
+                throw new InvalidParameterException( String.format( "jmItemCount(%s) is not equal to intakeItemCount(%s)", jmItemCount, intakeItemCount ) );
+            }
+            for ( final ClientLoopIterationDto item : intakeItems )
+            {
+                final QuickQuoteResult.ItemWiseRateInfo itemWiseRateInfo = jmItemInfo.get( intakeItems.indexOf( item ) );
+                final String itemId = itemWiseRateInfo.getItemId();
+                final UUID iterationId = item.getIterationId();
+
+                final AdditionalItemInfoDto.AdditionalItemInfoDtoBuilder additionalItemInfoDtoBuilder = AdditionalItemInfoDto.builder();
+                additionalItemInfoDtoBuilder.iterationId( iterationId );
+
+                final Map<String, ClientAnswerDto> itemAnswers = item.getAnswers();
+                if ( itemAnswers.containsKey( getValue( () -> actionJMSQuoteSpecDto.getItemValue(), "" ) ) )
+                {
+                    final ClientAnswerDto itemValueAnswer = itemAnswers.get( getValue( () -> actionJMSQuoteSpecDto.getItemValue(), "" ) );
+                    final String itemValue = itemValueAnswer.getAnswer();
+                    additionalItemInfoDtoBuilder.itemValue( itemValue );
+                }
+                itemIdToIterationId.put( itemId, additionalItemInfoDtoBuilder.build() );
+            }
+        }
+        return itemIdToIterationId;
+    }
+
+
+    private PubQuoteDetailsDto getQuoteDetails( QuickQuoteResult quickQuoteResult,
+                                                final LinkedHashMap<String, ClientAnswerDto> intake,
+                                                final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
+    {
+        Map<String, AdditionalItemInfoDto> itemIdToAdditionalItemInfo = getItemIdToAdditionalItemInfo( quickQuoteResult, intake, actionJMSQuoteSpecDto );
+
         PubQuoteDetailsDto.PubQuoteDetailsDtoBuilder quoteBuilder = PubQuoteDetailsDto.builder();
 
         PubPremiumDto.PubPremiumDtoBuilder premiumBuilder = PubPremiumDto.builder();
@@ -201,7 +237,9 @@ public class JMQuickQuoteHelperImpl
 
             String itemId = (String) rateInfo.getItemId();
 
-            List<PubCoverageDto> coverages = getPubCoverages( rateInfo, itemId );
+            AdditionalItemInfoDto additionalItemInfoDto = itemIdToAdditionalItemInfo.get( itemId );
+
+            List<PubCoverageDto> coverages = getPubCoverages( rateInfo, itemId, additionalItemInfoDto );
 
             pubCoveragesBuilder.coverages( coverages );
 
@@ -269,7 +307,8 @@ public class JMQuickQuoteHelperImpl
 
 
     private List<PubCoverageDto> getPubCoverages( QuickQuoteResult.ItemWiseRateInfo rateInfo,
-                                                  String itemId )
+                                                  String itemId,
+                                                  final AdditionalItemInfoDto additionalItemInfoDto )
     {
         String type = (String) rateInfo.getJeweleryType();
         PubCoveragesDto.PubCoveragesDtoBuilder builder = PubCoveragesDto.builder();
@@ -292,13 +331,23 @@ public class JMQuickQuoteHelperImpl
 
             PubCoverageDetailDto.PubCoverageDetailDtoBuilder itemTaxesAndSurchargesBuilder = PubCoverageDetailDto.builder();
             itemTaxesAndSurchargesBuilder.amountType( AmountType.DOLLAR );
-            itemTaxesAndSurchargesBuilder.amount( ( (Double) ratingInfo.getItemTaxesAndSurcharges() ).toString() );
+            itemTaxesAndSurchargesBuilder.amount( BigDecimal.valueOf( ( (Double) ratingInfo.getItemTaxesAndSurcharges() ) ).toString() );
             details.put( "itemTaxesAndSurcharges", Collections.singletonList( itemTaxesAndSurchargesBuilder.build() ) );
 
             PubCoverageDetailDto.PubCoverageDetailDtoBuilder itemIdBuilder = PubCoverageDetailDto.builder();
             itemIdBuilder.amountType( AmountType.TEXT );
             itemIdBuilder.amount( itemId );
             details.put( "itemId", Collections.singletonList( itemIdBuilder.build() ) );
+
+            PubCoverageDetailDto.PubCoverageDetailDtoBuilder iterationIdBuilder = PubCoverageDetailDto.builder();
+            iterationIdBuilder.amountType( AmountType.TEXT );
+            iterationIdBuilder.amount( additionalItemInfoDto.getIterationId().toString() );
+            details.put( "iterationId", Collections.singletonList( iterationIdBuilder.build() ) );
+
+            PubCoverageDetailDto.PubCoverageDetailDtoBuilder valueBuilder = PubCoverageDetailDto.builder();
+            valueBuilder.amountType( AmountType.DOLLAR );
+            valueBuilder.amount( BigDecimal.valueOf( Double.valueOf( additionalItemInfoDto.getItemValue() ) ).toString() );
+            details.put( "itemValue", Collections.singletonList( valueBuilder.build() ) );
 
             pubCoverageBuilder.details( details );
             coverages.add( pubCoverageBuilder.build() );
