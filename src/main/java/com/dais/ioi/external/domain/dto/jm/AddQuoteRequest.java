@@ -74,6 +74,12 @@ public class AddQuoteRequest
         @JsonProperty( "ItemDamage" )
         private String itemDamage;
 
+        @JsonProperty( "LastAppraisalDate" )
+        public String lastAppraisalDate;
+
+        @JsonProperty( "SerialNumber" )
+        public String serialNumber;
+
         @JsonProperty( "ItemPossession" )
         private String itemPossession;
 
@@ -117,6 +123,9 @@ public class AddQuoteRequest
 
         @JsonProperty( "DateOfBirth" )
         public String dateOfBirth;
+
+        @JsonProperty( "RelationWithApplicant" )
+        public Integer relationWithApplicant;
 
         @JsonProperty( "EmailAddress" )
         public String emailAddress;

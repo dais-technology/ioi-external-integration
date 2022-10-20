@@ -137,6 +137,8 @@ public class ActionJMSQuoteSpecDto
 
     private String canceledOrDeniedCoverage;
 
+    private String coverageDenyReason;
+
     private String additionalUnderwriting;
 
     private String alarmId;
@@ -144,6 +146,52 @@ public class ActionJMSQuoteSpecDto
     private String convictionType;
 
     private String convictionSentenceCompletionDate;
+
+    private String storeJewelryInSafeDepositBox;
+
+    private String safeDepositBoxLocation;
+
+    private String safeDepositBoxAddress;
+
+    private String livesInGatedEntranceCommunity;
+
+    private String communityHasFence;
+
+    private String communityHasGuardsAtGate;
+
+    private String communityGuardsFrequency;
+
+    private String communityIsPatrolled;
+
+    private String communityPatrolFrequency;
+
+    private String communityResidentEntranceDescription;
+
+    private String communityGuestEntranceDescription;
+
+    private String domesticHelpEmployed;
+
+    private String domesticHelpDescription;
+
+    private String domesticHelpEmploymentLength;
+
+    private String domesticHelpResidesAtHome;
+
+    private String domesticHelpVisitFrequency;
+
+    private String homeHasOtherResidents;
+
+    private String homeOtherResidentsDescription;
+
+    private String howOftenJewelryWorn;
+
+    private String travelOvernightFrequency;
+
+    private String travelOverseas;
+
+    private String travelPrecautionOption;
+
+    private String travelPrecautionOtherDesc;
 
     private String hasPaperlessDelivery;
 

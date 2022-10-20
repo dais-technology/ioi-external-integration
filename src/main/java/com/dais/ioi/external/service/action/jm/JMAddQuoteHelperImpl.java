@@ -609,6 +609,11 @@ public class JMAddQuoteHelperImpl
         cancelledCoverage.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCanceledOrDeniedCoverage() ).getAnswer(), "" ) );
         underwritingInfo.getUnderwritingQuestions().add( cancelledCoverage );
 
+        AddQuoteRequest.UnderwritingQuestion coverageDenyReason = new AddQuoteRequest.UnderwritingQuestion();
+        coverageDenyReason.setKey( "CoverageDenyReason" );
+        coverageDenyReason.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCoverageDenyReason() ).getAnswer(), "" ) );
+        underwritingInfo.getUnderwritingQuestions().add( coverageDenyReason );
+
         AddQuoteRequest.UnderwritingQuestion additionalUnderwriting = new AddQuoteRequest.UnderwritingQuestion();
         additionalUnderwriting.setKey( "IsAdditionalUnderwritingNeeded" );
         additionalUnderwriting.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getAdditionalUnderwriting() ).getAnswer(), "" ) );
