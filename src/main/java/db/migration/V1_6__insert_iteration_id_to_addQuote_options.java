@@ -68,18 +68,26 @@ public class V1_6__insert_iteration_id_to_addQuote_options
                     {
                         if ( !coverageTypeContainsIterationId( coverageType ) )
                         {
-                            int itemIndex = coverageTypes.indexOf( coverageType );
-                            ClientLoopIterationDto jewelryItemIteration = jewelryItems.get( itemIndex );
+                            try
+                            {
+                                int itemIndex = coverageTypes.indexOf( coverageType );
+                                ClientLoopIterationDto jewelryItemIteration = jewelryItems.get( itemIndex );
 
-                            if ( doesCoverageAndJeweleryItemMatch( coverageType, jewelryItemIteration ) )
-                            {
-                                coverageType.getCoverages().forEach( pubCoverageDto -> {
-                                    addIterationId( pubCoverageDto, jewelryItemIteration.getIterationId() );
-                                } );
+                                if ( doesCoverageAndJeweleryItemMatch( coverageType, jewelryItemIteration ) )
+                                {
+                                    coverageType.getCoverages().forEach( pubCoverageDto -> {
+                                        addIterationId( pubCoverageDto, jewelryItemIteration.getIterationId() );
+                                    } );
+                                }
+                                else
+                                {
+                                    log.warn( "jewelry type/value mismatch for quote option: " + rowId );
+                                }
                             }
-                            else
+                            catch ( Exception e )
                             {
-                                log.warn( "jewelry type/value mismatch for quote option: " + rowId );
+                                log.warn( "Error occured adding iterationIds to quoteOption: " + rowId );
+                                log.error( e.getMessage(), e );
                             }
                         }
                     }
