@@ -61,6 +61,7 @@ public class JMQuickQuoteHelperImpl
     private ExternalIntegrationRepository externalIntegrationRepository;
 
 
+    @Deprecated
     public TriggerResponseDto processQuickQuote( FiredTriggerDto firedTriggerDto,
                                                  JMAuthResult jmAuthResult,
                                                  ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
@@ -126,17 +127,20 @@ public class JMQuickQuoteHelperImpl
           throws Exception
     {
         {
+            UUID trace = UUID.randomUUID();
+            log.info( "(" + trace.toString() + ") IMPORTANT: Begin getQuickQuoteCall" );
+            log.info( "(" + trace.toString() + ") IMPORTANT: Received getQuickQuote request with GetQuoteDto: " + objectMapper.writeValueAsString( getQuickQuote ) );
             QuickQuoteRequest quickQuoteRequest = createQuickQuoteRequest( getQuickQuote.getIntake(), actionJMSQuoteSpecDto );
 
             URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getQuickQuoteUrl() );
 
-            log.info( "requesting JM QUICK QUOTE with body: " + objectMapper.writeValueAsString( quickQuoteRequest ) );
+            log.info( "(" + trace.toString() + ") IMPORTANT: requesting JM QUICK QUOTE with body: " + objectMapper.writeValueAsString( quickQuoteRequest ) );
             QuickQuoteResult quickQuoteResult = jmQuoteClient.getQuickQuote( determinedBasePathUri,
                                                                              "Bearer " + jmAuthResult.getAccess_token(),
                                                                              actionJMSQuoteSpecDto.getApiSubscriptionkey(),
                                                                              quickQuoteRequest );
 
-            log.info( "JM QUICK QUOTE response: " + objectMapper.writeValueAsString( quickQuoteRequest ) );
+            log.info( "(" + trace.toString() + ") IMPORTANT: JM QUICK QUOTE response: " + objectMapper.writeValueAsString( quickQuoteRequest ) );
 
             if ( getValue( () -> quickQuoteResult.getErrorMessages().size(), 0 ) > 0 )
             {
@@ -167,7 +171,8 @@ public class JMQuickQuoteHelperImpl
                                         .quoteDetails( quoteDetails )
                                         .metadata( metaDatamap )
                                         .build();
-            log.info( "JM Response transformed to ioi quoteOptions: " + objectMapper.writeValueAsString( newQuote ) );
+            log.info( "(" + trace.toString() + ") IMPORTANT: JM QUICK QUOTE Response transformed to ioi quoteOptions: " + objectMapper.writeValueAsString( newQuote ) );
+            log.info( "(" + trace.toString() + ") IMPORTANT: End getQuickQuoteCall" );
             return newQuote;
         }
     }
@@ -182,7 +187,7 @@ public class JMQuickQuoteHelperImpl
         {
             final List<ClientLoopIterationDto> intakeItems = getValue( () -> intake.get( actionJMSQuoteSpecDto.getItemLoop() ).getIterations(), new ArrayList<>() );
             final ArrayList<QuickQuoteResult.ItemWiseRateInfo> jmItemInfo = quickQuoteResult.getItemWiseRateInfo();
-            final Integer jmItemCount = quickQuoteResult.getItemWiseRateInfo().size();
+            final Integer jmItemCount = jmItemInfo.size();
             final Integer intakeItemCount = intakeItems.size();
             if ( NumberUtils.compare( jmItemCount, intakeItemCount ) != 0 )
             {
