@@ -97,6 +97,9 @@ public class JMAddQuoteHelperImpl
 
         final UUID requestId = null == firedTriggerDto.getTriggerRequestId() ? UUID.randomUUID() : firedTriggerDto.getTriggerRequestId();
 
+        log.info( "(" + requestId.toString() + ") IMPORTANT: Begin getAddQuote call" );
+        log.info( "(" + requestId.toString() + ") IMPORTANT: Received getAddQuote request with FiredTriggerDto: " + objectMapper.writeValueAsString( firedTriggerDto ) );
+
         String externalQuoteId = (String) firedTriggerDto.getPayload().get( "externalQuoteId" );
 
         QuoteRequestSpecDto triggerSpec = objectMapper.convertValue( firedTriggerDto.getPayload(), QuoteRequestSpecDto.class );
@@ -120,6 +123,8 @@ public class JMAddQuoteHelperImpl
         // TODO: This should be a completely separate call
         if ( externalQuoteId != null && !externalQuoteId.equalsIgnoreCase( "" ) )
         {
+            log.info( "(" + requestId.toString() + ") IMPORTANT: Entering Depricated updateQuoteCall: This should not happen" );
+
             URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl() );
 
             addQuoteRequest.setQuoteId( externalQuoteId );
@@ -133,14 +138,14 @@ public class JMAddQuoteHelperImpl
                 addPaymentPlan( addQuoteRequest, planName, numberOfInstallments );
             }
 
-            log.info( "JM ADDQUOTE request body: " + objectMapper.writeValueAsString( addQuoteRequest ) );
+            log.info( "(" + requestId.toString() + ") IMPORTANT: DEPRICATED JM ADDQUOTE request body: " + objectMapper.writeValueAsString( addQuoteRequest ) );
 
             AddQuoteResult updQuoteResult = jmQuoteClient.updateQuote( determinedBasePathUri,
                                                                        "Bearer " + jmAuthResult.getAccess_token(),
                                                                        actionJMSQuoteSpecDto.getApiSubscriptionkey(),
                                                                        addQuoteRequest );
 
-            log.info( "JM ADDQUOTE request response: " + objectMapper.writeValueAsString( updQuoteResult ) );
+            log.info( "(" + requestId.toString() + ") IMPORTANT: DEPRICATED JM ADDQUOTE request response: " + objectMapper.writeValueAsString( updQuoteResult ) );
 
             if ( getValue( () -> updQuoteResult.getErrorMessages().size(), 0 ) > 0 )
             {
@@ -168,15 +173,16 @@ public class JMAddQuoteHelperImpl
 
         URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getAddQuoteUrl() );
 
-        log.info( "JM ADDQUOTE request body: " + objectMapper.writeValueAsString( addQuoteRequest ) );
+        log.info( "(" + requestId.toString() + ") IMPORTANT: JM ADDQUOTE request body: " + objectMapper.writeValueAsString( addQuoteRequest ) );
         AddQuoteResult addQuoteResult = getAddQuoteResult( jmAuthResult, actionJMSQuoteSpecDto, addQuoteRequest, determinedBasePathUri );
-        log.info( "JM ADDQUOTE request response: " + objectMapper.writeValueAsString( addQuoteResult ) );
+        log.info( "(" + requestId.toString() + ") IMPORTANT: JM ADDQUOTE request response: " + objectMapper.writeValueAsString( addQuoteResult ) );
 
 
         // This block will be hit if there is no coverage and the http response is 200
         if ( addQuoteResult.isCoverageAvailable == false )
         {
 
+            log.info( "(" + requestId.toString() + ") IMPORTANT: JM ADDQUOTE Has Been Rejected due to isCoverageAvailable flag is false.  Constructing Rejected QuoteDto" );
             TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
 
             HashMap<String, Object> metaDatamap = new HashMap<>();
@@ -191,7 +197,11 @@ public class JMAddQuoteHelperImpl
             triggerResponseDto.setTriggerRequestId( requestId );
 
             QuoteDto rejectedQuote = getRejectedQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate, addQuoteResult, metaDatamap );
+            log.info( "(" + requestId.toString() + ") IMPORTANT: Rejected JM AddQuote QuoteDto: " + objectMapper.writeValueAsString( rejectedQuote ) );
             triggerResponseDto.getMetadata().put( EXTERNAL_QUOTE_METADATA_KEY, rejectedQuote );
+            log.info( "(" + requestId.toString() + ") IMPORTANT: Returning Rejected JM AddQuote triggerResponseDto: " + objectMapper.writeValueAsString( triggerResponseDto ) );
+            log.info( "(" + requestId.toString() + ") IMPORTANT: End of AddQuote call" );
+
             return triggerResponseDto;
         }
 
@@ -199,9 +209,13 @@ public class JMAddQuoteHelperImpl
 
         if ( getValue( () -> addQuoteResult.getErrorMessages().size(), 0 ) > 0 )
         {
+            log.info( "(" + requestId.toString() + ") IMPORTANT: JM ADDQUOTE Has Been Rejected due to error message size is non-zero.  Constructing Rejected QuoteDto" );
             TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
             QuoteDto rejectedQuote = getRejectedQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate, addQuoteResult, Collections.emptyMap() );
+            log.info( "(" + requestId.toString() + ") IMPORTANT: Rejected JM AddQuote QuoteDto: " + objectMapper.writeValueAsString( rejectedQuote ) );
             triggerResponseDto.getMetadata().put( EXTERNAL_QUOTE_METADATA_KEY, rejectedQuote );
+            log.info( "(" + requestId.toString() + ") IMPORTANT: Returning Rejected JM AddQuote triggerResponseDto: " + objectMapper.writeValueAsString( triggerResponseDto ) );
+            log.info( "(" + requestId.toString() + ") IMPORTANT: End of AddQuote call" );
             return triggerResponseDto;
         }
 
@@ -209,26 +223,33 @@ public class JMAddQuoteHelperImpl
 
         determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl() );
 
-        AddQuoteResult updQuoteResult = getQuoteResult( jmAuthResult, actionJMSQuoteSpecDto, addQuoteRequest, determinedBasePathUri );
+        log.info( "(" + requestId.toString() + ") IMPORTANT: JM UPDATEQUOTE request body: " + objectMapper.writeValueAsString( addQuoteRequest ) );
+        AddQuoteResult updateQuoteResult = getJmUpdateQuoteResult( jmAuthResult, actionJMSQuoteSpecDto, addQuoteRequest, determinedBasePathUri );
+        log.info( "(" + requestId.toString() + ") IMPORTANT: JM UPDATEQUOTE request response: " + objectMapper.writeValueAsString( updateQuoteResult ) );
 
-        if ( getValue( () -> updQuoteResult.getErrorMessages().size(), 0 ) > 0 )
+
+        if ( getValue( () -> updateQuoteResult.getErrorMessages().size(), 0 ) > 0 )
         {
+            log.info( "(" + requestId.toString() + ") IMPORTANT: JM UPDATEQUOTE Has Been Rejected due to error message size is non-zero.  Constructing Rejected QuoteDto" );
             TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
             QuoteDto rejectedQuote = getRejectedQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate, addQuoteResult, Collections.emptyMap() );
+            log.info( "(" + requestId.toString() + ") IMPORTANT: Rejected JM UPDATEQUOTE QuoteDto: " + objectMapper.writeValueAsString( rejectedQuote ) );
             triggerResponseDto.getMetadata().put( EXTERNAL_QUOTE_METADATA_KEY, rejectedQuote );
+            log.info( "(" + requestId.toString() + ") IMPORTANT: Returning Rejected JM UPDATEQUOTE triggerResponseDto: " + objectMapper.writeValueAsString( triggerResponseDto ) );
+            log.info( "(" + requestId.toString() + ") IMPORTANT: End of AddQuote call" );
             return triggerResponseDto;
         }
 
 
-        PubQuoteDetailsDto quoteDetailsForQuoteOption = getQuoteDetailsForQuoteOption( updQuoteResult, addQuoteRequest );
-        PubQuoteDetailsDto quoteDetailsForIOI = getQuoteDetailsForIOI( updQuoteResult, addQuoteRequest );
+        PubQuoteDetailsDto quoteDetailsForQuoteOption = getQuoteDetailsForQuoteOption( updateQuoteResult, addQuoteRequest );
+        PubQuoteDetailsDto quoteDetailsForIOI = getQuoteDetailsForIOI( updateQuoteResult, addQuoteRequest );
 
         saveFieldsForPlugin( requestId, addQuoteResult, pluginFields );
 
         TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
 
         HashMap<String, Object> metaDatamap = new HashMap<>();
-        metaDatamap.put( "ratePlans", updQuoteResult.getPaymentPlans() );
+        metaDatamap.put( "ratePlans", updateQuoteResult.getPaymentPlans() );
         metaDatamap.put( "isUnderwritingNeeded", addQuoteResult.isUnderwritingNeeded() );
         metaDatamap.put( "isCoverageAvailable", addQuoteResult.isCoverageAvailable() );
         metaDatamap.put( "minimumPremium", addQuoteResult.getRatingInfo().getMinimumPremium() );
@@ -237,8 +258,8 @@ public class JMAddQuoteHelperImpl
 
         QuoteDto newQuote = getQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate, quoteDetailsForIOI, metaDatamap );
         QuoteDto quoteOptions = getQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate, quoteDetailsForQuoteOption, metaDatamap );
-        log.info( "IOI QuoteDto: " + objectMapper.writeValueAsString( newQuote ) );
-        
+        log.info( "(" + requestId.toString() + ") IMPORTANT: IOI QuoteDto for Add Quote: " + objectMapper.writeValueAsString( newQuote ) );
+
         triggerResponseDto.getMetadata().put( EXTERNAL_QUOTE_METADATA_KEY, newQuote );
 
         triggerResponseDto.setTriggerRequestId( requestId );
@@ -256,7 +277,9 @@ public class JMAddQuoteHelperImpl
                                                             .build();
 
         jmQuoteOptionsService.save( jmQuoteOptionDto );
-
+        log.info( "(" + requestId.toString() + ") IMPORTANT: Saving JM Add Quote Options to database: " + objectMapper.writeValueAsString( quoteOptions ) );
+        log.info( "(" + requestId.toString() + ") IMPORTANT: Returning JM Add Quote TriggerResponseDto: " + objectMapper.writeValueAsString( triggerResponseDto ) );
+        log.info( "(" + requestId.toString() + ") IMPORTANT: End getAddQuote call" );
         return triggerResponseDto;
     }
 
@@ -293,6 +316,8 @@ public class JMAddQuoteHelperImpl
                                                      final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
           throws Exception
     {
+        UUID trace = UUID.randomUUID();
+        log.info( "(" + trace.toString() + ") IMPORTANT: Begin addPaymentPlan JM UPDATEQUOTE" );
         HashMap<String, String> pluginFields = new HashMap<>();
         AddQuoteRequest addQuoteRequest = createAddQuoteRequest( intake, actionJMSQuoteSpecDto, pluginFields );
         final String effectiveDateAnswer = intake.get( actionJMSQuoteSpecDto.getEffectiveDate() ).getAnswer();
@@ -309,27 +334,29 @@ public class JMAddQuoteHelperImpl
 
         addPaymentPlan( addQuoteRequest, planName, numberOfInstallments );
 
-        log.info( "Add Quote Request going to JM: " + objectMapper.writeValueAsString( addQuoteRequest ) );
+        log.info( "(" + trace.toString() + ") IMPORTANT: Update Quote Request going to JM for add Payment Plan: " + objectMapper.writeValueAsString( addQuoteRequest ) );
 
         AddQuoteResult updQuoteResult = jmQuoteClient.updateQuote( determinedBasePathUri,
                                                                    "Bearer " + jmAuthResult.getAccess_token(),
                                                                    actionJMSQuoteSpecDto.getApiSubscriptionkey(),
                                                                    addQuoteRequest );
+        log.info( "(" + trace.toString() + ") IMPORTANT: Update Quote Response from JM for add Payment Plan: " + objectMapper.writeValueAsString( updQuoteResult ) );
 
         if ( getValue( () -> updQuoteResult.getErrorMessages().size(), 0 ) > 0 )
         {
-
+            log.info( "(" + trace.toString() + ") IMPORTANT: JM UPDATEQUOTE for add Payment Plan has Been Rejected due to error message size is non-zero." );
             String errorMessage = updQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
             throw new Exception( errorMessage );
         }
+        log.info( "(" + trace.toString() + ") IMPORTANT: Update Quote Response from JM for add Payment Plan is complete, quoteId: " + updQuoteResult.getQuoteId() );
         return new AddPaymentPlanResponseDto( UUID.fromString( updQuoteResult.getQuoteId() ) );
     }
 
 
-    private AddQuoteResult getQuoteResult( final JMAuthResult jmAuthResult,
-                                           final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
-                                           final AddQuoteRequest addQuoteRequest,
-                                           final URI determinedBasePathUri )
+    private AddQuoteResult getJmUpdateQuoteResult( final JMAuthResult jmAuthResult,
+                                                   final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
+                                                   final AddQuoteRequest addQuoteRequest,
+                                                   final URI determinedBasePathUri )
     {
         try
         {
