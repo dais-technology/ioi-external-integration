@@ -346,10 +346,11 @@ public class JMQuickQuoteHelperImpl
             itemIdBuilder.amount( itemId );
             details.put( "itemId", Collections.singletonList( itemIdBuilder.build() ) );
 
-            PubCoverageDetailDto.PubCoverageDetailDtoBuilder iterationIdBuilder = PubCoverageDetailDto.builder();
-            iterationIdBuilder.amountType( AmountType.TEXT );
-            iterationIdBuilder.amount( additionalItemInfoDto.getIterationId().toString() );
-            details.put( "iterationId", Collections.singletonList( iterationIdBuilder.build() ) );
+            //TODO: disable until JM Prod is stable
+            //            PubCoverageDetailDto.PubCoverageDetailDtoBuilder iterationIdBuilder = PubCoverageDetailDto.builder();
+            //            iterationIdBuilder.amountType( AmountType.TEXT );
+            //            iterationIdBuilder.amount( additionalItemInfoDto.getIterationId().toString() );
+            //            details.put( "iterationId", Collections.singletonList( iterationIdBuilder.build() ) );
 
             PubCoverageDetailDto.PubCoverageDetailDtoBuilder valueBuilder = PubCoverageDetailDto.builder();
             valueBuilder.amountType( AmountType.DOLLAR );

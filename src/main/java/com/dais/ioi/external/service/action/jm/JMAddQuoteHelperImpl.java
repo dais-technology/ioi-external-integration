@@ -1251,10 +1251,11 @@ public class JMAddQuoteHelperImpl
         itemValueBuilder.amount( Double.valueOf( additionalItemInfo.getItemValue() ).toString() );
         details.put( "itemValue", Collections.singletonList( itemValueBuilder.build() ) );
 
-        PubCoverageDetailDto.PubCoverageDetailDtoBuilder iterationIdBuilder = PubCoverageDetailDto.builder();
-        iterationIdBuilder.amountType( AmountType.TEXT );
-        iterationIdBuilder.amount( additionalItemInfo.getIterationId().toString() );
-        details.put( "iterationId", Collections.singletonList( iterationIdBuilder.build() ) );
+        //TODO: Disabled until JM Prod is Stable
+        //        PubCoverageDetailDto.PubCoverageDetailDtoBuilder iterationIdBuilder = PubCoverageDetailDto.builder();
+        //        iterationIdBuilder.amountType( AmountType.TEXT );
+        //        iterationIdBuilder.amount( additionalItemInfo.getIterationId().toString() );
+        //        details.put( "iterationId", Collections.singletonList( iterationIdBuilder.build() ) );
 
         pubCoverageBuilder.details( details );
         PubCoverageDto pubCoverageDto = pubCoverageBuilder.build();
