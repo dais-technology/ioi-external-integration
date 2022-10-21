@@ -152,10 +152,12 @@ public class JMAddQuoteHelperImpl
 
             if ( getValue( () -> updQuoteResult.getErrorMessages().size(), 0 ) > 0 )
             {
+                log.error( "(" + requestId.toString() + ") IMPORTANT: DEPRICATED JM ADDQUOTE request response has errors in it" );
 
                 String errorMessage = updQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
 
                 //TODO DONT THROW EXCEPTION
+                log.info( "(" + requestId.toString() + ") IMPORTANT: DEPRICATED JM ADDQUOTE request complete: " + objectMapper.writeValueAsString( updQuoteResult ) );
                 throw new Exception( errorMessage );
             }
 
