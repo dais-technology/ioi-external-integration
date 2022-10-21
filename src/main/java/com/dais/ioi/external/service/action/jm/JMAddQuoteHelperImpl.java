@@ -126,7 +126,7 @@ public class JMAddQuoteHelperImpl
         // TODO: This should be a completely separate call
         if ( externalQuoteId != null && !externalQuoteId.equalsIgnoreCase( "" ) )
         {
-            log.info( "(" + requestId.toString() + ") IMPORTANT: Entering Depricated updateQuoteCall: This should not happen" );
+            log.info( "(" + requestId.toString() + ") IMPORTANT: Entering Depricated updateQuoteCall" );
 
             URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl() );
 
@@ -324,6 +324,9 @@ public class JMAddQuoteHelperImpl
     {
         UUID trace = UUID.randomUUID();
         log.info( "(" + trace.toString() + ") IMPORTANT: Begin addPaymentPlan JM UPDATEQUOTE" );
+        log.info( "(" + trace.toString() + ") IMPORTANT: addPaymentPlan JM UPDATEQUOTE agetnInfo: " + objectMapper.writeValueAsString( agentInfoDto ) );
+        log.info( "(" + trace.toString() + ") IMPORTANT: addPaymentPlan JM UPDATEQUOTE intake: " + objectMapper.writeValueAsString( intake ) );
+        log.info( "(" + trace.toString() + ") IMPORTANT: addPaymentPlan JM UPDATEQUOTE selectedPaymentPlan: " + objectMapper.writeValueAsString( selectedPaymentPlan ) );
         HashMap<String, String> pluginFields = new HashMap<>();
         AddQuoteRequest addQuoteRequest = createAddQuoteRequest( intake, actionJMSQuoteSpecDto, pluginFields );
         final String effectiveDateAnswer = intake.get( actionJMSQuoteSpecDto.getEffectiveDate() ).getAnswer();
