@@ -25,7 +25,6 @@ import static com.dais.ioi.external.service.action.jm.JMUtils.getValue;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-
 public class JMQuoteServiceImpl
 {
     @Autowired
