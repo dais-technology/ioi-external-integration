@@ -11,6 +11,7 @@ import com.dais.ioi.external.domain.dto.ExternalQuoteDataDto;
 import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
 import com.dais.ioi.external.domain.dto.jm.AddQuoteRequest;
 import com.dais.ioi.external.domain.dto.jm.AddQuoteResult;
+import com.dais.ioi.external.domain.dto.jm.AdditionalItemInfoDto;
 import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
 import com.dais.ioi.external.domain.dto.jm.JmQuoteOptionDto;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
@@ -36,12 +37,14 @@ import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URI;
+import java.security.InvalidParameterException;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -138,6 +141,7 @@ public class JMAddQuoteHelperImpl
                 addPaymentPlan( addQuoteRequest, planName, numberOfInstallments );
             }
 
+            log.info( "(" + requestId.toString() + ") IMPORTANT: DEPRICATED JM ADDQUOTE request uri: " + determinedBasePathUri.toString() );
             log.info( "(" + requestId.toString() + ") IMPORTANT: DEPRICATED JM ADDQUOTE request body: " + objectMapper.writeValueAsString( addQuoteRequest ) );
 
             AddQuoteResult updQuoteResult = jmQuoteClient.updateQuote( determinedBasePathUri,
@@ -173,6 +177,7 @@ public class JMAddQuoteHelperImpl
 
         URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getAddQuoteUrl() );
 
+        log.info( "(" + requestId.toString() + ") IMPORTANT: JM ADDQUOTE request uri: " + determinedBasePathUri.toString() );
         log.info( "(" + requestId.toString() + ") IMPORTANT: JM ADDQUOTE request body: " + objectMapper.writeValueAsString( addQuoteRequest ) );
         AddQuoteResult addQuoteResult = getAddQuoteResult( jmAuthResult, actionJMSQuoteSpecDto, addQuoteRequest, determinedBasePathUri );
         log.info( "(" + requestId.toString() + ") IMPORTANT: JM ADDQUOTE request response: " + objectMapper.writeValueAsString( addQuoteResult ) );
@@ -223,6 +228,7 @@ public class JMAddQuoteHelperImpl
 
         determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl() );
 
+        log.info( "(" + requestId.toString() + ") IMPORTANT: JM UPDATEQUOTE request uri: " + determinedBasePathUri.toString() );
         log.info( "(" + requestId.toString() + ") IMPORTANT: JM UPDATEQUOTE request body: " + objectMapper.writeValueAsString( addQuoteRequest ) );
         AddQuoteResult updateQuoteResult = getJmUpdateQuoteResult( jmAuthResult, actionJMSQuoteSpecDto, addQuoteRequest, determinedBasePathUri );
         log.info( "(" + requestId.toString() + ") IMPORTANT: JM UPDATEQUOTE request response: " + objectMapper.writeValueAsString( updateQuoteResult ) );
@@ -241,8 +247,8 @@ public class JMAddQuoteHelperImpl
         }
 
 
-        PubQuoteDetailsDto quoteDetailsForQuoteOption = getQuoteDetailsForQuoteOption( updateQuoteResult, addQuoteRequest );
-        PubQuoteDetailsDto quoteDetailsForIOI = getQuoteDetailsForIOI( updateQuoteResult, addQuoteRequest );
+        PubQuoteDetailsDto quoteDetailsForQuoteOption = getQuoteDetailsForQuoteOption( updateQuoteResult, addQuoteRequest, actionJMSQuoteSpecDto, triggerSpec.getIntake() );
+        PubQuoteDetailsDto quoteDetailsForIOI = getQuoteDetailsForIOI( updateQuoteResult, addQuoteRequest, actionJMSQuoteSpecDto, triggerSpec.getIntake() );
 
         saveFieldsForPlugin( requestId, addQuoteResult, pluginFields );
 
@@ -334,6 +340,7 @@ public class JMAddQuoteHelperImpl
 
         addPaymentPlan( addQuoteRequest, planName, numberOfInstallments );
 
+        log.info( "(" + trace.toString() + ") IMPORTANT: Update Quote URI for add Payment Plan: " + determinedBasePathUri.toString() );
         log.info( "(" + trace.toString() + ") IMPORTANT: Update Quote Request going to JM for add Payment Plan: " + objectMapper.writeValueAsString( addQuoteRequest ) );
 
         AddQuoteResult updQuoteResult = jmQuoteClient.updateQuote( determinedBasePathUri,
@@ -344,7 +351,7 @@ public class JMAddQuoteHelperImpl
 
         if ( getValue( () -> updQuoteResult.getErrorMessages().size(), 0 ) > 0 )
         {
-            log.info( "(" + trace.toString() + ") IMPORTANT: JM UPDATEQUOTE for add Payment Plan has Been Rejected due to error message size is non-zero." );
+            log.error( "(" + trace.toString() + ") IMPORTANT: JM UPDATEQUOTE for add Payment Plan has Been Rejected due to error message size is non-zero." );
             String errorMessage = updQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
             throw new Exception( errorMessage );
         }
@@ -1021,8 +1028,13 @@ public class JMAddQuoteHelperImpl
 
 
     private PubQuoteDetailsDto getQuoteDetailsForIOI( AddQuoteResult addQuoteResult,
-                                                      final AddQuoteRequest addQuoteRequest )
+                                                      final AddQuoteRequest addQuoteRequest,
+                                                      final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
+                                                      final LinkedHashMap<String, ClientAnswerDto> intake )
     {
+
+        Map<Integer, AdditionalItemInfoDto> itemIdToAdditionalItemInfo = getItemIdToAdditionalItemInfo( addQuoteResult, intake, actionJMSQuoteSpecDto );
+
         PubQuoteDetailsDto.PubQuoteDetailsDtoBuilder quoteBuilder = PubQuoteDetailsDto.builder();
 
         quoteBuilder.premium( buildPremium( addQuoteResult ) );
@@ -1045,7 +1057,8 @@ public class JMAddQuoteHelperImpl
             deductibleOptions.forEach( deductibleOption -> {
                 if ( deductibleOption.getItemNumber() == itemRateDetail.getItemNumber() )
                 {
-                    List<PubCoverageDto> coverages = getPubCoveragesForDeductibleOption( itemRateDetail, deductibleOption, jeweleryItem.getItemValue() );
+                    AdditionalItemInfoDto additionalItemInfoDto = itemIdToAdditionalItemInfo.get( jeweleryItem.getItemNumber() );
+                    List<PubCoverageDto> coverages = getPubCoveragesForDeductibleOption( itemRateDetail, deductibleOption, additionalItemInfoDto );
                     pubCoveragesBuilder.coverages( coverages );
                 }
             } );
@@ -1068,8 +1081,12 @@ public class JMAddQuoteHelperImpl
 
 
     private PubQuoteDetailsDto getQuoteDetailsForQuoteOption( AddQuoteResult addQuoteResult,
-                                                              final AddQuoteRequest addQuoteRequest )
+                                                              final AddQuoteRequest addQuoteRequest,
+                                                              final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
+                                                              final LinkedHashMap<String, ClientAnswerDto> intake )
     {
+        Map<Integer, AdditionalItemInfoDto> itemIdToAdditionalItemInfo = getItemIdToAdditionalItemInfo( addQuoteResult, intake, actionJMSQuoteSpecDto );
+
         PubQuoteDetailsDto.PubQuoteDetailsDtoBuilder quoteBuilder = PubQuoteDetailsDto.builder();
 
         quoteBuilder.premium( buildPremium( addQuoteResult ) );
@@ -1092,7 +1109,8 @@ public class JMAddQuoteHelperImpl
             deductibleOptions.forEach( deductibleOption -> {
                 if ( deductibleOption.getItemNumber() == itemRateDetail.getItemNumber() )
                 {
-                    List<PubCoverageDto> coverages = getPubCoverages( itemRateDetail, jeweleryItem.getItemValue() );
+                    AdditionalItemInfoDto additionalItemInfoDto = itemIdToAdditionalItemInfo.get( jeweleryItem.getItemNumber() );
+                    List<PubCoverageDto> coverages = getPubCoverages( itemRateDetail, additionalItemInfoDto );
                     pubCoveragesBuilder.coverages( coverages );
                 }
             } );
@@ -1110,6 +1128,45 @@ public class JMAddQuoteHelperImpl
         PubQuoteDetailsDto quoteDetailsDto = quoteBuilder.build();
 
         return quoteDetailsDto;
+    }
+
+
+    private Map<Integer, AdditionalItemInfoDto> getItemIdToAdditionalItemInfo( final AddQuoteResult addQuoteResult,
+                                                                               final LinkedHashMap<String, ClientAnswerDto> intake,
+                                                                               final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
+    {
+        final Map<Integer, AdditionalItemInfoDto> itemIdToIterationId = new HashMap<>();
+        if ( intake.containsKey( actionJMSQuoteSpecDto.getItemLoop() ) )
+        {
+            final List<ClientLoopIterationDto> intakeItems = getValue( () -> intake.get( actionJMSQuoteSpecDto.getItemLoop() ).getIterations(), new ArrayList<>() );
+            final AddQuoteResult.RatingInfo ratingInfo = addQuoteResult.getRatingInfo();
+            final ArrayList<AddQuoteResult.ItemRateDetail> jmItemInfo = ratingInfo.getItemRateDetails();
+            final Integer jmItemCount = jmItemInfo.size();
+            final Integer intakeItemCount = intakeItems.size();
+            if ( NumberUtils.compare( jmItemCount, intakeItemCount ) != 0 )
+            {
+                throw new InvalidParameterException( String.format( "jmItemCount(%s) is not equal to intakeItemCount(%s)", jmItemCount, intakeItemCount ) );
+            }
+            for ( final ClientLoopIterationDto item : intakeItems )
+            {
+                final AddQuoteResult.ItemRateDetail itemRateDetail = jmItemInfo.get( intakeItems.indexOf( item ) );
+                final Integer itemId = Integer.valueOf( itemRateDetail.getItemNumber() );
+                final UUID iterationId = item.getIterationId();
+
+                final AdditionalItemInfoDto.AdditionalItemInfoDtoBuilder additionalItemInfoDtoBuilder = AdditionalItemInfoDto.builder();
+                additionalItemInfoDtoBuilder.iterationId( iterationId );
+
+                final Map<String, ClientAnswerDto> itemAnswers = item.getAnswers();
+                if ( itemAnswers.containsKey( getValue( () -> actionJMSQuoteSpecDto.getItemValue(), "" ) ) )
+                {
+                    final ClientAnswerDto itemValueAnswer = itemAnswers.get( getValue( () -> actionJMSQuoteSpecDto.getItemValue(), "" ) );
+                    final String itemValue = itemValueAnswer.getAnswer();
+                    additionalItemInfoDtoBuilder.itemValue( itemValue );
+                }
+                itemIdToIterationId.put( itemId, additionalItemInfoDtoBuilder.build() );
+            }
+        }
+        return itemIdToIterationId;
     }
 
 
@@ -1132,13 +1189,13 @@ public class JMAddQuoteHelperImpl
     }
 
 
-    private List<PubCoverageDto> getPubCoverages( AddQuoteResult.ItemRateDetail itemRateDetail,
-                                                  final int itemValue )
+    private List<PubCoverageDto> getPubCoverages( final AddQuoteResult.ItemRateDetail itemRateDetail,
+                                                  final AdditionalItemInfoDto additionalItemInfoDto )
     {
         List<PubCoverageDto> coverages = new ArrayList<>();
         for ( AddQuoteResult.RateOption rateOption : itemRateDetail.getRateOptions() )
         {
-            PubCoverageDto pubCoverageDto = getPubCoverageDto( itemRateDetail.getItemNumber(), itemValue, rateOption );
+            PubCoverageDto pubCoverageDto = getPubCoverageDto( itemRateDetail.getItemNumber(), additionalItemInfoDto, rateOption );
             coverages.add( pubCoverageDto );
         }
         return coverages;
@@ -1147,14 +1204,14 @@ public class JMAddQuoteHelperImpl
 
     private List<PubCoverageDto> getPubCoveragesForDeductibleOption( AddQuoteResult.ItemRateDetail itemRateDetail,
                                                                      AddQuoteRequest.DeductibleOption deductibleOption,
-                                                                     final int itemValue )
+                                                                     final AdditionalItemInfoDto additionalItemInfoDto )
     {
         List<PubCoverageDto> coverages = new ArrayList<>();
         for ( AddQuoteResult.RateOption rateOption : itemRateDetail.getRateOptions() )
         {
             if ( Double.valueOf( rateOption.getDeductible() ).equals( deductibleOption.getDeductible() ) )
             {
-                PubCoverageDto pubCoverageDto = getPubCoverageDto( deductibleOption.getItemNumber(), itemValue, rateOption );
+                PubCoverageDto pubCoverageDto = getPubCoverageDto( deductibleOption.getItemNumber(), additionalItemInfoDto, rateOption );
                 coverages.add( pubCoverageDto );
             }
         }
@@ -1163,7 +1220,7 @@ public class JMAddQuoteHelperImpl
 
 
     private PubCoverageDto getPubCoverageDto( final int itemNumber,
-                                              final int itemValue,
+                                              final AdditionalItemInfoDto additionalItemInfo,
                                               final AddQuoteResult.RateOption rateOption )
     {
         PubCoverageDto.PubCoverageDtoBuilder pubCoverageBuilder = PubCoverageDto.builder();
@@ -1188,8 +1245,13 @@ public class JMAddQuoteHelperImpl
 
         PubCoverageDetailDto.PubCoverageDetailDtoBuilder itemValueBuilder = PubCoverageDetailDto.builder();
         itemValueBuilder.amountType( AmountType.DOLLAR );
-        itemValueBuilder.amount( Double.valueOf( itemValue ).toString() );
+        itemValueBuilder.amount( Double.valueOf( additionalItemInfo.getItemValue() ).toString() );
         details.put( "itemValue", Collections.singletonList( itemValueBuilder.build() ) );
+
+        PubCoverageDetailDto.PubCoverageDetailDtoBuilder iterationIdBuilder = PubCoverageDetailDto.builder();
+        iterationIdBuilder.amountType( AmountType.TEXT );
+        iterationIdBuilder.amount( additionalItemInfo.getIterationId().toString() );
+        details.put( "iterationId", Collections.singletonList( iterationIdBuilder.build() ) );
 
         pubCoverageBuilder.details( details );
         PubCoverageDto pubCoverageDto = pubCoverageBuilder.build();

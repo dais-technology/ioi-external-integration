@@ -187,7 +187,7 @@ public class JMQuickQuoteHelperImpl
         {
             final List<ClientLoopIterationDto> intakeItems = getValue( () -> intake.get( actionJMSQuoteSpecDto.getItemLoop() ).getIterations(), new ArrayList<>() );
             final ArrayList<QuickQuoteResult.ItemWiseRateInfo> jmItemInfo = quickQuoteResult.getItemWiseRateInfo();
-            final Integer jmItemCount = quickQuoteResult.getItemWiseRateInfo().size();
+            final Integer jmItemCount = jmItemInfo.size();
             final Integer intakeItemCount = intakeItems.size();
             if ( NumberUtils.compare( jmItemCount, intakeItemCount ) != 0 )
             {
