@@ -126,7 +126,7 @@ public class JMAddQuoteHelperImpl
         // TODO: This should be a completely separate call
         if ( externalQuoteId != null && !externalQuoteId.equalsIgnoreCase( "" ) )
         {
-            log.info( "(" + requestId.toString() + ") IMPORTANT: Entering Depricated updateQuoteCall: This should not happen" );
+            log.info( "(" + requestId.toString() + ") IMPORTANT: Entering Depricated updateQuoteCall" );
 
             URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl() );
 
