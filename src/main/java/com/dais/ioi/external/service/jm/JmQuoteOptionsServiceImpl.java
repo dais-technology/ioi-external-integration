@@ -3,6 +3,7 @@ package com.dais.ioi.external.service.jm;
 import com.dais.ioi.external.domain.dto.jm.JmQuoteOptionDto;
 import com.dais.ioi.external.entity.jm.JmQuoteOptionEntity;
 import com.dais.ioi.external.repository.jm.JmQuoteOptionsRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -84,7 +85,7 @@ public class JmQuoteOptionsServiceImpl
             log.info( "(" + trace.toString() + ") IMPORTANT: returning quoteOptions with Id: " + entity.getId() + " :" + objectMapper.writeValueAsString( entity.getQuoteOption() ) );
             return objectMapper.convertValue( entity, JmQuoteOptionDto.class );
         }
-        catch ( Exception e )
+        catch ( JsonProcessingException e )
         {
             throw new RuntimeException( e );
         }
