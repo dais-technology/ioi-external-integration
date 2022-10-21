@@ -44,7 +44,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URI;
-import java.security.InvalidParameterException;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
@@ -427,18 +426,27 @@ public class JMAddQuoteHelperImpl
                                           final AddQuoteResult addQuoteResult,
                                           final Map<String, Object> metaDatamap )
     {
-        final List<PubMessageDto> errorMessages = addQuoteResult.getErrorMessages().stream().map( message ->
-                                                                                                        PubMessageDto.builder()
-                                                                                                                     .type( ContentScopeType.ERROR )
-                                                                                                                     .message( message.toString() )
-                                                                                                                     .build()
-        ).collect( Collectors.toList() );
+        List<PubMessageDto> errorMessages = new ArrayList<>();
+        if ( addQuoteResult.getErrorMessages() != null )
+        {
+            errorMessages = addQuoteResult.getErrorMessages().stream().map( message ->
+                                                                                  PubMessageDto.builder()
+                                                                                               .type( ContentScopeType.ERROR )
+                                                                                               .message( message.toString() )
+                                                                                               .build()
+            ).collect( Collectors.toList() );
+        }
 
-        final List<PubMessageDto> responseMessages = addQuoteResult.getRespMessageList().stream().map( message -> PubMessageDto.builder()
-                                                                                                                               .type( ContentScopeType.CONSUMER )
-                                                                                                                               .message( message )
-                                                                                                                               .build()
-        ).collect( Collectors.toList() );
+        List<PubMessageDto> responseMessages = new ArrayList<>();
+        if ( addQuoteResult.getRespMessageList() != null )
+        {
+            responseMessages = addQuoteResult.getRespMessageList().stream().map( message -> PubMessageDto.builder()
+                                                                                                         .type( ContentScopeType.CONSUMER )
+                                                                                                         .message( message )
+                                                                                                         .build()
+            ).collect( Collectors.toList() );
+        }
+
 
         final PubPremiumDto premiumDto = PubPremiumDto.builder().amount( new BigDecimal( -1 ) ).per( PremiumScaleType.YEAR ).build();
         final PubDurationDto durationDto = PubDurationDto.builder().length( 12 ).scale( PremiumScaleType.MONTH ).build();
@@ -1062,7 +1070,7 @@ public class JMAddQuoteHelperImpl
             deductibleOptions.forEach( deductibleOption -> {
                 if ( deductibleOption.getItemNumber() == itemRateDetail.getItemNumber() )
                 {
-                    AdditionalItemInfoDto additionalItemInfoDto = itemIdToAdditionalItemInfo.get( jeweleryItem.getItemNumber() );
+                    AdditionalItemInfoDto additionalItemInfoDto = itemIdToAdditionalItemInfo.getOrDefault( jeweleryItem.getItemNumber(), new AdditionalItemInfoDto() );
                     List<PubCoverageDto> coverages = getPubCoveragesForDeductibleOption( itemRateDetail, deductibleOption, additionalItemInfoDto );
                     pubCoveragesBuilder.coverages( coverages );
                 }
@@ -1150,25 +1158,29 @@ public class JMAddQuoteHelperImpl
             final Integer intakeItemCount = intakeItems.size();
             if ( NumberUtils.compare( jmItemCount, intakeItemCount ) != 0 )
             {
-                throw new InvalidParameterException( String.format( "jmItemCount(%s) is not equal to intakeItemCount(%s)", jmItemCount, intakeItemCount ) );
+                //TODO: Reenable when JM PROD is stable
+                //throw new InvalidParameterException( String.format( "jmItemCount(%s) is not equal to intakeItemCount(%s)", jmItemCount, intakeItemCount ) );
             }
-            for ( final ClientLoopIterationDto item : intakeItems )
+            else
             {
-                final AddQuoteResult.ItemRateDetail itemRateDetail = jmItemInfo.get( intakeItems.indexOf( item ) );
-                final Integer itemId = Integer.valueOf( itemRateDetail.getItemNumber() );
-                final UUID iterationId = item.getIterationId();
-
-                final AdditionalItemInfoDto.AdditionalItemInfoDtoBuilder additionalItemInfoDtoBuilder = AdditionalItemInfoDto.builder();
-                additionalItemInfoDtoBuilder.iterationId( iterationId );
-
-                final Map<String, ClientAnswerDto> itemAnswers = item.getAnswers();
-                if ( itemAnswers.containsKey( getValue( () -> actionJMSQuoteSpecDto.getItemValue(), "" ) ) )
+                for ( final ClientLoopIterationDto item : intakeItems )
                 {
-                    final ClientAnswerDto itemValueAnswer = itemAnswers.get( getValue( () -> actionJMSQuoteSpecDto.getItemValue(), "" ) );
-                    final String itemValue = itemValueAnswer.getAnswer();
-                    additionalItemInfoDtoBuilder.itemValue( itemValue );
+                    final AddQuoteResult.ItemRateDetail itemRateDetail = jmItemInfo.get( intakeItems.indexOf( item ) );
+                    final Integer itemId = Integer.valueOf( itemRateDetail.getItemNumber() );
+                    final UUID iterationId = item.getIterationId();
+
+                    final AdditionalItemInfoDto.AdditionalItemInfoDtoBuilder additionalItemInfoDtoBuilder = AdditionalItemInfoDto.builder();
+                    additionalItemInfoDtoBuilder.iterationId( iterationId );
+
+                    final Map<String, ClientAnswerDto> itemAnswers = item.getAnswers();
+                    if ( itemAnswers.containsKey( getValue( () -> actionJMSQuoteSpecDto.getItemValue(), "" ) ) )
+                    {
+                        final ClientAnswerDto itemValueAnswer = itemAnswers.get( getValue( () -> actionJMSQuoteSpecDto.getItemValue(), "" ) );
+                        final String itemValue = itemValueAnswer.getAnswer();
+                        additionalItemInfoDtoBuilder.itemValue( itemValue );
+                    }
+                    itemIdToIterationId.put( itemId, additionalItemInfoDtoBuilder.build() );
                 }
-                itemIdToIterationId.put( itemId, additionalItemInfoDtoBuilder.build() );
             }
         }
         return itemIdToIterationId;
@@ -1248,15 +1260,22 @@ public class JMAddQuoteHelperImpl
         itemIdBuilder.amount( String.valueOf( itemNumber ) );
         details.put( "itemId", Collections.singletonList( itemIdBuilder.build() ) );
 
-        PubCoverageDetailDto.PubCoverageDetailDtoBuilder itemValueBuilder = PubCoverageDetailDto.builder();
-        itemValueBuilder.amountType( AmountType.DOLLAR );
-        itemValueBuilder.amount( Double.valueOf( additionalItemInfo.getItemValue() ).toString() );
-        details.put( "itemValue", Collections.singletonList( itemValueBuilder.build() ) );
+        if ( additionalItemInfo.getItemValue() != null )
+        {
+            PubCoverageDetailDto.PubCoverageDetailDtoBuilder itemValueBuilder = PubCoverageDetailDto.builder();
+            itemValueBuilder.amountType( AmountType.DOLLAR );
+            itemValueBuilder.amount( Double.valueOf( additionalItemInfo.getItemValue() ).toString() );
+            details.put( "itemValue", Collections.singletonList( itemValueBuilder.build() ) );
+        }
 
-        PubCoverageDetailDto.PubCoverageDetailDtoBuilder iterationIdBuilder = PubCoverageDetailDto.builder();
-        iterationIdBuilder.amountType( AmountType.TEXT );
-        iterationIdBuilder.amount( additionalItemInfo.getIterationId().toString() );
-        details.put( "iterationId", Collections.singletonList( iterationIdBuilder.build() ) );
+        //TODO: Disabled until JM Prod is Stable
+        //        if ( additionalItemInfo.getIterationId() != null )
+        //        {
+        //            PubCoverageDetailDto.PubCoverageDetailDtoBuilder iterationIdBuilder = PubCoverageDetailDto.builder();
+        //            iterationIdBuilder.amountType( AmountType.TEXT );
+        //            iterationIdBuilder.amount( additionalItemInfo.getIterationId().toString() );
+        //            details.put( "iterationId", Collections.singletonList( iterationIdBuilder.build() ) );
+        //        }
 
         pubCoverageBuilder.details( details );
         PubCoverageDto pubCoverageDto = pubCoverageBuilder.build();

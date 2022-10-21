@@ -65,15 +65,6 @@
                       "scope": null,
                       "scopeLabel": null
                     }
-                  ],
-                  "iterationId": [
-                    {
-                      "amount": "0fc7fcc1-dddb-4171-ab66-45d63410087d",
-                      "amountType": "TEXT",
-                      "description": null,
-                      "scope": null,
-                      "scopeLabel": null
-                    }
                   ]
                 },
                 "adjustments": null

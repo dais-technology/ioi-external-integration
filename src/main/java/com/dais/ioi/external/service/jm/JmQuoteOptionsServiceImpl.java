@@ -75,8 +75,19 @@ public class JmQuoteOptionsServiceImpl
     public JmQuoteOptionDto getByClientIdLineId( final UUID clientId,
                                                  final UUID lineId )
     {
-        JmQuoteOptionEntity entity = jmQuoteOptionsRepository.getJmQuoteOptionEntityByClientIdAndLineId( clientId, lineId ).orElseThrow( () -> new ResponseStatusException( HttpStatus.NOT_FOUND ) );
-        return objectMapper.convertValue( entity, JmQuoteOptionDto.class );
+        try
+        {
+            UUID trace = UUID.randomUUID();
+            log.info( "(" + trace.toString() + ") IMPORTANT: Begin getQuoteOptions by clientID: " + clientId + " and lineId: " + lineId );
+            JmQuoteOptionEntity entity = jmQuoteOptionsRepository.getJmQuoteOptionEntityByClientIdAndLineId( clientId, lineId ).orElseThrow( () -> new ResponseStatusException( HttpStatus.NOT_FOUND ) );
+            log.info( "(" + trace.toString() + ") IMPORTANT: Fetched quoteOptions with Id: " + entity.getId() );
+            log.info( "(" + trace.toString() + ") IMPORTANT: returning quoteOptions with Id: " + entity.getId() + " :" + objectMapper.writeValueAsString( entity.getQuoteOption() ) );
+            return objectMapper.convertValue( entity, JmQuoteOptionDto.class );
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( e );
+        }
     }
 
 
