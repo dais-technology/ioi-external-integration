@@ -62,6 +62,7 @@ public class V1_6__insert_iteration_id_to_addQuote_options
                     List<ClientLoopIterationDto> jewelryItems = getJeweleryItemIterations( rows );
                     QuoteDto quote = getQuoteOption( rows );
                     String rowId = rows.getString( "id" );
+                    log.info( "migrating jm_quote_option id: " + rowId );
                     List<PubCoveragesDto> coverageTypes = quote.getQuoteDetails().getCoverageTypes();
                     for ( PubCoveragesDto coverageType : coverageTypes )
                     {
