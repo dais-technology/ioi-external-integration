@@ -31,7 +31,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.net.URI;
-import java.security.InvalidParameterException;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -191,25 +190,29 @@ public class JMQuickQuoteHelperImpl
             final Integer intakeItemCount = intakeItems.size();
             if ( NumberUtils.compare( jmItemCount, intakeItemCount ) != 0 )
             {
-                throw new InvalidParameterException( String.format( "jmItemCount(%s) is not equal to intakeItemCount(%s)", jmItemCount, intakeItemCount ) );
+                //TODO: Reenable when JM PROD is stable
+                //throw new InvalidParameterException( String.format( "jmItemCount(%s) is not equal to intakeItemCount(%s)", jmItemCount, intakeItemCount ) );
             }
-            for ( final ClientLoopIterationDto item : intakeItems )
+            else
             {
-                final QuickQuoteResult.ItemWiseRateInfo itemWiseRateInfo = jmItemInfo.get( intakeItems.indexOf( item ) );
-                final String itemId = itemWiseRateInfo.getItemId();
-                final UUID iterationId = item.getIterationId();
-
-                final AdditionalItemInfoDto.AdditionalItemInfoDtoBuilder additionalItemInfoDtoBuilder = AdditionalItemInfoDto.builder();
-                additionalItemInfoDtoBuilder.iterationId( iterationId );
-
-                final Map<String, ClientAnswerDto> itemAnswers = item.getAnswers();
-                if ( itemAnswers.containsKey( getValue( () -> actionJMSQuoteSpecDto.getItemValue(), "" ) ) )
+                for ( final ClientLoopIterationDto item : intakeItems )
                 {
-                    final ClientAnswerDto itemValueAnswer = itemAnswers.get( getValue( () -> actionJMSQuoteSpecDto.getItemValue(), "" ) );
-                    final String itemValue = itemValueAnswer.getAnswer();
-                    additionalItemInfoDtoBuilder.itemValue( itemValue );
+                    final QuickQuoteResult.ItemWiseRateInfo itemWiseRateInfo = jmItemInfo.get( intakeItems.indexOf( item ) );
+                    final String itemId = itemWiseRateInfo.getItemId();
+                    final UUID iterationId = item.getIterationId();
+
+                    final AdditionalItemInfoDto.AdditionalItemInfoDtoBuilder additionalItemInfoDtoBuilder = AdditionalItemInfoDto.builder();
+                    additionalItemInfoDtoBuilder.iterationId( iterationId );
+
+                    final Map<String, ClientAnswerDto> itemAnswers = item.getAnswers();
+                    if ( itemAnswers.containsKey( getValue( () -> actionJMSQuoteSpecDto.getItemValue(), "" ) ) )
+                    {
+                        final ClientAnswerDto itemValueAnswer = itemAnswers.get( getValue( () -> actionJMSQuoteSpecDto.getItemValue(), "" ) );
+                        final String itemValue = itemValueAnswer.getAnswer();
+                        additionalItemInfoDtoBuilder.itemValue( itemValue );
+                    }
+                    itemIdToIterationId.put( itemId, additionalItemInfoDtoBuilder.build() );
                 }
-                itemIdToIterationId.put( itemId, additionalItemInfoDtoBuilder.build() );
             }
         }
         return itemIdToIterationId;
@@ -244,7 +247,7 @@ public class JMQuickQuoteHelperImpl
 
             String itemId = (String) rateInfo.getItemId();
 
-            AdditionalItemInfoDto additionalItemInfoDto = itemIdToAdditionalItemInfo.get( itemId );
+            AdditionalItemInfoDto additionalItemInfoDto = itemIdToAdditionalItemInfo.getOrDefault( itemId, new AdditionalItemInfoDto() );
 
             List<PubCoverageDto> coverages = getPubCoverages( rateInfo, itemId, additionalItemInfoDto );
 
@@ -347,15 +350,21 @@ public class JMQuickQuoteHelperImpl
             details.put( "itemId", Collections.singletonList( itemIdBuilder.build() ) );
 
             //TODO: disable until JM Prod is stable
-            //            PubCoverageDetailDto.PubCoverageDetailDtoBuilder iterationIdBuilder = PubCoverageDetailDto.builder();
-            //            iterationIdBuilder.amountType( AmountType.TEXT );
-            //            iterationIdBuilder.amount( additionalItemInfoDto.getIterationId().toString() );
-            //            details.put( "iterationId", Collections.singletonList( iterationIdBuilder.build() ) );
+            //            if ( additionalItemInfoDto.getIterationId() != null )
+            //            {
+            //                PubCoverageDetailDto.PubCoverageDetailDtoBuilder iterationIdBuilder = PubCoverageDetailDto.builder();
+            //                iterationIdBuilder.amountType( AmountType.TEXT );
+            //                iterationIdBuilder.amount( additionalItemInfoDto.getIterationId().toString() );
+            //                details.put( "iterationId", Collections.singletonList( iterationIdBuilder.build() ) );
+            //            }
 
-            PubCoverageDetailDto.PubCoverageDetailDtoBuilder valueBuilder = PubCoverageDetailDto.builder();
-            valueBuilder.amountType( AmountType.DOLLAR );
-            valueBuilder.amount( BigDecimal.valueOf( Double.valueOf( additionalItemInfoDto.getItemValue() ) ).toString() );
-            details.put( "itemValue", Collections.singletonList( valueBuilder.build() ) );
+            if ( additionalItemInfoDto.getItemValue() != null )
+            {
+                PubCoverageDetailDto.PubCoverageDetailDtoBuilder valueBuilder = PubCoverageDetailDto.builder();
+                valueBuilder.amountType( AmountType.DOLLAR );
+                valueBuilder.amount( BigDecimal.valueOf( Double.valueOf( additionalItemInfoDto.getItemValue() ) ).toString() );
+                details.put( "itemValue", Collections.singletonList( valueBuilder.build() ) );
+            }
 
             pubCoverageBuilder.details( details );
             coverages.add( pubCoverageBuilder.build() );
