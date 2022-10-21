@@ -324,6 +324,9 @@ public class JMAddQuoteHelperImpl
     {
         UUID trace = UUID.randomUUID();
         log.info( "(" + trace.toString() + ") IMPORTANT: Begin addPaymentPlan JM UPDATEQUOTE" );
+        log.info( "(" + trace.toString() + ") IMPORTANT: addPaymentPlan JM UPDATEQUOTE agetnInfo: " + objectMapper.writeValueAsString( agentInfoDto ) );
+        log.info( "(" + trace.toString() + ") IMPORTANT: addPaymentPlan JM UPDATEQUOTE intake: " + objectMapper.writeValueAsString( intake ) );
+        log.info( "(" + trace.toString() + ") IMPORTANT: addPaymentPlan JM UPDATEQUOTE selectedPaymentPlan: " + objectMapper.writeValueAsString( selectedPaymentPlan ) );
         HashMap<String, String> pluginFields = new HashMap<>();
         AddQuoteRequest addQuoteRequest = createAddQuoteRequest( intake, actionJMSQuoteSpecDto, pluginFields );
         final String effectiveDateAnswer = intake.get( actionJMSQuoteSpecDto.getEffectiveDate() ).getAnswer();
