@@ -426,18 +426,27 @@ public class JMAddQuoteHelperImpl
                                           final AddQuoteResult addQuoteResult,
                                           final Map<String, Object> metaDatamap )
     {
-        final List<PubMessageDto> errorMessages = addQuoteResult.getErrorMessages().stream().map( message ->
-                                                                                                        PubMessageDto.builder()
-                                                                                                                     .type( ContentScopeType.ERROR )
-                                                                                                                     .message( message.toString() )
-                                                                                                                     .build()
-        ).collect( Collectors.toList() );
+        List<PubMessageDto> errorMessages = new ArrayList<>();
+        if ( addQuoteResult.getErrorMessages() != null )
+        {
+            errorMessages = addQuoteResult.getErrorMessages().stream().map( message ->
+                                                                                  PubMessageDto.builder()
+                                                                                               .type( ContentScopeType.ERROR )
+                                                                                               .message( message.toString() )
+                                                                                               .build()
+            ).collect( Collectors.toList() );
+        }
 
-        final List<PubMessageDto> responseMessages = addQuoteResult.getRespMessageList().stream().map( message -> PubMessageDto.builder()
-                                                                                                                               .type( ContentScopeType.CONSUMER )
-                                                                                                                               .message( message )
-                                                                                                                               .build()
-        ).collect( Collectors.toList() );
+        List<PubMessageDto> responseMessages = new ArrayList<>();
+        if ( addQuoteResult.getRespMessageList() != null )
+        {
+            responseMessages = addQuoteResult.getRespMessageList().stream().map( message -> PubMessageDto.builder()
+                                                                                                         .type( ContentScopeType.CONSUMER )
+                                                                                                         .message( message )
+                                                                                                         .build()
+            ).collect( Collectors.toList() );
+        }
+
 
         final PubPremiumDto premiumDto = PubPremiumDto.builder().amount( new BigDecimal( -1 ) ).per( PremiumScaleType.YEAR ).build();
         final PubDurationDto durationDto = PubDurationDto.builder().length( 12 ).scale( PremiumScaleType.MONTH ).build();
