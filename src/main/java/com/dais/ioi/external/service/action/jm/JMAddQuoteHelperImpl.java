@@ -45,6 +45,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URI;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -66,7 +67,7 @@ import static com.dais.ioi.external.service.action.jm.JMUtils.getValue;
 @Slf4j
 public class JMAddQuoteHelperImpl
 {
-    public static final DateTimeFormatter EFFECTIVE_DATE_FORMAT = DateTimeFormatter.ofPattern( "yyyy-MM-dd" );
+    public static final DateTimeFormatter EFFECTIVE_DATE_FORMAT = DateTimeFormatter.ofPattern( "yyyy-MM-dd'T'HH:mm:ss" );
 
     private static final String EXTERNAL_QUOTE_METADATA_KEY = "EXTERNAL_QUOTE";
 
@@ -113,9 +114,9 @@ public class JMAddQuoteHelperImpl
 
         final String effectiveDateAnswer = triggerSpec.getIntake().get( actionJMSQuoteSpecDto.getEffectiveDate() ).getAnswer();
 
-        final LocalDate effectiveDate = OffsetDateTime.parse( effectiveDateAnswer ).toLocalDate();
-
-        addQuoteRequest.setEffectiveDate( effectiveDate.format( EFFECTIVE_DATE_FORMAT ) );
+        final LocalDateTime effectiveDate = OffsetDateTime.parse( effectiveDateAnswer ).toLocalDateTime();
+        final String formattedEffectiveDateForJmQuoteRequest = effectiveDate.format( EFFECTIVE_DATE_FORMAT );
+        addQuoteRequest.setEffectiveDate( formattedEffectiveDateForJmQuoteRequest );
 
         final LinkedHashMap<String, String> agentInfoMap = (LinkedHashMap<String, String>) firedTriggerDto.getPayload().get( "agent" );
         addUserInfo( addQuoteRequest, agentInfoMap );
@@ -202,7 +203,7 @@ public class JMAddQuoteHelperImpl
             log.info( "setting request Id to " + requestId );
             triggerResponseDto.setTriggerRequestId( requestId );
 
-            QuoteDto rejectedQuote = getRejectedQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate, addQuoteResult, metaDatamap );
+            QuoteDto rejectedQuote = getRejectedQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate.toLocalDate(), addQuoteResult, metaDatamap );
             log.info( "(" + requestId.toString() + ") IMPORTANT: Rejected JM AddQuote QuoteDto: " + objectMapper.writeValueAsString( rejectedQuote ) );
             triggerResponseDto.getMetadata().put( EXTERNAL_QUOTE_METADATA_KEY, rejectedQuote );
             log.info( "(" + requestId.toString() + ") IMPORTANT: Returning Rejected JM AddQuote triggerResponseDto: " + objectMapper.writeValueAsString( triggerResponseDto ) );
@@ -217,7 +218,7 @@ public class JMAddQuoteHelperImpl
         {
             log.info( "(" + requestId.toString() + ") IMPORTANT: JM ADDQUOTE Has Been Rejected due to error message size is non-zero.  Constructing Rejected QuoteDto" );
             TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
-            QuoteDto rejectedQuote = getRejectedQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate, addQuoteResult, Collections.emptyMap() );
+            QuoteDto rejectedQuote = getRejectedQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate.toLocalDate(), addQuoteResult, Collections.emptyMap() );
             log.info( "(" + requestId.toString() + ") IMPORTANT: Rejected JM AddQuote QuoteDto: " + objectMapper.writeValueAsString( rejectedQuote ) );
             triggerResponseDto.getMetadata().put( EXTERNAL_QUOTE_METADATA_KEY, rejectedQuote );
             log.info( "(" + requestId.toString() + ") IMPORTANT: Returning Rejected JM AddQuote triggerResponseDto: " + objectMapper.writeValueAsString( triggerResponseDto ) );
@@ -239,7 +240,7 @@ public class JMAddQuoteHelperImpl
         {
             log.info( "(" + requestId.toString() + ") IMPORTANT: JM UPDATEQUOTE Has Been Rejected due to error message size is non-zero.  Constructing Rejected QuoteDto" );
             TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
-            QuoteDto rejectedQuote = getRejectedQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate, addQuoteResult, Collections.emptyMap() );
+            QuoteDto rejectedQuote = getRejectedQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate.toLocalDate(), addQuoteResult, Collections.emptyMap() );
             log.info( "(" + requestId.toString() + ") IMPORTANT: Rejected JM UPDATEQUOTE QuoteDto: " + objectMapper.writeValueAsString( rejectedQuote ) );
             triggerResponseDto.getMetadata().put( EXTERNAL_QUOTE_METADATA_KEY, rejectedQuote );
             log.info( "(" + requestId.toString() + ") IMPORTANT: Returning Rejected JM UPDATEQUOTE triggerResponseDto: " + objectMapper.writeValueAsString( triggerResponseDto ) );
@@ -263,8 +264,8 @@ public class JMAddQuoteHelperImpl
         metaDatamap.put( "minimumTaxesAndSurcharges", addQuoteResult.getRatingInfo().getMinimumTaxesAndSurcharges() );
 
 
-        QuoteDto newQuote = getQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate, quoteDetailsForIOI, metaDatamap );
-        QuoteDto quoteOptions = getQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate, quoteDetailsForQuoteOption, metaDatamap );
+        QuoteDto newQuote = getQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate.toLocalDate(), quoteDetailsForIOI, metaDatamap );
+        QuoteDto quoteOptions = getQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate.toLocalDate(), quoteDetailsForQuoteOption, metaDatamap );
         log.info( "(" + requestId.toString() + ") IMPORTANT: IOI QuoteDto for Add Quote: " + objectMapper.writeValueAsString( newQuote ) );
 
         triggerResponseDto.getMetadata().put( EXTERNAL_QUOTE_METADATA_KEY, newQuote );
