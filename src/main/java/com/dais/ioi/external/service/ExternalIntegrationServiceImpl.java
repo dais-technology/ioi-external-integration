@@ -150,18 +150,18 @@ public class ExternalIntegrationServiceImpl
     {
         try
         {
-            log.info( String.format( "Fetching quote option for ClientId: %s LineId: %s ", quoteDto.getClientId().toString(), quoteDto.getLineId().toString() ) );
+            log.info( String.format( "IMPORTANT: Fetching quote option for ClientId: %s LineId: %s ", quoteDto.getClientId().toString(), quoteDto.getLineId().toString() ) );
             JmQuoteOptionDto jmQuoteOption = jmQuoteOptionsService.getByClientIdLineId( quoteDto.getClientId(), quoteDto.getLineId() );
-            log.info( "Existing quote Option exist for given intake key.  Performing cache hit checks..." );
+            log.info( "IMPORTANT: Existing quote Option exist for given intake key.  Performing cache hit checks..." );
             OffsetDateTime now = OffsetDateTime.now();
             OffsetDateTime cachedDate = jmQuoteOption.getSubmissionDate();
 
-            log.info( String.format( "Performing submission date Check. Cached Submission Date: %s, new Submission Date: %s", cachedDate, now ) );
+            log.info( String.format( "IMPORTANT: Performing submission date Check. Cached Submission Date: %s, new Submission Date: %s", cachedDate, now ) );
             long days = Duration.between( cachedDate, now ).toDays();
-            log.info( "days between quoteOptions: " + days );
+            log.info( "IMPORTANT: days between quoteOptions: " + days );
             if ( days >= 60 )
             {
-                log.info( "Cached quote options have expired, fetching new quote options" );
+                log.info( "IMPORTANT: Cached quote options have expired, fetching new quote options" );
                 QuoteDto quickQuote = jmQuoteService.getQuickQuote( quoteDto );
 
                 JmQuoteOptionDto quoteOption = JmQuoteOptionDto.builder()
@@ -177,20 +177,20 @@ public class ExternalIntegrationServiceImpl
             }
             else
             {
-                log.info( "Cached quote is within expiry period.  Continuing with intake key comparison." );
+                log.info( "IMPORTANT: Cached quote is within expiry period.  Continuing with intake key comparison." );
             }
             Boolean intakeEqual = compareJson.isEqual( jmQuoteOption.getIntakeKey(), objectMapper.writeValueAsString( quoteDto.getIntake() ) );
             if ( intakeEqual )
             {
-                log.info( "intake key for Existing quote Option is unchanged.  Returning cached quote option" );
+                log.info( "IMPORTANT: intake key for Existing quote Option is unchanged.  Returning cached quote option: " + objectMapper.writeValueAsString( jmQuoteOption.getQuoteOption() ) );
                 return jmQuoteOption.getQuoteOption();
             }
             else
             {
-                log.info( "intake key for Existing quote Option has changed.  Fetching new quote option for getQuickQuote:" + objectMapper.writeValueAsString( quoteDto ) );
+                log.info( "IMPORTANT: intake key for Existing quote Option has changed.  Fetching new quote option for getQuickQuote:" + objectMapper.writeValueAsString( quoteDto ) );
                 QuoteDto quickQuote = jmQuoteService.getQuickQuote( quoteDto );
 
-                log.info( "creating/updating quote option cache entry." );
+                log.info( "IMPORTANT: creating/updating quote option cache entry." );
                 JmQuoteOptionDto quoteOption = JmQuoteOptionDto.builder()
                                                                .clientId( quoteDto.getClientId() )
                                                                .lineId( quoteDto.getLineId() )
@@ -199,18 +199,19 @@ public class ExternalIntegrationServiceImpl
                                                                .intakeKey( objectMapper.writeValueAsString( quoteDto.getIntake() ) )
                                                                .build();
 
-                jmQuoteOptionsService.save( quoteOption );
-
+                JmQuoteOptionDto saved = jmQuoteOptionsService.save( quoteOption );
+                log.info( "IMPORTANT: New quoteOption is saved to db with id: " + saved.getId() );
                 return quickQuote;
             }
         }
         catch ( ResponseStatusException ex )
         {
-            log.info( String.format( "No quote option found for ClientId: %s LineId: %s ", quoteDto.getClientId().toString(), quoteDto.getLineId().toString() ) );
-            log.info( "Fetching quote option for getQuickQuote:" + objectMapper.writeValueAsString( quoteDto ) );
+            log.info( String.format( "IMPORTANT: No quote option found for ClientId: %s LineId: %s ", quoteDto.getClientId().toString(), quoteDto.getLineId().toString() ) );
+            log.info( "IMPORTANT: Fetching quote option for getQuickQuote:" + objectMapper.writeValueAsString( quoteDto ) );
 
             QuoteDto quickQuote = jmQuoteService.getQuickQuote( quoteDto );
 
+            log.info( "IMPORTANT: creating quote option cache entry." );
             JmQuoteOptionDto quoteOption = JmQuoteOptionDto.builder()
                                                            .clientId( quoteDto.getClientId() )
                                                            .lineId( quoteDto.getLineId() )
@@ -219,7 +220,8 @@ public class ExternalIntegrationServiceImpl
                                                            .intakeKey( objectMapper.writeValueAsString( quoteDto.getIntake() ) )
                                                            .build();
 
-            jmQuoteOptionsService.save( quoteOption );
+            JmQuoteOptionDto saved = jmQuoteOptionsService.save( quoteOption );
+            log.info( "IMPORTANT: New quoteOption is saved to db with id: " + saved.getId() );
 
             return quickQuote;
         }

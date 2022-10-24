@@ -20,7 +20,7 @@ import org.mockito.Mockito;
 import org.skyscreamer.jsonassert.Customization;
 import org.skyscreamer.jsonassert.comparator.CustomComparator;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 
@@ -44,11 +44,11 @@ class JMAddQuoteHelperImplTest
     @Test
     void effectiveDateParsing()
     {
-        final LocalDate effectiveDate = OffsetDateTime.parse( "2022-09-29T11:44:52-05:00" ).toLocalDate();
-        assertEquals( "2022-09-29", effectiveDate.toString() );
+        final LocalDateTime effectiveDate = OffsetDateTime.parse( "2022-09-29T11:44:52-05:00" ).toLocalDateTime();
+        assertEquals( "2022-09-29T11:44:52", effectiveDate.toString() );
 
         final String formattedDate = effectiveDate.format( JMAddQuoteHelperImpl.EFFECTIVE_DATE_FORMAT );
-        assertEquals( "2022-09-29", formattedDate );
+        assertEquals( "2022-09-29T11:44:52", formattedDate );
     }
 
 
