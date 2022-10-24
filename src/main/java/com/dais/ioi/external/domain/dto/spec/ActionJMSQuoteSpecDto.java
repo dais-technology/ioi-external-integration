@@ -111,6 +111,8 @@ public class ActionJMSQuoteSpecDto
 
     private String primaryWearerResAddrPostalCode;
 
+    private String primaryWearerRelationWithApplicant;
+
     private String hasMailingAddr;
 
     private String primaryContactMailingAddrCity;
@@ -200,6 +202,10 @@ public class ActionJMSQuoteSpecDto
     private String itemPossession;
 
     private String itemDescription;
+
+    private String lastAppraisalDate;
+
+    private String serialNumber;
 
     private String deductible;
 

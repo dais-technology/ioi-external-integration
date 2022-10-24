@@ -124,9 +124,6 @@ public class AddQuoteRequest
         @JsonProperty( "DateOfBirth" )
         public String dateOfBirth;
 
-        @JsonProperty( "RelationWithApplicant" )
-        public Integer relationWithApplicant;
-
         @JsonProperty( "EmailAddress" )
         public String emailAddress;
 
@@ -175,6 +172,9 @@ public class AddQuoteRequest
 
         @JsonProperty( "ContactPreference" )
         public Object contactPreference;
+
+        @JsonProperty( "RelationWithApplicant" )
+        public String relationWithApplicant;
     }
 
     @Data

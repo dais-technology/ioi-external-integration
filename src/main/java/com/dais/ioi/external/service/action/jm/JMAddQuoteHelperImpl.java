@@ -822,6 +822,22 @@ public class JMAddQuoteHelperImpl
             item.setItemDescription(
                   getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemDescription() ).getAnswer(), "" )
             );
+
+            item.setItemDamage(
+                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemDamage() ).getAnswer(), "" )
+            );
+
+            item.setItemPossession(
+                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemPossession() ).getAnswer(), "" )
+            );
+
+            item.setSerialNumber(
+                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getSerialNumber() ).getAnswer(), "" )
+            );
+
+            item.setLastAppraisalDate(
+                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getLastAppraisalDate() ).getAnswer(), "" )
+            );
           /*  item.setItemDamage(
                   getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemDamage() ).getAnswer(), "" ).toString()
             );
@@ -1013,6 +1029,10 @@ public class JMAddQuoteHelperImpl
         primaryWearer.setGender(
               getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getItemGender() ).getAnswer().toString(), "" )
 
+        );
+
+        primaryWearer.setRelationWithApplicant(
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerRelationWithApplicant() ).getAnswer().toString(), "" )
         );
 
         AddQuoteRequest.ResidentialAddress primaryWearerResidentialAddress = new AddQuoteRequest.ResidentialAddress();
