@@ -332,8 +332,9 @@ public class JMAddQuoteHelperImpl
         HashMap<String, String> pluginFields = new HashMap<>();
         AddQuoteRequest addQuoteRequest = createAddQuoteRequest( intake, actionJMSQuoteSpecDto, pluginFields );
         final String effectiveDateAnswer = intake.get( actionJMSQuoteSpecDto.getEffectiveDate() ).getAnswer();
-        final LocalDate effectiveDate = OffsetDateTime.parse( effectiveDateAnswer ).toLocalDate();
-        addQuoteRequest.setEffectiveDate( effectiveDate.format( EFFECTIVE_DATE_FORMAT ) );
+        final LocalDateTime effectiveDate = OffsetDateTime.parse( effectiveDateAnswer ).toLocalDateTime();
+        final String formattedEffectiveDateForJmRequest = effectiveDate.format( EFFECTIVE_DATE_FORMAT );
+        addQuoteRequest.setEffectiveDate( formattedEffectiveDateForJmRequest );
         addUserInfo( addQuoteRequest, objectMapper.convertValue( agentInfoDto, Map.class ) );
 
         URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl() );
