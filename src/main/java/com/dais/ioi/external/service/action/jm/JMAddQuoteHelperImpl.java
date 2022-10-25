@@ -46,6 +46,7 @@ import java.math.RoundingMode;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -114,7 +115,7 @@ public class JMAddQuoteHelperImpl
 
         final String effectiveDateAnswer = triggerSpec.getIntake().get( actionJMSQuoteSpecDto.getEffectiveDate() ).getAnswer();
 
-        final LocalDateTime effectiveDate = OffsetDateTime.parse( effectiveDateAnswer ).toLocalDateTime();
+        final LocalDateTime effectiveDate = OffsetDateTime.parse( effectiveDateAnswer ).toLocalDateTime().with( LocalTime.MIDNIGHT );
         final String formattedEffectiveDateForJmQuoteRequest = effectiveDate.format( EFFECTIVE_DATE_FORMAT );
         addQuoteRequest.setEffectiveDate( formattedEffectiveDateForJmQuoteRequest );
 
@@ -332,7 +333,7 @@ public class JMAddQuoteHelperImpl
         HashMap<String, String> pluginFields = new HashMap<>();
         AddQuoteRequest addQuoteRequest = createAddQuoteRequest( intake, actionJMSQuoteSpecDto, pluginFields );
         final String effectiveDateAnswer = intake.get( actionJMSQuoteSpecDto.getEffectiveDate() ).getAnswer();
-        final LocalDateTime effectiveDate = OffsetDateTime.parse( effectiveDateAnswer ).toLocalDateTime();
+        final LocalDateTime effectiveDate = OffsetDateTime.parse( effectiveDateAnswer ).toLocalDateTime().with( LocalTime.MIDNIGHT );
         final String formattedEffectiveDateForJmRequest = effectiveDate.format( EFFECTIVE_DATE_FORMAT );
         addQuoteRequest.setEffectiveDate( formattedEffectiveDateForJmRequest );
         addUserInfo( addQuoteRequest, objectMapper.convertValue( agentInfoDto, Map.class ) );
