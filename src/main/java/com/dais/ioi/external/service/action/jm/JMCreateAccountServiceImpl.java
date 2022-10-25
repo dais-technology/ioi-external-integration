@@ -35,9 +35,9 @@ public class JMCreateAccountServiceImpl {
     private ExternalIntegrationRepository externalIntegrationRepository;
 
     @SneakyThrows
-    public CreateAccountResponse createAccount(final CreateAccountRequest createAccountRequest, final UUID orgId ) {
+    public CreateAccountResponse createAccount(final CreateAccountRequest createAccountRequest, final UUID lineId ) {
 
-        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByOrganizationIdAndType(orgId, IntegrationType.JM_CREATE_ACCOUNT); // TODO check should tis be lineId or orgId
+        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( lineId, IntegrationType.JM_CREATE_ACCOUNT); // TODO check should tis be lineId or lineId
 //        log.info(String.format("createAccount->integrationEntity: %s", new ObjectMapper().writeValueAsString(integrationEntity)));
 
         final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue(integrationEntity.getSpec(), ActionJMSQuoteSpecDto.class);

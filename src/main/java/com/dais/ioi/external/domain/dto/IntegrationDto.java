@@ -18,7 +18,7 @@ public class IntegrationDto
 {
     private UUID id;
 
-    private UUID organizationId;
+    private UUID lineId;
 
     private IntegrationType type;
 
