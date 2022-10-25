@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,5 +17,5 @@ public class CommlCoverageDto
 
     private String coverageDesc;
 
-    private LimitDto limitDto;
+    private List<LimitDto> limitDto;
 }

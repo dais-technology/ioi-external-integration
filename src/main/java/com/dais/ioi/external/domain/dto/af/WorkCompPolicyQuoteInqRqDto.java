@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -21,7 +22,7 @@ public class WorkCompPolicyQuoteInqRqDto
 
     private CommlPolicyDto commlPolicyDto;
 
-    private LocationDto locationDto;
+    private List<LocationDto> locationDto;
 
     private WorkCompLineBusinessDto workCompLineBusinessDto;
 }

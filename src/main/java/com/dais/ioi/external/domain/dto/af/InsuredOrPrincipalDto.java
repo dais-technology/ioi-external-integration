@@ -11,7 +11,8 @@ import lombok.NoArgsConstructor;
 @Builder
 public class InsuredOrPrincipalDto
 {
-    private String id;
+    @Builder.Default
+    private String id = "n0";
 
     private GeneralPartyInfoDto generalPartyInfoDto;
 

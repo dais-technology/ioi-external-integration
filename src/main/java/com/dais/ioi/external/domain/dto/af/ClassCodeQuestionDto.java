@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,5 +21,5 @@ public class ClassCodeQuestionDto
 
     private String percentageAnswerValue;
 
-    private OptionResponseDto optionResponseDto;
+    private List<OptionResponseDto> optionResponseDto;
 }

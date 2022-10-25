@@ -5,13 +5,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class WorkCompLineBusinessDto
 {
-    private WorkCompRateStateDto workCompRateStateDto;
+    private List<WorkCompRateStateDto> workCompRateStateDto;
 
     private CommlCoverageDto commlCoverageDto;
 
