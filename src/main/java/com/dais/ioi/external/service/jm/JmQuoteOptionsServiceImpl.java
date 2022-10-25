@@ -83,6 +83,7 @@ public class JmQuoteOptionsServiceImpl
             JmQuoteOptionEntity entity = jmQuoteOptionsRepository.getJmQuoteOptionEntityByClientIdAndLineId( clientId, lineId ).orElseThrow( () -> new ResponseStatusException( HttpStatus.NOT_FOUND ) );
             log.info( "(" + trace.toString() + ") IMPORTANT: Fetched quoteOptions with Id: " + entity.getId() );
             log.info( "(" + trace.toString() + ") IMPORTANT: returning quoteOptions with Id: " + entity.getId() + " :" + objectMapper.writeValueAsString( entity.getQuoteOption() ) );
+            
             return objectMapper.convertValue( entity, JmQuoteOptionDto.class );
         }
         catch ( JsonProcessingException e )
