@@ -59,7 +59,7 @@ public class JmIntegrationService
                                                 final UUID orgId )
     {
 
-        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByOrganizationIdAndType( orgId, IntegrationType.JM_CREATE_ACCOUNT ); // TODO check should tis be lineId or orgId
+        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( orgId, IntegrationType.JM_CREATE_ACCOUNT ); // TODO check should tis be lineId or orgId
         //        log.info(String.format("createAccount->integrationEntity: %s", new ObjectMapper().writeValueAsString(integrationEntity)));
 
         final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( integrationEntity.getSpec(), ActionJMSQuoteSpecDto.class );
@@ -81,7 +81,7 @@ public class JmIntegrationService
                                              final UUID orgId )
     {
 
-        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByOrganizationIdAndType( orgId, IntegrationType.JM_SUBMIT_APPLICATION ); // TODO check should tis be lineId or orgId
+        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( orgId, IntegrationType.JM_SUBMIT_APPLICATION ); // TODO check should tis be lineId or orgId
 
         final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( integrationEntity.getSpec(), ActionJMSQuoteSpecDto.class );
 
@@ -103,7 +103,7 @@ public class JmIntegrationService
                                                          UUID orgId )
     {
 
-        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByOrganizationIdAndType( orgId, IntegrationType.JM_DOWNLOAD_APPLICATION );
+        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( orgId, IntegrationType.JM_DOWNLOAD_APPLICATION );
 
         final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( integrationEntity.getSpec(), ActionJMSQuoteSpecDto.class );
 
