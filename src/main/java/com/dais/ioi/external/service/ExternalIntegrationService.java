@@ -8,9 +8,12 @@ import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanRequestDto;
 import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
+import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 
 import java.util.UUID;
 
@@ -45,4 +48,7 @@ public interface ExternalIntegrationService
                                          final UUID orgId );
 
     void deleteById( UUID integrationId );
+
+    ResponseEntity<Resource> downloadApplication( final DownloadApplicationRequest createAccountRequest,
+                                                                       final UUID orgId );
 }

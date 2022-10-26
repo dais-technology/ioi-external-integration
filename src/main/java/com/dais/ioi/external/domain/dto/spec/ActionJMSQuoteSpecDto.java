@@ -30,6 +30,8 @@ public class ActionJMSQuoteSpecDto
 
     private String createAccountUrl;
 
+    private String downloadApplicationUrl;
+
     // Quick Quote fields
     private String county;
 

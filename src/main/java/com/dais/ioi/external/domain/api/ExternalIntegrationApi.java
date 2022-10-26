@@ -2,15 +2,7 @@ package com.dais.ioi.external.domain.api;
 
 import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
-import com.dais.ioi.external.domain.dto.GetQuoteDto;
 import com.dais.ioi.external.domain.dto.IntegrationDto;
-import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanRequestDto;
-import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
-import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
-import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
-import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
-import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
-import com.dais.ioi.quote.domain.dto.QuoteDto;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,45 +19,10 @@ public interface ExternalIntegrationApi
 {
 
     @ResponseStatus( HttpStatus.OK )
-    @RequestMapping( value = "/process",
-                     method = RequestMethod.POST )
-    @ApiOperation( value = "Get JM Quote" )
-    TriggerResponseDto getQuote( @RequestBody @Valid final FiredTriggerDto firedTriggerDto )
-          throws IllegalAccessException;
-
-    @ResponseStatus( HttpStatus.OK )
-    @RequestMapping( value = "/quote/jm/quickquote",
-                     method = RequestMethod.POST )
-    @ApiOperation( value = "Get JM quickQuote" )
-    QuoteDto getQuickQuote( @RequestBody @Valid GetQuoteDto firedTriggerDto );
-
-    @ResponseStatus( HttpStatus.OK )
-    @RequestMapping( value = "/quote/jm/paymentplan",
-                     method = RequestMethod.POST )
-    @ApiOperation( value = "Get JM quickQuote" )
-    AddPaymentPlanResponseDto addPaymentPlan( @RequestBody @Valid final AddPaymentPlanRequestDto addPaymentPlanRequest );
-
-    @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/process-synchronous",
                      method = RequestMethod.POST )
     @ApiOperation( value = "Process external data request" )
     TriggerResponseDto fireSynchronous( @RequestBody @Valid final FiredTriggerDto firedTriggerDto )
-          throws IllegalAccessException;
-
-    @ResponseStatus( HttpStatus.OK )
-    @RequestMapping( value = "/submit/application/{orgId}",
-                     method = RequestMethod.POST )
-    @ApiOperation( value = "Submit application" )
-    SubmitApplicationResponse submit( @RequestBody @Valid final SubmitApplicationRequest submitApplicationRequest,
-                                      @PathVariable final UUID orgId )
-          throws IllegalAccessException;
-
-    @ResponseStatus( HttpStatus.OK )
-    @RequestMapping( value = "/create/account/{orgId}",
-                     method = RequestMethod.POST )
-    @ApiOperation( value = "create account" )
-    CreateAccountResponse create( @RequestBody @Valid final CreateAccountRequest createAccountRequest,
-                                  @PathVariable final UUID orgId )
           throws IllegalAccessException;
 
     @ResponseStatus( HttpStatus.OK )
