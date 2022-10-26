@@ -30,7 +30,7 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-@RequestMapping( "/jm" )
+@RequestMapping( "/external" )
 @AllArgsConstructor
 public class JmIntegrationController implements JmIntegrationApi
 {
