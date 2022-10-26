@@ -49,7 +49,7 @@ public class JMQuoteServiceImpl
 
         String externalIntegrationType = (String) ap.getPayload().get( "externalIntegrationType" );
 
-        IntegrationEntity entity = externalIntegrationRepository.getIntegrationEntityByOrganizationIdAndType( ap.getLineId(), IntegrationType.valueOf( externalIntegrationType ) );
+        IntegrationEntity entity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( ap.getLineId(), IntegrationType.valueOf( externalIntegrationType ) );
 
         ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( entity.getSpec(), ActionJMSQuoteSpecDto.class );
 
@@ -87,7 +87,7 @@ public class JMQuoteServiceImpl
     public AddPaymentPlanResponseDto addPaymentPlan( final AddPaymentPlanRequestDto paymentPlan )
           throws Exception
     {
-        IntegrationEntity entity = externalIntegrationRepository.getIntegrationEntityByOrganizationIdAndType( paymentPlan.getLineId(), IntegrationType.JM_ADDQUOTE );
+        IntegrationEntity entity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( paymentPlan.getLineId(), IntegrationType.JM_ADDQUOTE );
         ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( entity.getSpec(), ActionJMSQuoteSpecDto.class );
         final JMAuthResult jmAuthResult = getAuth( actionJMSQuoteSpecDto, jmAuthClient );
         return jmAddQuoteHelper.addPaymentPlan( paymentPlan.getExternalQuoteId(), paymentPlan.getAgentInfo(), paymentPlan.getIntake(), paymentPlan.getSelectedPaymentPlan(), jmAuthResult, actionJMSQuoteSpecDto );
@@ -97,7 +97,7 @@ public class JMQuoteServiceImpl
     public QuoteDto getQuickQuote( final GetQuoteDto ap )
           throws Exception
     {
-        IntegrationEntity entity = externalIntegrationRepository.getIntegrationEntityByOrganizationIdAndType( ap.getLineId(), IntegrationType.JM_QUICKQUOTE );
+        IntegrationEntity entity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( ap.getLineId(), IntegrationType.JM_QUICKQUOTE );
         ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( entity.getSpec(), ActionJMSQuoteSpecDto.class );
         final JMAuthResult jmAuthResult = getAuth( actionJMSQuoteSpecDto, jmAuthClient );
 

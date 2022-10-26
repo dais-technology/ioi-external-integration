@@ -12,10 +12,10 @@ import java.util.UUID;
 public interface ExternalIntegrationRepository
       extends BaseAuditRepository<IntegrationEntity, UUID>
 {
-    IntegrationEntity getIntegrationEntitiesByOrganizationId( UUID organizationId );
+    IntegrationEntity getIntegrationEntitiesByLineId( UUID lineId );
 
-    IntegrationEntity getIntegrationEntityByOrganizationIdAndType( UUID organizationId,
-                                                                   IntegrationType type );
+    IntegrationEntity getIntegrationEntityByLineIdAndType( UUID lineId,
+                                                           IntegrationType type );
 
     IntegrationEntity getIntegrationEntityByUsageAndType( String useage,
                                                           IntegrationType type );
