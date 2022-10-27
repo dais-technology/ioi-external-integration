@@ -11,6 +11,7 @@ import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
+import com.dais.ioi.external.domain.dto.jm.UploadAppraisalResponse;
 import com.dais.ioi.external.service.ExternalIntegrationService;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,6 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
@@ -127,5 +129,15 @@ public class JmIntegrationController implements JmIntegrationApi
                                                          final UUID orgId )
     {
         return externalIntegrationService.downloadApplication( downloadApplicationRequest, orgId );
+    }
+
+
+    @Override
+    public UploadAppraisalResponse uploadAppraisal( final String accountNumber,
+                                                    final String policyNumber,
+                                                    final MultipartFile appraisalDocument,
+                                                    final UUID lineId )
+    {
+        return externalIntegrationService.uploadAppraisal( accountNumber, policyNumber, appraisalDocument, lineId );
     }
 }

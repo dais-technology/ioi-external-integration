@@ -10,6 +10,7 @@ import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
+import com.dais.ioi.external.domain.dto.jm.UploadAppraisalResponse;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
 import com.dais.ioi.external.entity.IntegrationEntity;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
@@ -24,6 +25,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -122,6 +124,32 @@ public class JmIntegrationService
                              .body( byteArrayResource );
     }
 
+
+    public UploadAppraisalResponse uploadAppraisal( final String accountNumber,
+                                                    final String policyNumber,
+                                                    final MultipartFile appraisalDocument,
+                                                    final UUID lineId )
+    {
+
+        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( lineId, IntegrationType.JM_UPLOAD_APPRAISAL );
+
+        final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( integrationEntity.getSpec(), ActionJMSQuoteSpecDto.class );
+
+        final JMAuthResult jmAuthResult = getAuth( actionJMSQuoteSpecDto, jmAuthClient );
+
+        final URI uri = URI.create( actionJMSQuoteSpecDto.getUploadAppraisalUrl() );
+
+        final UploadAppraisalResponse uploadAppraisalResponse = jmApplicationClient.uploadAppraisal( uri,
+                                                                                             "Bearer " + jmAuthResult.getAccess_token(),
+                                                                                             actionJMSQuoteSpecDto.getApiSubscriptionkey(),
+                                                                                             accountNumber,
+                                                                                             policyNumber,
+                                                                                             appraisalDocument );
+
+        return uploadAppraisalResponse;
+    }
+
+
     private void persistExternalQuoteData( final SubmitApplicationResponse response,
                                            final UUID externalQuoteId )
     {
@@ -151,5 +179,4 @@ public class JmIntegrationService
 
         externalQuoteDataService.saveOrUpdate( externalQuoteData );
     }
-
 }
