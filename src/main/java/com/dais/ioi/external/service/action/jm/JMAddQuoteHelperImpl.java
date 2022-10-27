@@ -329,12 +329,13 @@ public class JMAddQuoteHelperImpl
         URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl() );
         addQuoteRequest.setQuoteId( externalQuoteId );
 
-        String planName = getValue( () -> ( (Map) selectedPaymentPlan ).get( "name" ).toString(), "" );
-
-        Integer numberOfInstallments = Integer.parseInt( getValue( () -> ( (Map) selectedPaymentPlan ).get( "numberOfInstallments" ).toString(), "" ) );
-
-        addPaymentPlan( addQuoteRequest, planName, numberOfInstallments );
-
+        if ( !selectedPaymentPlan.isEmpty() )
+        {
+            String planName = getValue( () -> ( (Map) selectedPaymentPlan ).get( "name" ).toString(), "" );
+            Integer numberOfInstallments = Integer.parseInt( getValue( () -> ( (Map) selectedPaymentPlan ).get( "numberOfInstallments" ).toString(), "" ) );
+            addPaymentPlan( addQuoteRequest, planName, numberOfInstallments );
+        }
+        
         log.info( "(" + trace.toString() + ") IMPORTANT: Update Quote URI for add Payment Plan: " + determinedBasePathUri.toString() );
         log.info( "(" + trace.toString() + ") IMPORTANT: Update Quote Request going to JM for add Payment Plan: " + objectMapper.writeValueAsString( addQuoteRequest ) );
 
