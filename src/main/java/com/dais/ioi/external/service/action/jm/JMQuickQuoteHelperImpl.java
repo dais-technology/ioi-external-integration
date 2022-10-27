@@ -183,14 +183,10 @@ public class JMQuickQuoteHelperImpl
     {
         try
         {
-            throw new SocketTimeoutException( "for Test" );
-            //            return jmQuoteClient.getQuickQuote( determinedBasePathUri,
-            //                                                "Bearer " + jmAuthResult.getAccess_token(),
-            //                                                actionJMSQuoteSpecDto.getApiSubscriptionkey(),
-            //                                                quickQuoteRequest );Client.getQuickQuote( determinedBasePathUri,
-            //                                                "Bearer " + jmAuthResult.getAccess_token(),
-            //                                                actionJMSQuoteSpecDto.getApiSubscriptionkey(),
-            //                                                quickQuoteRequest );
+            return jmQuoteClient.getQuickQuote( determinedBasePathUri,
+                                                "Bearer " + jmAuthResult.getAccess_token(),
+                                                actionJMSQuoteSpecDto.getApiSubscriptionkey(),
+                                                quickQuoteRequest );
         }
         catch ( Exception e )
         {
