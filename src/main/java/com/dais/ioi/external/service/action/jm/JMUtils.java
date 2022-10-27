@@ -14,7 +14,7 @@ public class JMUtils
     {
         try
         {
-            return getFunction.get();
+            return getFunction.get() != null ? getFunction.get() : defaultValue;
         }
         catch ( NullPointerException ex )
         {
