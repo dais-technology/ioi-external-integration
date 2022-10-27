@@ -101,6 +101,7 @@ public class JmIntegrationService
         return response;
     }
 
+
     public ResponseEntity<Resource> downloadApplication( DownloadApplicationRequest downloadApplicationRequest,
                                                          UUID orgId )
     {
@@ -140,11 +141,11 @@ public class JmIntegrationService
         final URI uri = URI.create( actionJMSQuoteSpecDto.getUploadAppraisalUrl() );
 
         final UploadAppraisalResponse uploadAppraisalResponse = jmApplicationClient.uploadAppraisal( uri,
-                                                                                             "Bearer " + jmAuthResult.getAccess_token(),
-                                                                                             actionJMSQuoteSpecDto.getApiSubscriptionkey(),
-                                                                                             accountNumber,
-                                                                                             policyNumber,
-                                                                                             appraisalDocument );
+                                                                                                     "Bearer " + jmAuthResult.getAccess_token(),
+                                                                                                     actionJMSQuoteSpecDto.getApiSubscriptionkey(),
+                                                                                                     accountNumber,
+                                                                                                     policyNumber,
+                                                                                                     appraisalDocument );
 
         return uploadAppraisalResponse;
     }
