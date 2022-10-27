@@ -13,6 +13,7 @@ import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.JmQuoteOptionDto;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
+import com.dais.ioi.external.domain.exception.ExternalApiException;
 import com.dais.ioi.external.entity.IntegrationEntity;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
 import com.dais.ioi.external.service.action.jm.JMQuoteServiceImpl;
@@ -224,6 +225,11 @@ public class ExternalIntegrationServiceImpl
 
             return quickQuote;
         }
+        catch ( ExternalApiException e )
+        {
+            log.error( "IMPORTANT: An Exception occured when trying to reach the JM api" );
+            throw e;
+        }
     }
 
 
@@ -248,7 +254,7 @@ public class ExternalIntegrationServiceImpl
             final UUID jmQuoteId = UUID.fromString( (String) firedTriggerDto.getPayload().get( "jmQuoteId" ) );
             final BigDecimal totalAmount = BigDecimal.valueOf( (Double) firedTriggerDto.getPayload().get( "totalAmount" ) );
             final SubmitApplicationRequest submitApplicationRequest = new SubmitApplicationRequest( jmQuoteId, totalAmount );
-            final SubmitApplicationResponse submitApplicationResponse = jmIntegrationService.submit( submitApplicationRequest, firedTriggerDto.getLineId() );
+            final SubmitApplicationResponse submitApplicationResponse = jmIntegrationService.submitApplication( submitApplicationRequest, firedTriggerDto.getLineId() );
             triggerResponseDto.setMetadata( new ObjectMapper().convertValue( submitApplicationResponse, Map.class ) );
         }
 
@@ -262,7 +268,7 @@ public class ExternalIntegrationServiceImpl
                                                         final UUID orgId )
     {
         log.info( String.format( "submitApplication: %s -> %s", orgId.toString(), new ObjectMapper().writeValueAsString( submitApplicationRequest ) ) );
-        return jmIntegrationService.submit( submitApplicationRequest, orgId );
+        return jmIntegrationService.submitApplication( submitApplicationRequest, orgId );
     }
 
 
