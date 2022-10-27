@@ -32,11 +32,13 @@ import java.util.UUID;
 @RestController
 @RequestMapping( "/external" )
 @AllArgsConstructor
-public class JmIntegrationController implements JmIntegrationApi
+public class JmIntegrationController
+      implements JmIntegrationApi
 {
     private final ExternalIntegrationService externalIntegrationService;
 
     private final ObjectMapper objectMapper;
+
 
     @Override
     public TriggerResponseDto getQuote( @Valid final FiredTriggerDto firedTriggerDto )
@@ -53,13 +55,13 @@ public class JmIntegrationController implements JmIntegrationApi
 
         catch ( FeignException e )
         {
-            throw new ResponseStatusException( HttpStatus.BAD_REQUEST, new String( e.content() ) );
+            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, new String( e.content() ) );
         }
 
         catch ( Exception e )
         {
             log.error( e.getMessage(), e );
-            throw new ResponseStatusException( HttpStatus.BAD_REQUEST, e.getMessage() );
+            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage() );
         }
 
         return triggerResponseDto;
@@ -77,12 +79,12 @@ public class JmIntegrationController implements JmIntegrationApi
         }
         catch ( FeignException e )
         {
-            throw new ResponseStatusException( HttpStatus.BAD_REQUEST, e.contentUTF8() );
+            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.contentUTF8() );
         }
         catch ( Exception e )
         {
             log.error( e.getMessage(), e );
-            throw new ResponseStatusException( HttpStatus.BAD_REQUEST, e.getMessage() );
+            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage() );
         }
     }
 
@@ -96,21 +98,34 @@ public class JmIntegrationController implements JmIntegrationApi
         }
         catch ( FeignException e )
         {
-            throw new ResponseStatusException( HttpStatus.BAD_REQUEST, e.contentUTF8() );
+            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.contentUTF8() );
         }
         catch ( Exception e )
         {
             log.error( e.getMessage(), e );
-            throw new ResponseStatusException( HttpStatus.BAD_REQUEST, e.getMessage() );
+            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage() );
         }
     }
+
 
     @Override
     public CreateAccountResponse create( final CreateAccountRequest createAccountRequest,
                                          final UUID orgId )
           throws IllegalAccessException
     {
-        return externalIntegrationService.createAccount( createAccountRequest, orgId );
+        try
+        {
+            return externalIntegrationService.createAccount( createAccountRequest, orgId );
+        }
+        catch ( FeignException e )
+        {
+            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.contentUTF8() );
+        }
+        catch ( Exception e )
+        {
+            log.error( e.getMessage(), e );
+            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage() );
+        }
     }
 
 
@@ -118,7 +133,19 @@ public class JmIntegrationController implements JmIntegrationApi
     public SubmitApplicationResponse submit( final SubmitApplicationRequest submitApplicationRequest,
                                              final UUID orgId )
     {
-        return externalIntegrationService.submitApplication( submitApplicationRequest, orgId );
+        try
+        {
+            return externalIntegrationService.submitApplication( submitApplicationRequest, orgId );
+        }
+        catch ( FeignException e )
+        {
+            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.contentUTF8() );
+        }
+        catch ( Exception e )
+        {
+            log.error( e.getMessage(), e );
+            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage() );
+        }
     }
 
 
@@ -126,6 +153,18 @@ public class JmIntegrationController implements JmIntegrationApi
     public ResponseEntity<Resource> downloadApplication( final DownloadApplicationRequest downloadApplicationRequest,
                                                          final UUID orgId )
     {
-        return externalIntegrationService.downloadApplication( downloadApplicationRequest, orgId );
+        try
+        {
+            return externalIntegrationService.downloadApplication( downloadApplicationRequest, orgId );
+        }
+        catch ( FeignException e )
+        {
+            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.contentUTF8() );
+        }
+        catch ( Exception e )
+        {
+            log.error( e.getMessage(), e );
+            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage() );
+        }
     }
 }
