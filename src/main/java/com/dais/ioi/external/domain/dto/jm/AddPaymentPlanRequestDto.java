@@ -24,7 +24,7 @@ public class AddPaymentPlanRequestDto
     //TODO: Verify if this can be a UUID
     private String externalQuoteId;
 
-    private AgentInfoDto agentInfo;
+    private AgentInfoDto agent;
 
     private Map<String, ClientAnswerDto> intake;
 
