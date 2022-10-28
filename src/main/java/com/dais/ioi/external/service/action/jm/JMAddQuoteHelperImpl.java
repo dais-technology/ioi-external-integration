@@ -706,120 +706,120 @@ public class JMAddQuoteHelperImpl
         cancelledCoverage.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCanceledOrDeniedCoverage() ).getAnswer(), "" ) );
         underwritingInfo.getUnderwritingQuestions().add( cancelledCoverage );
 
-        AddQuoteRequest.UnderwritingQuestion coverageDenyReason = new AddQuoteRequest.UnderwritingQuestion();
-        coverageDenyReason.setKey( "CoverageDenyReason" );
-        coverageDenyReason.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCoverageDenyReason() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( coverageDenyReason );
-
-        AddQuoteRequest.UnderwritingQuestion storeJewelryInSafeDepositBox = new AddQuoteRequest.UnderwritingQuestion();
-        storeJewelryInSafeDepositBox.setKey( "StoreJewelryInSafeDepositBox" );
-        storeJewelryInSafeDepositBox.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getStoreJewelryInSafeDepositBox() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( storeJewelryInSafeDepositBox );
-
-        AddQuoteRequest.UnderwritingQuestion safeDepositBoxLocation = new AddQuoteRequest.UnderwritingQuestion();
-        safeDepositBoxLocation.setKey( "SafeDepositBoxLocation" );
-        safeDepositBoxLocation.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getSafeDepositBoxLocation() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( safeDepositBoxLocation );
-
-        AddQuoteRequest.UnderwritingQuestion safeDepositBoxAddress = new AddQuoteRequest.UnderwritingQuestion();
-        safeDepositBoxAddress.setKey( "SafeDepositBoxAddress" );
-        safeDepositBoxAddress.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getSafeDepositBoxLocation() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( safeDepositBoxAddress );
-
-        AddQuoteRequest.UnderwritingQuestion livesInGatedEntranceCommunity = new AddQuoteRequest.UnderwritingQuestion();
-        livesInGatedEntranceCommunity.setKey( "LivesInGatedEntranceCommunity" );
-        livesInGatedEntranceCommunity.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getLivesInGatedEntranceCommunity() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( livesInGatedEntranceCommunity );
-
-        AddQuoteRequest.UnderwritingQuestion communityHasFence = new AddQuoteRequest.UnderwritingQuestion();
-        communityHasFence.setKey( "CommunityHasFence" );
-        communityHasFence.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityHasFence() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( communityHasFence );
-
-        AddQuoteRequest.UnderwritingQuestion communityHasGuardsAtGate = new AddQuoteRequest.UnderwritingQuestion();
-        communityHasGuardsAtGate.setKey( "CommunityHasGuardsAtGate" );
-        communityHasGuardsAtGate.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityHasGuardsAtGate() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( communityHasGuardsAtGate );
-
-        AddQuoteRequest.UnderwritingQuestion communityGuardsFrequency = new AddQuoteRequest.UnderwritingQuestion();
-        communityGuardsFrequency.setKey( "CommunityGuardsFrequency" );
-        communityGuardsFrequency.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityGuardsFrequency() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( communityGuardsFrequency );
-
-        AddQuoteRequest.UnderwritingQuestion communityIsPatrolled = new AddQuoteRequest.UnderwritingQuestion();
-        communityIsPatrolled.setKey( "CommunityIsPatrolled" );
-        communityIsPatrolled.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityIsPatrolled() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( communityIsPatrolled );
-
-        AddQuoteRequest.UnderwritingQuestion communityPatrolFrequency = new AddQuoteRequest.UnderwritingQuestion();
-        communityPatrolFrequency.setKey( "CommunityPatrolFrequency" );
-        communityPatrolFrequency.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityPatrolFrequency() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( communityPatrolFrequency );
-
-        AddQuoteRequest.UnderwritingQuestion communityResidentEntranceDescription = new AddQuoteRequest.UnderwritingQuestion();
-        communityResidentEntranceDescription.setKey( "CommunityResidentEntranceDescription" );
-        communityResidentEntranceDescription.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityResidentEntranceDescription() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( communityResidentEntranceDescription );
-
-        AddQuoteRequest.UnderwritingQuestion communityGuestEntranceDescription = new AddQuoteRequest.UnderwritingQuestion();
-        communityGuestEntranceDescription.setKey( "CommunityGuestEntranceDescription" );
-        communityGuestEntranceDescription.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityGuestEntranceDescription() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( communityGuestEntranceDescription );
-
-        AddQuoteRequest.UnderwritingQuestion domesticHelpEmployed = new AddQuoteRequest.UnderwritingQuestion();
-        domesticHelpEmployed.setKey( "DomesticHelpEmployed" );
-        domesticHelpEmployed.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getDomesticHelpEmployed() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( domesticHelpEmployed );
-
-        AddQuoteRequest.UnderwritingQuestion domesticHelpDescription = new AddQuoteRequest.UnderwritingQuestion();
-        domesticHelpDescription.setKey( "DomesticHelpDescription" );
-        domesticHelpDescription.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getDomesticHelpDescription() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( domesticHelpDescription );
-
-        AddQuoteRequest.UnderwritingQuestion domesticHelpEmploymentLength = new AddQuoteRequest.UnderwritingQuestion();
-        domesticHelpEmploymentLength.setKey( "DomesticHelpEmploymentLength" );
-        domesticHelpEmploymentLength.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getDomesticHelpEmploymentLength() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( domesticHelpEmploymentLength );
-
-        AddQuoteRequest.UnderwritingQuestion domesticHelpResidesAtHome = new AddQuoteRequest.UnderwritingQuestion();
-        domesticHelpResidesAtHome.setKey( "DomesticHelpResidesAtHome" );
-        domesticHelpResidesAtHome.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getDomesticHelpResidesAtHome() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( domesticHelpResidesAtHome );
-
-        AddQuoteRequest.UnderwritingQuestion homeHasOtherResidents = new AddQuoteRequest.UnderwritingQuestion();
-        homeHasOtherResidents.setKey( "HomeHasOtherResidents" );
-        homeHasOtherResidents.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getHomeHasOtherResidents() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( homeHasOtherResidents );
-
-        AddQuoteRequest.UnderwritingQuestion homeOtherResidentsDescription = new AddQuoteRequest.UnderwritingQuestion();
-        homeOtherResidentsDescription.setKey( "HomeOtherResidentsDescription" );
-        homeOtherResidentsDescription.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getHomeOtherResidentsDescription() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( homeOtherResidentsDescription );
-
-        AddQuoteRequest.UnderwritingQuestion howOftenJewelryWorn = new AddQuoteRequest.UnderwritingQuestion();
-        howOftenJewelryWorn.setKey( "HowOftenJewelryWorn" );
-        howOftenJewelryWorn.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getHowOftenJewelryWorn() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( howOftenJewelryWorn );
-
-        AddQuoteRequest.UnderwritingQuestion travelOvernightFrequency = new AddQuoteRequest.UnderwritingQuestion();
-        travelOvernightFrequency.setKey( "TravelOvernightFrequency" );
-        travelOvernightFrequency.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getTravelOvernightFrequency() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( travelOvernightFrequency );
-
-        AddQuoteRequest.UnderwritingQuestion travelOverseas = new AddQuoteRequest.UnderwritingQuestion();
-        travelOverseas.setKey( "TravelOverseas" );
-        travelOverseas.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getTravelOverseas() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( travelOverseas );
-
-        AddQuoteRequest.UnderwritingQuestion travelPrecautionOption = new AddQuoteRequest.UnderwritingQuestion();
-        travelPrecautionOption.setKey( "TravelPrecautionOption" );
-        travelPrecautionOption.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getTravelPrecautionOption() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( travelPrecautionOption );
-
-        AddQuoteRequest.UnderwritingQuestion travelPrecautionOtherDescription = new AddQuoteRequest.UnderwritingQuestion();
-        travelPrecautionOtherDescription.setKey( "TravelPrecautionOtherDescription" );
-        travelPrecautionOtherDescription.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getTravelPrecautionOtherDesc() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( travelPrecautionOtherDescription );
+//        AddQuoteRequest.UnderwritingQuestion coverageDenyReason = new AddQuoteRequest.UnderwritingQuestion();
+//        coverageDenyReason.setKey( "CoverageDenyReason" );
+//        coverageDenyReason.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCoverageDenyReason() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( coverageDenyReason );
+//
+//        AddQuoteRequest.UnderwritingQuestion storeJewelryInSafeDepositBox = new AddQuoteRequest.UnderwritingQuestion();
+//        storeJewelryInSafeDepositBox.setKey( "StoreJewelryInSafeDepositBox" );
+//        storeJewelryInSafeDepositBox.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getStoreJewelryInSafeDepositBox() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( storeJewelryInSafeDepositBox );
+//
+//        AddQuoteRequest.UnderwritingQuestion safeDepositBoxLocation = new AddQuoteRequest.UnderwritingQuestion();
+//        safeDepositBoxLocation.setKey( "SafeDepositBoxLocation" );
+//        safeDepositBoxLocation.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getSafeDepositBoxLocation() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( safeDepositBoxLocation );
+//
+//        AddQuoteRequest.UnderwritingQuestion safeDepositBoxAddress = new AddQuoteRequest.UnderwritingQuestion();
+//        safeDepositBoxAddress.setKey( "SafeDepositBoxAddress" );
+//        safeDepositBoxAddress.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getSafeDepositBoxLocation() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( safeDepositBoxAddress );
+//
+//        AddQuoteRequest.UnderwritingQuestion livesInGatedEntranceCommunity = new AddQuoteRequest.UnderwritingQuestion();
+//        livesInGatedEntranceCommunity.setKey( "LivesInGatedEntranceCommunity" );
+//        livesInGatedEntranceCommunity.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getLivesInGatedEntranceCommunity() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( livesInGatedEntranceCommunity );
+//
+//        AddQuoteRequest.UnderwritingQuestion communityHasFence = new AddQuoteRequest.UnderwritingQuestion();
+//        communityHasFence.setKey( "CommunityHasFence" );
+//        communityHasFence.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityHasFence() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( communityHasFence );
+//
+//        AddQuoteRequest.UnderwritingQuestion communityHasGuardsAtGate = new AddQuoteRequest.UnderwritingQuestion();
+//        communityHasGuardsAtGate.setKey( "CommunityHasGuardsAtGate" );
+//        communityHasGuardsAtGate.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityHasGuardsAtGate() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( communityHasGuardsAtGate );
+//
+//        AddQuoteRequest.UnderwritingQuestion communityGuardsFrequency = new AddQuoteRequest.UnderwritingQuestion();
+//        communityGuardsFrequency.setKey( "CommunityGuardsFrequency" );
+//        communityGuardsFrequency.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityGuardsFrequency() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( communityGuardsFrequency );
+//
+//        AddQuoteRequest.UnderwritingQuestion communityIsPatrolled = new AddQuoteRequest.UnderwritingQuestion();
+//        communityIsPatrolled.setKey( "CommunityIsPatrolled" );
+//        communityIsPatrolled.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityIsPatrolled() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( communityIsPatrolled );
+//
+//        AddQuoteRequest.UnderwritingQuestion communityPatrolFrequency = new AddQuoteRequest.UnderwritingQuestion();
+//        communityPatrolFrequency.setKey( "CommunityPatrolFrequency" );
+//        communityPatrolFrequency.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityPatrolFrequency() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( communityPatrolFrequency );
+//
+//        AddQuoteRequest.UnderwritingQuestion communityResidentEntranceDescription = new AddQuoteRequest.UnderwritingQuestion();
+//        communityResidentEntranceDescription.setKey( "CommunityResidentEntranceDescription" );
+//        communityResidentEntranceDescription.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityResidentEntranceDescription() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( communityResidentEntranceDescription );
+//
+//        AddQuoteRequest.UnderwritingQuestion communityGuestEntranceDescription = new AddQuoteRequest.UnderwritingQuestion();
+//        communityGuestEntranceDescription.setKey( "CommunityGuestEntranceDescription" );
+//        communityGuestEntranceDescription.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityGuestEntranceDescription() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( communityGuestEntranceDescription );
+//
+//        AddQuoteRequest.UnderwritingQuestion domesticHelpEmployed = new AddQuoteRequest.UnderwritingQuestion();
+//        domesticHelpEmployed.setKey( "DomesticHelpEmployed" );
+//        domesticHelpEmployed.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getDomesticHelpEmployed() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( domesticHelpEmployed );
+//
+//        AddQuoteRequest.UnderwritingQuestion domesticHelpDescription = new AddQuoteRequest.UnderwritingQuestion();
+//        domesticHelpDescription.setKey( "DomesticHelpDescription" );
+//        domesticHelpDescription.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getDomesticHelpDescription() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( domesticHelpDescription );
+//
+//        AddQuoteRequest.UnderwritingQuestion domesticHelpEmploymentLength = new AddQuoteRequest.UnderwritingQuestion();
+//        domesticHelpEmploymentLength.setKey( "DomesticHelpEmploymentLength" );
+//        domesticHelpEmploymentLength.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getDomesticHelpEmploymentLength() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( domesticHelpEmploymentLength );
+//
+//        AddQuoteRequest.UnderwritingQuestion domesticHelpResidesAtHome = new AddQuoteRequest.UnderwritingQuestion();
+//        domesticHelpResidesAtHome.setKey( "DomesticHelpResidesAtHome" );
+//        domesticHelpResidesAtHome.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getDomesticHelpResidesAtHome() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( domesticHelpResidesAtHome );
+//
+//        AddQuoteRequest.UnderwritingQuestion homeHasOtherResidents = new AddQuoteRequest.UnderwritingQuestion();
+//        homeHasOtherResidents.setKey( "HomeHasOtherResidents" );
+//        homeHasOtherResidents.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getHomeHasOtherResidents() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( homeHasOtherResidents );
+//
+//        AddQuoteRequest.UnderwritingQuestion homeOtherResidentsDescription = new AddQuoteRequest.UnderwritingQuestion();
+//        homeOtherResidentsDescription.setKey( "HomeOtherResidentsDescription" );
+//        homeOtherResidentsDescription.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getHomeOtherResidentsDescription() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( homeOtherResidentsDescription );
+//
+//        AddQuoteRequest.UnderwritingQuestion howOftenJewelryWorn = new AddQuoteRequest.UnderwritingQuestion();
+//        howOftenJewelryWorn.setKey( "HowOftenJewelryWorn" );
+//        howOftenJewelryWorn.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getHowOftenJewelryWorn() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( howOftenJewelryWorn );
+//
+//        AddQuoteRequest.UnderwritingQuestion travelOvernightFrequency = new AddQuoteRequest.UnderwritingQuestion();
+//        travelOvernightFrequency.setKey( "TravelOvernightFrequency" );
+//        travelOvernightFrequency.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getTravelOvernightFrequency() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( travelOvernightFrequency );
+//
+//        AddQuoteRequest.UnderwritingQuestion travelOverseas = new AddQuoteRequest.UnderwritingQuestion();
+//        travelOverseas.setKey( "TravelOverseas" );
+//        travelOverseas.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getTravelOverseas() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( travelOverseas );
+//
+//        AddQuoteRequest.UnderwritingQuestion travelPrecautionOption = new AddQuoteRequest.UnderwritingQuestion();
+//        travelPrecautionOption.setKey( "TravelPrecautionOption" );
+//        travelPrecautionOption.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getTravelPrecautionOption() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( travelPrecautionOption );
+//
+//        AddQuoteRequest.UnderwritingQuestion travelPrecautionOtherDescription = new AddQuoteRequest.UnderwritingQuestion();
+//        travelPrecautionOtherDescription.setKey( "TravelPrecautionOtherDescription" );
+//        travelPrecautionOtherDescription.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getTravelPrecautionOtherDesc() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( travelPrecautionOtherDescription );
 
         AddQuoteRequest.UnderwritingQuestion additionalUnderwriting = new AddQuoteRequest.UnderwritingQuestion();
         additionalUnderwriting.setKey( "IsAdditionalUnderwritingNeeded" );
@@ -919,22 +919,22 @@ public class JMAddQuoteHelperImpl
             item.setItemDescription(
                   getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemDescription() ).getAnswer(), "" )
             );
-
-            item.setItemDamage(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemDamage() ).getAnswer(), "" )
-            );
-
-            item.setItemPossession(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemPossession() ).getAnswer(), "" )
-            );
-
-            item.setSerialNumber(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getSerialNumber() ).getAnswer(), "" )
-            );
-
-            item.setLastAppraisalDate(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getLastAppraisalDate() ).getAnswer(), "" )
-            );
+//
+//            item.setItemDamage(
+//                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemDamage() ).getAnswer(), "" )
+//            );
+//
+//            item.setItemPossession(
+//                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemPossession() ).getAnswer(), "" )
+//            );
+//
+//            item.setSerialNumber(
+//                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getSerialNumber() ).getAnswer(), "" )
+//            );
+//
+//            item.setLastAppraisalDate(
+//                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getLastAppraisalDate() ).getAnswer(), "" )
+//            );
           /*  item.setItemDamage(
                   getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemDamage() ).getAnswer(), "" ).toString()
             );
@@ -1128,9 +1128,9 @@ public class JMAddQuoteHelperImpl
 
         );
 
-        primaryWearer.setRelationWithApplicant(
-              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerRelationWithApplicant() ).getAnswer().toString(), "" )
-        );
+//        primaryWearer.setRelationWithApplicant(
+//              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerRelationWithApplicant() ).getAnswer().toString(), "" )
+//        );
 
         AddQuoteRequest.ResidentialAddress primaryWearerResidentialAddress = new AddQuoteRequest.ResidentialAddress();
 
