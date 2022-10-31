@@ -8,6 +8,8 @@ import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
+import com.dais.ioi.external.domain.dto.jm.RegisterUserRequest;
+import com.dais.ioi.external.domain.dto.jm.RegisterUserResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
@@ -15,7 +17,9 @@ import com.dais.ioi.external.domain.exception.ExternalApiException;
 import com.dais.ioi.external.entity.IntegrationEntity;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
 import com.dais.ioi.external.service.ExternalQuoteDataService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -143,6 +147,55 @@ public class JmIntegrationService
         catch ( Exception e )
         {
             log.error( "IMPORTANT: An exception occurred when attempting to get a downloadApplication response from JM: " + e.getMessage(), e );
+            throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
+        }
+    }
+
+
+    public RegisterUserResponse registerPortalUser( RegisterUserRequest registerUserRequest,
+                                                    UUID lineId )
+          throws JsonProcessingException
+    {
+        UUID trace = UUID.randomUUID();
+        log.info( "(" + trace + ") IMPORTANT: Begin JM RegisterPortalUser" );
+        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( lineId, IntegrationType.JM_REGISTER_PORTAL_USER );
+
+        final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( integrationEntity.getSpec(), ActionJMSQuoteSpecDto.class );
+
+        final JMAuthResult jmAuthResult = getAuth( actionJMSQuoteSpecDto, jmAuthClient );
+
+        final URI uri = URI.create( actionJMSQuoteSpecDto.getRegisterPortalUserUrl() );
+
+        log.info( "(" + trace + ") IMPORTANT: Sending JM RegisterPortalUser request -> {}", objectMapper.writeValueAsString( registerUserRequest ) );
+        final RegisterUserResponse registerPortalUserResponse = processRegisterPortalUser( registerUserRequest, actionJMSQuoteSpecDto, jmAuthResult, uri );
+
+        log.info( "(" + trace + ") IMPORTANT: JM RegisterPortalUser call Successful." );
+        log.info( "(" + trace + ") IMPORTANT: End JM RegisterPortalUser" );
+        return registerPortalUserResponse;
+    }
+
+
+    private RegisterUserResponse processRegisterPortalUser( final RegisterUserRequest registerUserRequest,
+                                                            final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
+                                                            final JMAuthResult jmAuthResult,
+                                                            final URI uri )
+    {
+        try
+        {
+            final RegisterUserResponse registerPortalUserResponse = jmApplicationClient.registerPortalUser( uri,
+                                                                                                            "Bearer " + jmAuthResult.getAccess_token(),
+                                                                                                            actionJMSQuoteSpecDto.getApiSubscriptionkey(),
+                                                                                                            registerUserRequest );
+            return registerPortalUserResponse;
+        }
+        catch ( FeignException e )
+        {
+            log.error( "IMPORTANT: An exception occurred when attempting to get a registerPortalUser response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
+            throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
+        }
+        catch ( Exception e )
+        {
+            log.error( "IMPORTANT: An exception occurred when attempting to get a registerPortalUser response from JM: " + e.getMessage(), e );
             throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
         }
     }

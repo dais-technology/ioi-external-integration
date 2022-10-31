@@ -4,6 +4,8 @@ import com.dais.ioi.external.config.HttpHeader;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
+import com.dais.ioi.external.domain.dto.jm.RegisterUserRequest;
+import com.dais.ioi.external.domain.dto.jm.RegisterUserResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import javax.validation.Valid;
 import java.net.URI;
 
 
@@ -52,4 +55,13 @@ public interface JMApplicationClient
                                            @RequestHeader( HttpHeader.AUTHORIZATION ) String bearer,
                                            @RequestHeader( "Ocp-Apim-Subscription-Key" ) String subscriptionKey,
                                            @RequestBody final DownloadApplicationRequest downloadApplicationRequest );
+
+    @RequestMapping(
+          method = RequestMethod.POST,
+          headers = { "Content-Type=application/json" } )
+    @ResponseStatus( HttpStatus.OK )
+    RegisterUserResponse registerPortalUser( URI baseUrl,
+                                             @RequestHeader( HttpHeader.AUTHORIZATION ) String bearer,
+                                             @RequestHeader( "Ocp-Apim-Subscription-Key" ) String subscriptionKey,
+                                             @RequestBody @Valid final RegisterUserRequest registerUserRequest );
 }

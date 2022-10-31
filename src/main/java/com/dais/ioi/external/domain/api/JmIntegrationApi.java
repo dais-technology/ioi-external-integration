@@ -9,6 +9,8 @@ import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
+import com.dais.ioi.external.domain.dto.jm.RegisterUserRequest;
+import com.dais.ioi.external.domain.dto.jm.RegisterUserResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
@@ -49,25 +51,32 @@ public interface JmIntegrationApi
     AddPaymentPlanResponseDto addPaymentPlan( @RequestBody @Valid final AddPaymentPlanRequestDto addPaymentPlanRequest );
 
     @ResponseStatus( HttpStatus.OK )
-    @RequestMapping( value = "/submit/application/{orgId}",
+    @RequestMapping( value = "/submit/application/{lineId}",
                      method = RequestMethod.POST )
     @ApiOperation( value = "Submit application" )
     SubmitApplicationResponse submit( @RequestBody @Valid final SubmitApplicationRequest submitApplicationRequest,
-                                      @PathVariable final UUID orgId )
+                                      @PathVariable final UUID lineId )
           throws IllegalAccessException;
 
     @ResponseStatus( HttpStatus.OK )
-    @RequestMapping( value = "/create/account/{orgId}",
+    @RequestMapping( value = "/create/account/{lineId}",
                      method = RequestMethod.POST )
     @ApiOperation( value = "create account" )
     CreateAccountResponse create( @RequestBody @Valid final CreateAccountRequest createAccountRequest,
-                                  @PathVariable final UUID orgId )
+                                  @PathVariable final UUID lineId )
           throws IllegalAccessException;
 
     @ResponseStatus( HttpStatus.OK )
-    @RequestMapping( value = "/download/application/{orgId}",
+    @RequestMapping( value = "/download/application/{lineId}",
                      method = RequestMethod.POST )
     @ApiOperation( value = "Download Application PDF" )
     ResponseEntity<Resource> downloadApplication( @RequestBody @Valid final DownloadApplicationRequest downloadApplicationRequest,
-                                                  @PathVariable final UUID orgId );
+                                                  @PathVariable final UUID lineId );
+    
+    @ResponseStatus( HttpStatus.OK )
+    @RequestMapping( value = "/register/user/{lineId}",
+                     method = RequestMethod.POST )
+    @ApiOperation( value = "Register Portal User" )
+    RegisterUserResponse registerPortalUser( @RequestBody @Valid final RegisterUserRequest registerUserRequest,
+                                             @PathVariable final UUID lineId );
 }

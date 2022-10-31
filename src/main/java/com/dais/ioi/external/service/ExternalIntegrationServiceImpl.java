@@ -11,6 +11,8 @@ import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.JmQuoteOptionDto;
+import com.dais.ioi.external.domain.dto.jm.RegisterUserRequest;
+import com.dais.ioi.external.domain.dto.jm.RegisterUserResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import com.dais.ioi.external.domain.exception.ExternalApiException;
@@ -289,5 +291,15 @@ public class ExternalIntegrationServiceImpl
     {
         log.info( String.format( "downloadApplication: %s -> %s", orgId.toString(), new ObjectMapper().writeValueAsString( downloadApplicationRequest ) ) );
         return jmIntegrationService.downloadApplication( downloadApplicationRequest, orgId );
+    }
+
+
+    @SneakyThrows
+    @Override
+    public RegisterUserResponse registerPortalUser( final RegisterUserRequest registerUserRequest,
+                                                    final UUID lineId )
+    {
+        log.info( String.format( "registerPortalUser: %s -> %s", lineId.toString(), new ObjectMapper().writeValueAsString( registerUserRequest ) ) );
+        return jmIntegrationService.registerPortalUser( registerUserRequest, lineId );
     }
 }

@@ -9,6 +9,8 @@ import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
+import com.dais.ioi.external.domain.dto.jm.RegisterUserRequest;
+import com.dais.ioi.external.domain.dto.jm.RegisterUserResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
@@ -51,4 +53,7 @@ public interface ExternalIntegrationService
 
     ResponseEntity<Resource> downloadApplication( final DownloadApplicationRequest createAccountRequest,
                                                                        final UUID orgId );
+
+    RegisterUserResponse registerPortalUser( final RegisterUserRequest registerUserRequest,
+                                             final UUID lineId );
 }
