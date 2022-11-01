@@ -14,9 +14,17 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ClassCodeQuestionsDto
+public class CommercialCoverageDto
 {
+    @JacksonXmlProperty( localName = "CoverageCd" )
+    @Builder.Default
+    private String coverageCd = "WC7WorkersCompEmpLiabInsurancePolicyACov";
+
+    @JacksonXmlProperty( localName = "CoverageDesc" )
+    @Builder.Default
+    private String coverageDesc = "Employers Liability";
+
     @JacksonXmlElementWrapper( useWrapping = false )
-    @JacksonXmlProperty( localName = "ClassCodeQuestion" )
-    private List<ClassCodeQuestionDto> classCodeQuestionDto;
+    @JacksonXmlProperty( localName = "Limit" )
+    private List<LimitDto> limitDto;
 }

@@ -1,5 +1,6 @@
 package com.dais.ioi.external.domain.dto.af;
 
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -7,13 +8,16 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class ContractTermDto
 {
-    private LocalDate effectiveDate;
+    @JacksonXmlProperty( localName = "EffectiveDt" )
+    private LocalDate effectiveDt;
 
-    private LocalDate expirationDate;
+    @JacksonXmlProperty( localName = "ExpirationDt" )
+    private LocalDate expirationDt;
 }

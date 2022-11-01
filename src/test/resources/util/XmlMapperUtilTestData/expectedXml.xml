@@ -1,0 +1,152 @@
+<ACORD>
+    <SignonRq>
+        <ClientApp>
+            <Org>1</Org>
+        </ClientApp>
+    </SignonRq>
+    <InsuranceSvcRq>
+        <RqUID>58155c74-ef16-4091-858d-51671558238a</RqUID>
+        <WorkCompPolicyQuoteInqRq>
+            <TransactionRequestDt>2022-10-27</TransactionRequestDt>
+            <Producer>
+                <ItemIdInfo>
+                    <AgencyId>CW48619</AgencyId>
+                </ItemIdInfo>
+                <GeneralPartyInfo>
+                    <NameInfo id="ProducerName">
+                        <PersonName>
+                            <Surname>ch</Surname>
+                            <GivenName>Haala</GivenName>
+                        </PersonName>
+                    </NameInfo>
+                </GeneralPartyInfo>
+            </Producer>
+            <InsuredOrPrincipal id="n0">
+                <GeneralPartyInfo>
+                    <NameInfo>
+                        <CommlName>
+                            <CommercialName>WTest</CommercialName>
+                        </CommlName>
+                        <LegalEntityCd>CORPORATION</LegalEntityCd>
+                        <TaxIdentity>
+                            <TaxId>654979854</TaxId>
+                        </TaxIdentity>
+                    </NameInfo>
+                    <Addr>
+                        <AddrTypeCd>MailingAddress</AddrTypeCd>
+                        <Addr1>435 Tasso Street</Addr1>
+                        <City>Palo Alto</City>
+                        <StateProvCd>CA</StateProvCd>
+                        <PostalCode>94301</PostalCode>
+                        <CountryCd>US</CountryCd>
+                    </Addr>
+                    <Communications>
+                        <PhoneInfo>
+                            <PhoneNumber>2014497192</PhoneNumber>
+                        </PhoneInfo>
+                        <EmailInfo>
+                            <EmailAddr>testops@webomates.com</EmailAddr>
+                        </EmailInfo>
+                    </Communications>
+                </GeneralPartyInfo>
+            </InsuredOrPrincipal>
+            <CommlPolicy>
+                <ControllingStateProvCd>CA</ControllingStateProvCd>
+                <com.afg_TotalEmployees>5</com.afg_TotalEmployees>
+                <ContractTerm>
+                    <EffectiveDt>2022-12-30</EffectiveDt>
+                    <ExpirationDt>2023-12-30</ExpirationDt>
+                </ContractTerm>
+                <CommlPolicySupplement>
+                    <OperationsDesc>WTest is a(n) Continuing Care Retirement Community company with operations primarily located in Palo Alto, CA.</OperationsDesc>
+                    <LengthTimeInBusiness>
+                        <NumUnits>6</NumUnits>
+                    </LengthTimeInBusiness>
+                    <LossDataAvailable>N</LossDataAvailable>
+                </CommlPolicySupplement>
+            </CommlPolicy>
+            <Location id="l1">
+                <Addr>
+                    <Addr1>435 Tasso Street</Addr1>
+                    <City>Palo Alto</City>
+                    <StateProvCd>CA</StateProvCd>
+                    <PostalCode>94301</PostalCode>
+                </Addr>
+            </Location>
+            <Location id="l2">
+                <Addr>
+                    <Addr1>144 Melrose Street</Addr1>
+                    <City>Palo Alto</City>
+                    <StateProvCd>CA</StateProvCd>
+                    <PostalCode>94301</PostalCode>
+                </Addr>
+            </Location>
+            <WorkCompLineBusiness>
+                <WorkCompRateState>
+                    <WorkCompLocInfo LocationRef="l1">
+                        <WorkCompRateClass>
+                            <RatingClassificationCd>9070</RatingClassificationCd>
+                            <RatingClassificationSubCd>01</RatingClassificationSubCd>
+                            <Exposure>50000</Exposure>
+                        </WorkCompRateClass>
+                    </WorkCompLocInfo>
+                </WorkCompRateState>
+                <WorkCompRateState>
+                    <WorkCompLocInfo LocationRef="l2">
+                        <WorkCompRateClass>
+                            <RatingClassificationCd>9070</RatingClassificationCd>
+                            <RatingClassificationSubCd>01</RatingClassificationSubCd>
+                            <Exposure>50000</Exposure>
+                            <ClassCodeQuestions>
+                                <ClassCodeQuestion>
+                                    <QuestionId>r4:ml:349</QuestionId>
+                                    <ResponseInd>N</ResponseInd>
+                                    <PercentageAnswerValue>10</PercentageAnswerValue>
+                                    <OptionResponse>
+                                        <YesOptionResponse>N</YesOptionResponse>
+                                    </OptionResponse>
+                                </ClassCodeQuestion>
+                            </ClassCodeQuestions>
+                        </WorkCompRateClass>
+                    </WorkCompLocInfo>
+                </WorkCompRateState>
+                <CommlCoverage>
+                    <CoverageCd>WC7WorkersCompEmpLiabInsurancePolicyACov</CoverageCd>
+                    <CoverageDesc>Employers Liability</CoverageDesc>
+                    <Limit>
+                        <FormatCurrencyAmt>
+                            <Amt>1000000</Amt>
+                        </FormatCurrencyAmt>
+                        <LimitAppliesToCd>EachClaim</LimitAppliesToCd>
+                    </Limit>
+                    <Limit>
+                        <FormatCurrencyAmt>
+                            <Amt>1000000</Amt>
+                        </FormatCurrencyAmt>
+                        <LimitAppliesToCd>PolicyLimit</LimitAppliesToCd>
+                    </Limit>
+                </CommlCoverage>
+                <Ineligibility>
+                    <QuestionAnswer>
+                        <QuestionCd>WC7Wrecking</QuestionCd>
+                        <YesNoCd>N</YesNoCd>
+                    </QuestionAnswer>
+                    <QuestionAnswer>
+                        <QuestionCd>WC7Asbestos_Ext</QuestionCd>
+                        <YesNoCd>N</YesNoCd>
+                    </QuestionAnswer>
+                </Ineligibility>
+                <Statement>
+                    <QuestionAnswer>
+                        <QuestionCd>WC7Sublet</QuestionCd>
+                        <YesNoCd>N</YesNoCd>
+                    </QuestionAnswer>
+                    <QuestionAnswer>
+                        <QuestionCd>WC7GroundTransport</QuestionCd>
+                        <YesNoCd>N</YesNoCd>
+                    </QuestionAnswer>
+                </Statement>
+            </WorkCompLineBusiness>
+        </WorkCompPolicyQuoteInqRq>
+    </InsuranceSvcRq>
+</ACORD>

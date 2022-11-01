@@ -1,9 +1,13 @@
 package com.dais.ioi.external.domain.dto.af;
 
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+
 
 @Data
 @NoArgsConstructor
@@ -11,11 +15,18 @@ import lombok.NoArgsConstructor;
 @Builder
 public class WorkCompRateClassDto
 {
+    @JacksonXmlProperty( localName = "RatingClassificationCd" )
     private Integer ratingClassificationCd;
 
-    private Integer ratingClassificationSubCd;
+    @JacksonXmlProperty( localName = "RatingClassificationLetter" )
+    private String ratingClassificationLetter;
 
-    private Double payrollAmount;
+    @JacksonXmlProperty( localName = "RatingClassificationSubCd" )
+    private String ratingClassificationSubCd;
 
+    @JacksonXmlProperty( localName = "Exposure" )
+    private BigDecimal payrollAmount;
+
+    @JacksonXmlProperty( localName = "ClassCodeQuestions" )
     private ClassCodeQuestionsDto classCodeQuestionsDto;
 }

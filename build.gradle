@@ -110,6 +110,7 @@ dependencies {
     implementation( "net.rakugakibox.spring.boot:orika-spring-boot-starter:1.8.0" )
     implementation( "org.apache.commons:commons-collections4:4.4" )
 
+    implementation( "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.0" )
 
     implementation( 'com.dais:ioi-quote-service-domain:0.0.113' )
     compile( 'com.dais:dais-commons:7.1.+' )
@@ -135,6 +136,7 @@ dependencies {
     compile( 'org.springframework.boot:spring-boot-starter-data-jpa' )
 
     testImplementation( "org.springframework.security:spring-security-test" )
+    testImplementation( "org.xmlunit:xmlunit-core:2.6.0" )
 }
 
 task codenarcMain() {

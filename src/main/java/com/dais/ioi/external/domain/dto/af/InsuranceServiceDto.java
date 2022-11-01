@@ -6,13 +6,18 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TaxIdentityDto
+public class InsuranceServiceDto
 {
-    @JacksonXmlProperty( localName = "TaxId" )
-    private Long taxId;
+    @JacksonXmlProperty( localName = "RqUID" )
+    private UUID rqUID;
+
+    @JacksonXmlProperty( localName = "WorkCompPolicyQuoteInqRq" )
+    private WorkCompPolicyQuoteDto workCompPolicyQuoteDto;
 }

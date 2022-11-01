@@ -1,6 +1,5 @@
 package com.dais.ioi.external.domain.dto.af;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,14 +11,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class LocationDto
+public class GeneralPartyInformationDto
 {
-    @JacksonXmlProperty( isAttribute = true )
-    private String id;
+    @JacksonXmlProperty( localName = "NameInfo" )
+    private NameDto nameDto;
 
     @JacksonXmlProperty( localName = "Addr" )
     private AddressDto addressDto;
 
-    @JacksonXmlProperty( localName = "AdditionalInterest" )
-    private AdditionalInterestDto additionalInterestDto;
+    @JacksonXmlProperty( localName = "Communications" )
+    private CommunicationsDto communicationsDto;
 }

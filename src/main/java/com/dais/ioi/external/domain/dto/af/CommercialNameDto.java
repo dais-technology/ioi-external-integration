@@ -1,19 +1,18 @@
 package com.dais.ioi.external.domain.dto.af;
 
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class InsuranceSvcRqDto
+public class CommercialNameDto
 {
-    private UUID rqUID;
-
-    private WorkCompPolicyQuoteInqRqDto workCompPolicyQuoteInqRqDto;
+    @JacksonXmlProperty( localName = "CommercialName" )
+    private String commercialName;
 }
