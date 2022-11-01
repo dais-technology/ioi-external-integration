@@ -13,6 +13,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RegisterUserResponse
 {
-    @JsonProperty( "status" )
+    @JsonProperty( "Status" )
     public String status;
 }

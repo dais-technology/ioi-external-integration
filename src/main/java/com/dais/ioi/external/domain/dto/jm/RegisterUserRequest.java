@@ -47,7 +47,7 @@ public class RegisterUserRequest
     @Builder
     public static class ResidenceAddress
     {
-        @JsonProperty( "PortalPassword" )
-        private String portalPassword;
+        @JsonProperty( "PostalCode" )
+        private String postalCode;
     }
 }

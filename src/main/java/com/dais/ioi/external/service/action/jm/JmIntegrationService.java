@@ -34,6 +34,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import static com.dais.ioi.external.service.action.jm.JMAuth.getAuth;
 
@@ -43,6 +44,8 @@ import static com.dais.ioi.external.service.action.jm.JMAuth.getAuth;
 @RequiredArgsConstructor
 public class JmIntegrationService
 {
+    private static Pattern PASSWORD_VALIDATION_REGEX = Pattern.compile( "^(?=.*[a-z])(?=.*[A-Z])(?=.*[\\d@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$" );
+
     @Autowired
     JMAuthClient jmAuthClient;
 
@@ -158,6 +161,17 @@ public class JmIntegrationService
     {
         UUID trace = UUID.randomUUID();
         log.info( "(" + trace + ") IMPORTANT: Begin JM RegisterPortalUser" );
+
+        //validate password
+        if ( !PASSWORD_VALIDATION_REGEX.matcher( registerUserRequest.getApplicant().getPortalPassword() ).matches() )
+        {
+            log.info( "(" + trace + ") IMPORTANT: Password validation Failed." );
+            throw new RuntimeException( "Password validation Failed. Your password must be at least 8 characters long and must contain at least one of each of the following:\n" +
+                                        "• lower case letter\n" +
+                                        "• UPPER case letter\n" +
+                                        "• Number (1, 2, 3, etc.) or special character (#, $, ?, etc.)" );
+        }
+
         final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( lineId, IntegrationType.JM_REGISTER_PORTAL_USER );
 
         final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( integrationEntity.getSpec(), ActionJMSQuoteSpecDto.class );
