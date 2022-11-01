@@ -12,6 +12,7 @@ import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import com.dais.ioi.external.domain.dto.jm.UploadAppraisalResponse;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
+import com.dais.ioi.external.domain.exception.ExternalApiException;
 import com.dais.ioi.external.entity.IntegrationEntity;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
 import com.dais.ioi.external.service.ExternalQuoteDataService;
@@ -61,51 +62,53 @@ public class JmIntegrationService
                                                 final UUID orgId )
     {
 
-        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( orgId, IntegrationType.JM_CREATE_ACCOUNT ); // TODO check should tis be lineId or orgId
-        //        log.info(String.format("createAccount->integrationEntity: %s", new ObjectMapper().writeValueAsString(integrationEntity)));
-
+        UUID trace = UUID.randomUUID();
+        log.info( "(" + trace + ") IMPORTANT: Begin JM crateAccount" );
+        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( orgId, IntegrationType.JM_CREATE_ACCOUNT );
         final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( integrationEntity.getSpec(), ActionJMSQuoteSpecDto.class );
-        //        log.info(String.format("createAccount->actionJMSQuoteSpecDto: %s", new ObjectMapper().writeValueAsString(actionJMSQuoteSpecDto)));
-
         final JMAuthResult jmAuthResult = getAuth( actionJMSQuoteSpecDto, jmAuthClient );
-        //        log.info(String.format("createAccount->jmAuthResult: %s", new ObjectMapper().writeValueAsString(jmAuthResult)));
 
         final URI uri = URI.create( actionJMSQuoteSpecDto.getCreateAccountUrl() );
-
-        return jmApplicationClient.createAccount( uri,
-                                                  "Bearer " + jmAuthResult.getAccess_token(),
-                                                  actionJMSQuoteSpecDto.getApiSubscriptionkey(),
-                                                  createAccountRequest );
+        log.info( "(" + trace + ") IMPORTANT: JM crateAccount URI: " + uri );
+        log.info( "(" + trace + ") IMPORTANT: JM crateAccount request: " + objectMapper.writeValueAsString( createAccountRequest ) );
+        CreateAccountResponse createAccountResponse = getCreateAccountResponse( createAccountRequest, actionJMSQuoteSpecDto, jmAuthResult, uri );
+        log.info( "(" + trace + ") IMPORTANT: JM crateAccount response: " + objectMapper.writeValueAsString( createAccountResponse ) );
+        log.info( "(" + trace + ") IMPORTANT: End JM crateAccount" );
+        return createAccountResponse;
     }
 
 
-    public SubmitApplicationResponse submit( final SubmitApplicationRequest submitApplicationRequest,
-                                             final UUID orgId )
-    {
 
+    @SneakyThrows
+    public SubmitApplicationResponse submitApplication( final SubmitApplicationRequest submitApplicationRequest,
+                                                        final UUID orgId )
+    {
+        UUID trace = UUID.randomUUID();
+        log.info( "(" + trace + ") IMPORTANT: Begin JM SubmitApplication" );
         final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( orgId, IntegrationType.JM_SUBMIT_APPLICATION ); // TODO check should tis be lineId or orgId
 
         final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( integrationEntity.getSpec(), ActionJMSQuoteSpecDto.class );
-
         final JMAuthResult jmAuthResult = getAuth( actionJMSQuoteSpecDto, jmAuthClient );
-
         final URI uri = URI.create( actionJMSQuoteSpecDto.getSubmitApplicationUrl() );
 
-        final SubmitApplicationResponse response = jmApplicationClient.submitApplication( uri,
-                                                                                          "Bearer " + jmAuthResult.getAccess_token(),
-                                                                                          actionJMSQuoteSpecDto.getApiSubscriptionkey(),
-                                                                                          submitApplicationRequest );
+        log.info( "(" + trace + ") IMPORTANT: JM crateAccount URI: " + uri );
+        log.info( "(" + trace + ") IMPORTANT: JM crateAccount request: " + objectMapper.writeValueAsString( submitApplicationRequest ) );
 
+        final SubmitApplicationResponse response = getSubmitApplicationResponse( submitApplicationRequest, actionJMSQuoteSpecDto, jmAuthResult, uri );
+        log.info( "(" + trace + ") IMPORTANT: JM submitApplication response: " + objectMapper.writeValueAsString( response ) );
         persistExternalQuoteData( response, submitApplicationRequest.getQuoteId() );
+        log.info( "(" + trace + ") IMPORTANT: End JM submitApplication" );
 
         return response;
     }
 
 
+
     public ResponseEntity<Resource> downloadApplication( DownloadApplicationRequest downloadApplicationRequest,
                                                          UUID orgId )
     {
-
+        UUID trace = UUID.randomUUID();
+        log.info( "(" + trace + ") IMPORTANT: Begin JM DowloadApplication" );
         final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( orgId, IntegrationType.JM_DOWNLOAD_APPLICATION );
 
         final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( integrationEntity.getSpec(), ActionJMSQuoteSpecDto.class );
@@ -114,15 +117,15 @@ public class JmIntegrationService
 
         final URI uri = URI.create( actionJMSQuoteSpecDto.getDownloadApplicationUrl() );
 
-        final ByteArrayResource byteArrayResource = jmApplicationClient.downloadApplication( uri,
-                                                                                             "Bearer " + jmAuthResult.getAccess_token(),
-                                                                                             actionJMSQuoteSpecDto.getApiSubscriptionkey(),
-                                                                                             downloadApplicationRequest );
+        final ByteArrayResource byteArrayResource = downloadApplication( downloadApplicationRequest, actionJMSQuoteSpecDto, jmAuthResult, uri );
 
-        return ResponseEntity.ok()
-                             .contentLength( byteArrayResource.contentLength() )
-                             .contentType( MediaType.APPLICATION_OCTET_STREAM )
-                             .body( byteArrayResource );
+        ResponseEntity<Resource> response = ResponseEntity.ok()
+                                                          .contentLength( byteArrayResource.contentLength() )
+                                                          .contentType( MediaType.APPLICATION_OCTET_STREAM )
+                                                          .body( byteArrayResource );
+        log.info( "(" + trace + ") IMPORTANT: JM DowloadApplication call Successful." );
+        log.info( "(" + trace + ") IMPORTANT: End JM DowloadApplication" );
+        return response;
     }
 
 
@@ -151,12 +154,32 @@ public class JmIntegrationService
     }
 
 
+    private ByteArrayResource downloadApplication( final DownloadApplicationRequest downloadApplicationRequest,
+                                                   final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
+                                                   final JMAuthResult jmAuthResult,
+                                                   final URI uri )
+    {
+        try
+        {
+            final ByteArrayResource byteArrayResource = jmApplicationClient.downloadApplication( uri,
+                                                                                                 "Bearer " + jmAuthResult.getAccess_token(),
+                                                                                                 actionJMSQuoteSpecDto.getApiSubscriptionkey(),
+                                                                                                 downloadApplicationRequest );
+            return byteArrayResource;
+        }
+        catch ( Exception e )
+        {
+            log.error( "IMPORTANT: An exception occurred when attempting to get a downloadApplication response from JM: " + e.getMessage(), e );
+            throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
+        }
+    }
+
+
+
+    @SneakyThrows
     private void persistExternalQuoteData( final SubmitApplicationResponse response,
                                            final UUID externalQuoteId )
     {
-
-        // At the time of the application submission
-
         ExternalQuoteDataDto externalQuoteData = new ExternalQuoteDataDto();
 
         Map<String, String> quoteData = new HashMap<String, String>();
@@ -171,13 +194,56 @@ public class JmIntegrationService
         {
             externalQuoteData.setExternalQuoteId( externalQuoteId.toString() );
             externalQuoteData.setQuoteData( quoteData );
-            log.warn( "Could not get the external quote data for " + externalQuoteId + " created a new record" );
+            log.info( "IMPORTANT: Could not get the external quote data for " + externalQuoteId + " created a new record" );
         }
 
 
         quoteData.put( "accountNumber", response.getAccountNumber() );
         quoteData.put( "policyNumber", response.getPolicyNumber() );
 
+        log.info( "IMPORTATN: Persisting external quote data: " + objectMapper.writeValueAsString( externalQuoteData ) );
         externalQuoteDataService.saveOrUpdate( externalQuoteData );
+    }
+
+
+    private CreateAccountResponse getCreateAccountResponse( final CreateAccountRequest createAccountRequest,
+                                                            final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
+                                                            final JMAuthResult jmAuthResult,
+                                                            final URI uri )
+    {
+        try
+        {
+            CreateAccountResponse createAccountResponse = jmApplicationClient.createAccount( uri,
+                                                                                             "Bearer " + jmAuthResult.getAccess_token(),
+                                                                                             actionJMSQuoteSpecDto.getApiSubscriptionkey(),
+                                                                                             createAccountRequest );
+            return createAccountResponse;
+        }
+        catch ( Exception e )
+        {
+            log.error( "IMPORTANT: An exception occurred when attempting to get a createAccount response from JM: " + e.getMessage(), e );
+            throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
+        }
+    }
+
+
+    private SubmitApplicationResponse getSubmitApplicationResponse( final SubmitApplicationRequest submitApplicationRequest,
+                                                                    final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
+                                                                    final JMAuthResult jmAuthResult,
+                                                                    final URI uri )
+    {
+        try
+        {
+            final SubmitApplicationResponse response = jmApplicationClient.submitApplication( uri,
+                                                                                              "Bearer " + jmAuthResult.getAccess_token(),
+                                                                                              actionJMSQuoteSpecDto.getApiSubscriptionkey(),
+                                                                                              submitApplicationRequest );
+            return response;
+        }
+        catch ( Exception e )
+        {
+            log.error( "IMPORTANT: An exception occurred when attempting to get a submitApplication response from JM: " + e.getMessage(), e );
+            throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
+        }
     }
 }

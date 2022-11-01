@@ -15,6 +15,7 @@ import com.dais.ioi.external.domain.dto.jm.AdditionalItemInfoDto;
 import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
 import com.dais.ioi.external.domain.dto.jm.JmQuoteOptionDto;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
+import com.dais.ioi.external.domain.exception.ExternalApiException;
 import com.dais.ioi.external.service.ExternalQuoteDataService;
 import com.dais.ioi.external.service.jm.JmQuoteOptionsService;
 import com.dais.ioi.external.util.NormalizedPremium;
@@ -72,6 +73,8 @@ public class JMAddQuoteHelperImpl
 
     private static final String EXTERNAL_QUOTE_METADATA_KEY = "EXTERNAL_QUOTE";
 
+    private static final String GENERIC_FAILED_QUOTE_MESSSAGE = "We are unable to provide a quote at this time.";
+
     private final JMQuoteClient jmQuoteClient;
 
     private final ObjectMapper objectMapper;
@@ -116,180 +119,257 @@ public class JMAddQuoteHelperImpl
         final String effectiveDateAnswer = triggerSpec.getIntake().get( actionJMSQuoteSpecDto.getEffectiveDate() ).getAnswer();
 
         final LocalDateTime effectiveDate = OffsetDateTime.parse( effectiveDateAnswer ).toLocalDateTime().with( LocalTime.MIDNIGHT );
-        final String formattedEffectiveDateForJmQuoteRequest = effectiveDate.format( EFFECTIVE_DATE_FORMAT );
-        addQuoteRequest.setEffectiveDate( formattedEffectiveDateForJmQuoteRequest );
-
-        final LinkedHashMap<String, String> agentInfoMap = (LinkedHashMap<String, String>) firedTriggerDto.getPayload().get( "agent" );
-        addUserInfo( addQuoteRequest, agentInfoMap );
-
-
-        // If the external quote id is sent, its treated as exclusively for updating
-        // TODO: This should be a completely separate call
-        if ( externalQuoteId != null && !externalQuoteId.equalsIgnoreCase( "" ) )
+        try
         {
-            log.info( "(" + requestId.toString() + ") IMPORTANT: Entering Depricated updateQuoteCall" );
+            final String formattedEffectiveDateForJmQuoteRequest = effectiveDate.format( EFFECTIVE_DATE_FORMAT );
+            addQuoteRequest.setEffectiveDate( formattedEffectiveDateForJmQuoteRequest );
 
-            URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl() );
+            final LinkedHashMap<String, String> agentInfoMap = (LinkedHashMap<String, String>) firedTriggerDto.getPayload().get( "agent" );
+            addUserInfo( addQuoteRequest, agentInfoMap );
+
+
+            // If the external quote id is sent, its treated as exclusively for updating
+            // TODO: This should be a completely separate call
+            if ( externalQuoteId != null && !externalQuoteId.equalsIgnoreCase( "" ) )
+            {
+                log.info( "(" + requestId.toString() + ") IMPORTANT: Entering Depricated updateQuoteCall" );
+
+                URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl() );
+
+                addQuoteRequest.setQuoteId( externalQuoteId );
+
+                String planName = getValue( () -> ( (Map) firedTriggerDto.getPayload().get( "selectedPaymentPlan" ) ).get( "name" ).toString(), "" );
+
+                if ( firedTriggerDto.getPayload().containsKey( "selectedPaymentPlan" ) )
+                {
+                    Integer numberOfInstallments = Integer.parseInt( getValue( () -> ( (Map) firedTriggerDto.getPayload().get( "selectedPaymentPlan" ) ).get( "numberOfInstallments" ).toString(), "" ) );
+
+                    addPaymentPlan( addQuoteRequest, planName, numberOfInstallments );
+                }
+
+                log.info( "(" + requestId.toString() + ") IMPORTANT: DEPRICATED JM ADDQUOTE request uri: " + determinedBasePathUri.toString() );
+                log.info( "(" + requestId.toString() + ") IMPORTANT: DEPRICATED JM ADDQUOTE request body: " + objectMapper.writeValueAsString( addQuoteRequest ) );
+
+                AddQuoteResult updQuoteResult = getUpdateQuoteResponse( jmAuthResult, actionJMSQuoteSpecDto, addQuoteRequest, determinedBasePathUri );
+
+                log.info( "(" + requestId.toString() + ") IMPORTANT: DEPRICATED JM ADDQUOTE request response: " + objectMapper.writeValueAsString( updQuoteResult ) );
+
+                if ( getValue( () -> updQuoteResult.getErrorMessages().size(), 0 ) > 0 )
+                {
+                    log.error( "(" + requestId.toString() + ") IMPORTANT: DEPRICATED JM ADDQUOTE request response has errors in it" );
+
+                    String errorMessage = updQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
+
+                    //TODO DONT THROW EXCEPTION
+                    log.info( "(" + requestId.toString() + ") IMPORTANT: DEPRICATED JM ADDQUOTE request complete: " + objectMapper.writeValueAsString( updQuoteResult ) );
+                    throw new Exception( errorMessage );
+                }
+
+                TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
+
+                HashMap<String, Object> idMap = new HashMap<>();
+
+                idMap.put( "externalQuoteId", externalQuoteId );
+
+                triggerResponseDto.setTriggerRequestId( requestId );
+
+                triggerResponseDto.setMetadata( idMap );
+
+                //TODO CHECK RESPONSE
+                return triggerResponseDto;
+            }
+
+
+            URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getAddQuoteUrl() );
+
+            log.info( "(" + requestId.toString() + ") IMPORTANT: JM ADDQUOTE request uri: " + determinedBasePathUri.toString() );
+            log.info( "(" + requestId.toString() + ") IMPORTANT: JM ADDQUOTE request body: " + objectMapper.writeValueAsString( addQuoteRequest ) );
+            AddQuoteResult addQuoteResult = getAddQuoteResult( jmAuthResult, actionJMSQuoteSpecDto, addQuoteRequest, determinedBasePathUri );
+            log.info( "(" + requestId.toString() + ") IMPORTANT: JM ADDQUOTE request response: " + objectMapper.writeValueAsString( addQuoteResult ) );
+
+
+            // This block will be hit if there is no coverage and the http response is 200
+            if ( addQuoteResult.isCoverageAvailable == false )
+            {
+
+                log.info( "(" + requestId.toString() + ") IMPORTANT: JM ADDQUOTE Has Been Rejected due to isCoverageAvailable flag is false.  Constructing Rejected QuoteDto" );
+                TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
+
+                HashMap<String, Object> metaDatamap = new HashMap<>();
+
+                metaDatamap.put( "isUnderwritingNeeded", addQuoteResult.isUnderwritingNeeded() );
+                metaDatamap.put( "isCoverageAvailable", addQuoteResult.isCoverageAvailable() );
+                metaDatamap.put( "errorMessages", addQuoteResult.getErrorMessages() );
+                metaDatamap.put( "messageList", addQuoteResult.getRespMessageList() );
+
+
+                log.info( "setting request Id to " + requestId );
+                triggerResponseDto.setTriggerRequestId( requestId );
+
+                QuoteDto rejectedQuote = getRejectedQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate.toLocalDate(), addQuoteResult, metaDatamap );
+                log.info( "(" + requestId.toString() + ") IMPORTANT: Rejected JM AddQuote QuoteDto: " + objectMapper.writeValueAsString( rejectedQuote ) );
+                triggerResponseDto.getMetadata().put( EXTERNAL_QUOTE_METADATA_KEY, rejectedQuote );
+                log.info( "(" + requestId.toString() + ") IMPORTANT: Returning Rejected JM AddQuote triggerResponseDto: " + objectMapper.writeValueAsString( triggerResponseDto ) );
+                log.info( "(" + requestId.toString() + ") IMPORTANT: End of AddQuote call" );
+
+                return triggerResponseDto;
+            }
+
+            externalQuoteId = addQuoteResult.getQuoteId();
+
+            if ( getValue( () -> addQuoteResult.getErrorMessages().size(), 0 ) > 0 )
+            {
+                log.info( "(" + requestId.toString() + ") IMPORTANT: JM ADDQUOTE Has Been Rejected due to error message size is non-zero.  Constructing Rejected QuoteDto" );
+                TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
+                QuoteDto rejectedQuote = getRejectedQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate.toLocalDate(), addQuoteResult, Collections.emptyMap() );
+                log.info( "(" + requestId.toString() + ") IMPORTANT: Rejected JM AddQuote QuoteDto: " + objectMapper.writeValueAsString( rejectedQuote ) );
+                triggerResponseDto.getMetadata().put( EXTERNAL_QUOTE_METADATA_KEY, rejectedQuote );
+                log.info( "(" + requestId.toString() + ") IMPORTANT: Returning Rejected JM AddQuote triggerResponseDto: " + objectMapper.writeValueAsString( triggerResponseDto ) );
+                log.info( "(" + requestId.toString() + ") IMPORTANT: End of AddQuote call" );
+                return triggerResponseDto;
+            }
 
             addQuoteRequest.setQuoteId( externalQuoteId );
 
-            String planName = getValue( () -> ( (Map) firedTriggerDto.getPayload().get( "selectedPaymentPlan" ) ).get( "name" ).toString(), "" );
+            determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl() );
 
-            if ( firedTriggerDto.getPayload().containsKey( "selectedPaymentPlan" ) )
+            log.info( "(" + requestId.toString() + ") IMPORTANT: JM UPDATEQUOTE request uri: " + determinedBasePathUri.toString() );
+            log.info( "(" + requestId.toString() + ") IMPORTANT: JM UPDATEQUOTE request body: " + objectMapper.writeValueAsString( addQuoteRequest ) );
+            AddQuoteResult updateQuoteResult = getJmUpdateQuoteResult( jmAuthResult, actionJMSQuoteSpecDto, addQuoteRequest, determinedBasePathUri );
+            log.info( "(" + requestId.toString() + ") IMPORTANT: JM UPDATEQUOTE request response: " + objectMapper.writeValueAsString( updateQuoteResult ) );
+
+
+            if ( getValue( () -> updateQuoteResult.getErrorMessages().size(), 0 ) > 0 )
             {
-                Integer numberOfInstallments = Integer.parseInt( getValue( () -> ( (Map) firedTriggerDto.getPayload().get( "selectedPaymentPlan" ) ).get( "numberOfInstallments" ).toString(), "" ) );
-
-                addPaymentPlan( addQuoteRequest, planName, numberOfInstallments );
+                log.info( "(" + requestId.toString() + ") IMPORTANT: JM UPDATEQUOTE Has Been Rejected due to error message size is non-zero.  Constructing Rejected QuoteDto" );
+                TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
+                QuoteDto rejectedQuote = getRejectedQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate.toLocalDate(), addQuoteResult, Collections.emptyMap() );
+                log.info( "(" + requestId.toString() + ") IMPORTANT: Rejected JM UPDATEQUOTE QuoteDto: " + objectMapper.writeValueAsString( rejectedQuote ) );
+                triggerResponseDto.getMetadata().put( EXTERNAL_QUOTE_METADATA_KEY, rejectedQuote );
+                log.info( "(" + requestId.toString() + ") IMPORTANT: Returning Rejected JM UPDATEQUOTE triggerResponseDto: " + objectMapper.writeValueAsString( triggerResponseDto ) );
+                log.info( "(" + requestId.toString() + ") IMPORTANT: End of AddQuote call" );
+                return triggerResponseDto;
             }
 
-            log.info( "(" + requestId.toString() + ") IMPORTANT: DEPRICATED JM ADDQUOTE request uri: " + determinedBasePathUri.toString() );
-            log.info( "(" + requestId.toString() + ") IMPORTANT: DEPRICATED JM ADDQUOTE request body: " + objectMapper.writeValueAsString( addQuoteRequest ) );
 
-            AddQuoteResult updQuoteResult = jmQuoteClient.updateQuote( determinedBasePathUri,
-                                                                       "Bearer " + jmAuthResult.getAccess_token(),
-                                                                       actionJMSQuoteSpecDto.getApiSubscriptionkey(),
-                                                                       addQuoteRequest );
+            PubQuoteDetailsDto quoteDetailsForQuoteOption = getQuoteDetailsForQuoteOption( updateQuoteResult, addQuoteRequest, actionJMSQuoteSpecDto, triggerSpec.getIntake() );
+            PubQuoteDetailsDto quoteDetailsForIOI = getQuoteDetailsForIOI( updateQuoteResult, addQuoteRequest, actionJMSQuoteSpecDto, triggerSpec.getIntake() );
 
-            log.info( "(" + requestId.toString() + ") IMPORTANT: DEPRICATED JM ADDQUOTE request response: " + objectMapper.writeValueAsString( updQuoteResult ) );
+            saveFieldsForPlugin( requestId, addQuoteResult, pluginFields );
 
-            if ( getValue( () -> updQuoteResult.getErrorMessages().size(), 0 ) > 0 )
-            {
-                log.error( "(" + requestId.toString() + ") IMPORTANT: DEPRICATED JM ADDQUOTE request response has errors in it" );
-
-                String errorMessage = updQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
-
-                //TODO DONT THROW EXCEPTION
-                log.info( "(" + requestId.toString() + ") IMPORTANT: DEPRICATED JM ADDQUOTE request complete: " + objectMapper.writeValueAsString( updQuoteResult ) );
-                throw new Exception( errorMessage );
-            }
-
-            TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
-
-            HashMap<String, Object> idMap = new HashMap<>();
-
-            idMap.put( "externalQuoteId", externalQuoteId );
-
-            triggerResponseDto.setTriggerRequestId( requestId );
-
-            triggerResponseDto.setMetadata( idMap );
-
-            //TODO CHECK RESPONSE
-            return triggerResponseDto;
-        }
-
-
-        URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getAddQuoteUrl() );
-
-        log.info( "(" + requestId.toString() + ") IMPORTANT: JM ADDQUOTE request uri: " + determinedBasePathUri.toString() );
-        log.info( "(" + requestId.toString() + ") IMPORTANT: JM ADDQUOTE request body: " + objectMapper.writeValueAsString( addQuoteRequest ) );
-        AddQuoteResult addQuoteResult = getAddQuoteResult( jmAuthResult, actionJMSQuoteSpecDto, addQuoteRequest, determinedBasePathUri );
-        log.info( "(" + requestId.toString() + ") IMPORTANT: JM ADDQUOTE request response: " + objectMapper.writeValueAsString( addQuoteResult ) );
-
-
-        // This block will be hit if there is no coverage and the http response is 200
-        if ( addQuoteResult.isCoverageAvailable == false )
-        {
-
-            log.info( "(" + requestId.toString() + ") IMPORTANT: JM ADDQUOTE Has Been Rejected due to isCoverageAvailable flag is false.  Constructing Rejected QuoteDto" );
             TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
 
             HashMap<String, Object> metaDatamap = new HashMap<>();
-
+            metaDatamap.put( "ratePlans", updateQuoteResult.getPaymentPlans() );
             metaDatamap.put( "isUnderwritingNeeded", addQuoteResult.isUnderwritingNeeded() );
             metaDatamap.put( "isCoverageAvailable", addQuoteResult.isCoverageAvailable() );
-            metaDatamap.put( "errorMessages", addQuoteResult.getErrorMessages() );
-            metaDatamap.put( "messageList", addQuoteResult.getRespMessageList() );
+            metaDatamap.put( "minimumPremium", addQuoteResult.getRatingInfo().getMinimumPremium() );
+            metaDatamap.put( "minimumTaxesAndSurcharges", addQuoteResult.getRatingInfo().getMinimumTaxesAndSurcharges() );
 
 
-            log.info( "setting request Id to " + requestId );
+            QuoteDto newQuote = getQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate.toLocalDate(), quoteDetailsForIOI, metaDatamap );
+            QuoteDto quoteOptions = getQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate.toLocalDate(), quoteDetailsForQuoteOption, metaDatamap );
+            log.info( "(" + requestId.toString() + ") IMPORTANT: IOI QuoteDto for Add Quote: " + objectMapper.writeValueAsString( newQuote ) );
+
+            triggerResponseDto.getMetadata().put( EXTERNAL_QUOTE_METADATA_KEY, newQuote );
+
             triggerResponseDto.setTriggerRequestId( requestId );
 
-            QuoteDto rejectedQuote = getRejectedQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate.toLocalDate(), addQuoteResult, metaDatamap );
-            log.info( "(" + requestId.toString() + ") IMPORTANT: Rejected JM AddQuote QuoteDto: " + objectMapper.writeValueAsString( rejectedQuote ) );
-            triggerResponseDto.getMetadata().put( EXTERNAL_QUOTE_METADATA_KEY, rejectedQuote );
-            log.info( "(" + requestId.toString() + ") IMPORTANT: Returning Rejected JM AddQuote triggerResponseDto: " + objectMapper.writeValueAsString( triggerResponseDto ) );
-            log.info( "(" + requestId.toString() + ") IMPORTANT: End of AddQuote call" );
+            //Override details for quote option
+            quoteOptions.setQuoteDetails( quoteDetailsForQuoteOption );
 
+            String intakeKey = objectMapper.writeValueAsString( triggerSpec.getIntake() );
+
+            JmQuoteOptionDto jmQuoteOptionDto = JmQuoteOptionDto.builder().quoteOption( quoteOptions )
+                                                                .clientId( quoteOptions.getClientId() )
+                                                                .lineId( firedTriggerDto.getLineId() )
+                                                                .submissionDate( quoteOptions.getQuoteTimestamp() )
+                                                                .intakeKey( intakeKey )
+                                                                .build();
+
+            jmQuoteOptionsService.save( jmQuoteOptionDto );
+            log.info( "(" + requestId.toString() + ") IMPORTANT: Saving JM Add Quote Options to database: " + objectMapper.writeValueAsString( quoteOptions ) );
+            log.info( "(" + requestId.toString() + ") IMPORTANT: Returning JM Add Quote TriggerResponseDto: " + objectMapper.writeValueAsString( triggerResponseDto ) );
+            log.info( "(" + requestId.toString() + ") IMPORTANT: End getAddQuote call" );
             return triggerResponseDto;
         }
-
-        externalQuoteId = addQuoteResult.getQuoteId();
-
-        if ( getValue( () -> addQuoteResult.getErrorMessages().size(), 0 ) > 0 )
+        catch ( Exception e )
         {
-            log.info( "(" + requestId.toString() + ") IMPORTANT: JM ADDQUOTE Has Been Rejected due to error message size is non-zero.  Constructing Rejected QuoteDto" );
+            QuoteDto quoteRequestFailedQuoteDto = getRejectedQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate.toLocalDate(), e );
             TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
-            QuoteDto rejectedQuote = getRejectedQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate.toLocalDate(), addQuoteResult, Collections.emptyMap() );
-            log.info( "(" + requestId.toString() + ") IMPORTANT: Rejected JM AddQuote QuoteDto: " + objectMapper.writeValueAsString( rejectedQuote ) );
-            triggerResponseDto.getMetadata().put( EXTERNAL_QUOTE_METADATA_KEY, rejectedQuote );
-            log.info( "(" + requestId.toString() + ") IMPORTANT: Returning Rejected JM AddQuote triggerResponseDto: " + objectMapper.writeValueAsString( triggerResponseDto ) );
-            log.info( "(" + requestId.toString() + ") IMPORTANT: End of AddQuote call" );
+            triggerResponseDto.getMetadata().put( EXTERNAL_QUOTE_METADATA_KEY, quoteRequestFailedQuoteDto );
+            triggerResponseDto.setTriggerRequestId( requestId );
             return triggerResponseDto;
         }
+    }
 
+
+
+    public AddPaymentPlanResponseDto addPaymentPlan( final String externalQuoteId,
+                                                     final AgentInfoDto agentInfoDto,
+                                                     final Map<String, ClientAnswerDto> intake,
+                                                     final Map<String, Object> selectedPaymentPlan,
+                                                     final JMAuthResult jmAuthResult,
+                                                     final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
+          throws Exception
+    {
+        UUID trace = UUID.randomUUID();
+        log.info( "(" + trace.toString() + ") IMPORTANT: Begin addPaymentPlan JM UPDATEQUOTE" );
+        log.info( "(" + trace.toString() + ") IMPORTANT: addPaymentPlan JM UPDATEQUOTE agetnInfo: " + objectMapper.writeValueAsString( agentInfoDto ) );
+        log.info( "(" + trace.toString() + ") IMPORTANT: addPaymentPlan JM UPDATEQUOTE intake: " + objectMapper.writeValueAsString( intake ) );
+        log.info( "(" + trace.toString() + ") IMPORTANT: addPaymentPlan JM UPDATEQUOTE selectedPaymentPlan: " + objectMapper.writeValueAsString( selectedPaymentPlan ) );
+        HashMap<String, String> pluginFields = new HashMap<>();
+        AddQuoteRequest addQuoteRequest = createAddQuoteRequest( intake, actionJMSQuoteSpecDto, pluginFields );
+        final String effectiveDateAnswer = intake.get( actionJMSQuoteSpecDto.getEffectiveDate() ).getAnswer();
+        final LocalDateTime effectiveDate = OffsetDateTime.parse( effectiveDateAnswer ).toLocalDateTime().with( LocalTime.MIDNIGHT );
+        final String formattedEffectiveDateForJmRequest = effectiveDate.format( EFFECTIVE_DATE_FORMAT );
+        addQuoteRequest.setEffectiveDate( formattedEffectiveDateForJmRequest );
+        addUserInfo( addQuoteRequest, objectMapper.convertValue( agentInfoDto, Map.class ) );
+
+        URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl() );
         addQuoteRequest.setQuoteId( externalQuoteId );
 
-        determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl() );
-
-        log.info( "(" + requestId.toString() + ") IMPORTANT: JM UPDATEQUOTE request uri: " + determinedBasePathUri.toString() );
-        log.info( "(" + requestId.toString() + ") IMPORTANT: JM UPDATEQUOTE request body: " + objectMapper.writeValueAsString( addQuoteRequest ) );
-        AddQuoteResult updateQuoteResult = getJmUpdateQuoteResult( jmAuthResult, actionJMSQuoteSpecDto, addQuoteRequest, determinedBasePathUri );
-        log.info( "(" + requestId.toString() + ") IMPORTANT: JM UPDATEQUOTE request response: " + objectMapper.writeValueAsString( updateQuoteResult ) );
-
-
-        if ( getValue( () -> updateQuoteResult.getErrorMessages().size(), 0 ) > 0 )
+        if ( !selectedPaymentPlan.isEmpty() )
         {
-            log.info( "(" + requestId.toString() + ") IMPORTANT: JM UPDATEQUOTE Has Been Rejected due to error message size is non-zero.  Constructing Rejected QuoteDto" );
-            TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
-            QuoteDto rejectedQuote = getRejectedQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate.toLocalDate(), addQuoteResult, Collections.emptyMap() );
-            log.info( "(" + requestId.toString() + ") IMPORTANT: Rejected JM UPDATEQUOTE QuoteDto: " + objectMapper.writeValueAsString( rejectedQuote ) );
-            triggerResponseDto.getMetadata().put( EXTERNAL_QUOTE_METADATA_KEY, rejectedQuote );
-            log.info( "(" + requestId.toString() + ") IMPORTANT: Returning Rejected JM UPDATEQUOTE triggerResponseDto: " + objectMapper.writeValueAsString( triggerResponseDto ) );
-            log.info( "(" + requestId.toString() + ") IMPORTANT: End of AddQuote call" );
-            return triggerResponseDto;
+            String planName = getValue( () -> ( (Map) selectedPaymentPlan ).get( "name" ).toString(), "" );
+            Integer numberOfInstallments = Integer.parseInt( getValue( () -> ( (Map) selectedPaymentPlan ).get( "numberOfInstallments" ).toString(), "" ) );
+            addPaymentPlan( addQuoteRequest, planName, numberOfInstallments );
         }
+        
+        log.info( "(" + trace.toString() + ") IMPORTANT: Update Quote URI for add Payment Plan: " + determinedBasePathUri.toString() );
+        log.info( "(" + trace.toString() + ") IMPORTANT: Update Quote Request going to JM for add Payment Plan: " + objectMapper.writeValueAsString( addQuoteRequest ) );
+
+        AddQuoteResult updQuoteResult = getUpdateQuoteResponse( jmAuthResult, actionJMSQuoteSpecDto, addQuoteRequest, determinedBasePathUri );
+        log.info( "(" + trace.toString() + ") IMPORTANT: Update Quote Response from JM for add Payment Plan: " + objectMapper.writeValueAsString( updQuoteResult ) );
+
+        if ( getValue( () -> updQuoteResult.getErrorMessages().size(), 0 ) > 0 )
+        {
+            log.error( "(" + trace.toString() + ") IMPORTANT: JM UPDATEQUOTE for add Payment Plan has Been Rejected due to error message size is non-zero." );
+            String errorMessage = updQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
+            throw new Exception( errorMessage );
+        }
+        log.info( "(" + trace.toString() + ") IMPORTANT: Update Quote Response from JM for add Payment Plan is complete, quoteId: " + updQuoteResult.getQuoteId() );
+        return new AddPaymentPlanResponseDto( UUID.fromString( updQuoteResult.getQuoteId() ) );
+    }
 
 
-        PubQuoteDetailsDto quoteDetailsForQuoteOption = getQuoteDetailsForQuoteOption( updateQuoteResult, addQuoteRequest, actionJMSQuoteSpecDto, triggerSpec.getIntake() );
-        PubQuoteDetailsDto quoteDetailsForIOI = getQuoteDetailsForIOI( updateQuoteResult, addQuoteRequest, actionJMSQuoteSpecDto, triggerSpec.getIntake() );
-
-        saveFieldsForPlugin( requestId, addQuoteResult, pluginFields );
-
-        TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
-
-        HashMap<String, Object> metaDatamap = new HashMap<>();
-        metaDatamap.put( "ratePlans", updateQuoteResult.getPaymentPlans() );
-        metaDatamap.put( "isUnderwritingNeeded", addQuoteResult.isUnderwritingNeeded() );
-        metaDatamap.put( "isCoverageAvailable", addQuoteResult.isCoverageAvailable() );
-        metaDatamap.put( "minimumPremium", addQuoteResult.getRatingInfo().getMinimumPremium() );
-        metaDatamap.put( "minimumTaxesAndSurcharges", addQuoteResult.getRatingInfo().getMinimumTaxesAndSurcharges() );
-
-
-        QuoteDto newQuote = getQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate.toLocalDate(), quoteDetailsForIOI, metaDatamap );
-        QuoteDto quoteOptions = getQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate.toLocalDate(), quoteDetailsForQuoteOption, metaDatamap );
-        log.info( "(" + requestId.toString() + ") IMPORTANT: IOI QuoteDto for Add Quote: " + objectMapper.writeValueAsString( newQuote ) );
-
-        triggerResponseDto.getMetadata().put( EXTERNAL_QUOTE_METADATA_KEY, newQuote );
-
-        triggerResponseDto.setTriggerRequestId( requestId );
-
-        //Override details for quote option
-        quoteOptions.setQuoteDetails( quoteDetailsForQuoteOption );
-
-        String intakeKey = objectMapper.writeValueAsString( triggerSpec.getIntake() );
-
-        JmQuoteOptionDto jmQuoteOptionDto = JmQuoteOptionDto.builder().quoteOption( quoteOptions )
-                                                            .clientId( quoteOptions.getClientId() )
-                                                            .lineId( firedTriggerDto.getLineId() )
-                                                            .submissionDate( quoteOptions.getQuoteTimestamp() )
-                                                            .intakeKey( intakeKey )
-                                                            .build();
-
-        jmQuoteOptionsService.save( jmQuoteOptionDto );
-        log.info( "(" + requestId.toString() + ") IMPORTANT: Saving JM Add Quote Options to database: " + objectMapper.writeValueAsString( quoteOptions ) );
-        log.info( "(" + requestId.toString() + ") IMPORTANT: Returning JM Add Quote TriggerResponseDto: " + objectMapper.writeValueAsString( triggerResponseDto ) );
-        log.info( "(" + requestId.toString() + ") IMPORTANT: End getAddQuote call" );
-        return triggerResponseDto;
+    private AddQuoteResult getUpdateQuoteResponse( final JMAuthResult jmAuthResult,
+                                                   final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
+                                                   final AddQuoteRequest addQuoteRequest,
+                                                   final URI determinedBasePathUri )
+    {
+        try
+        {
+            return jmQuoteClient.updateQuote( determinedBasePathUri,
+                                              "Bearer " + jmAuthResult.getAccess_token(),
+                                              actionJMSQuoteSpecDto.getApiSubscriptionkey(),
+                                              addQuoteRequest );
+        }
+        catch ( Exception e )
+        {
+            log.error( "IMPORTANT: An exception occurred when attempting to get a UpdateQuote response from JM: " + e.getMessage(), e );
+            throw new ExternalApiException( "Unable to get response from URL: " + determinedBasePathUri.toString() + " Message: " + e.getMessage(), e );
+        }
     }
 
 
@@ -317,56 +397,6 @@ public class JMAddQuoteHelperImpl
     }
 
 
-    public AddPaymentPlanResponseDto addPaymentPlan( final String externalQuoteId,
-                                                     final AgentInfoDto agentInfoDto,
-                                                     final Map<String, ClientAnswerDto> intake,
-                                                     final Map<String, Object> selectedPaymentPlan,
-                                                     final JMAuthResult jmAuthResult,
-                                                     final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
-          throws Exception
-    {
-        UUID trace = UUID.randomUUID();
-        log.info( "(" + trace.toString() + ") IMPORTANT: Begin addPaymentPlan JM UPDATEQUOTE" );
-        log.info( "(" + trace.toString() + ") IMPORTANT: addPaymentPlan JM UPDATEQUOTE agetnInfo: " + objectMapper.writeValueAsString( agentInfoDto ) );
-        log.info( "(" + trace.toString() + ") IMPORTANT: addPaymentPlan JM UPDATEQUOTE intake: " + objectMapper.writeValueAsString( intake ) );
-        log.info( "(" + trace.toString() + ") IMPORTANT: addPaymentPlan JM UPDATEQUOTE selectedPaymentPlan: " + objectMapper.writeValueAsString( selectedPaymentPlan ) );
-        HashMap<String, String> pluginFields = new HashMap<>();
-        AddQuoteRequest addQuoteRequest = createAddQuoteRequest( intake, actionJMSQuoteSpecDto, pluginFields );
-        final String effectiveDateAnswer = intake.get( actionJMSQuoteSpecDto.getEffectiveDate() ).getAnswer();
-        final LocalDateTime effectiveDate = OffsetDateTime.parse( effectiveDateAnswer ).toLocalDateTime().with( LocalTime.MIDNIGHT );
-        final String formattedEffectiveDateForJmRequest = effectiveDate.format( EFFECTIVE_DATE_FORMAT );
-        addQuoteRequest.setEffectiveDate( formattedEffectiveDateForJmRequest );
-        addUserInfo( addQuoteRequest, objectMapper.convertValue( agentInfoDto, Map.class ) );
-
-        URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl() );
-        addQuoteRequest.setQuoteId( externalQuoteId );
-
-        String planName = getValue( () -> ( (Map) selectedPaymentPlan ).get( "name" ).toString(), "" );
-
-        Integer numberOfInstallments = Integer.parseInt( getValue( () -> ( (Map) selectedPaymentPlan ).get( "numberOfInstallments" ).toString(), "" ) );
-
-        addPaymentPlan( addQuoteRequest, planName, numberOfInstallments );
-
-        log.info( "(" + trace.toString() + ") IMPORTANT: Update Quote URI for add Payment Plan: " + determinedBasePathUri.toString() );
-        log.info( "(" + trace.toString() + ") IMPORTANT: Update Quote Request going to JM for add Payment Plan: " + objectMapper.writeValueAsString( addQuoteRequest ) );
-
-        AddQuoteResult updQuoteResult = jmQuoteClient.updateQuote( determinedBasePathUri,
-                                                                   "Bearer " + jmAuthResult.getAccess_token(),
-                                                                   actionJMSQuoteSpecDto.getApiSubscriptionkey(),
-                                                                   addQuoteRequest );
-        log.info( "(" + trace.toString() + ") IMPORTANT: Update Quote Response from JM for add Payment Plan: " + objectMapper.writeValueAsString( updQuoteResult ) );
-
-        if ( getValue( () -> updQuoteResult.getErrorMessages().size(), 0 ) > 0 )
-        {
-            log.error( "(" + trace.toString() + ") IMPORTANT: JM UPDATEQUOTE for add Payment Plan has Been Rejected due to error message size is non-zero." );
-            String errorMessage = updQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
-            throw new Exception( errorMessage );
-        }
-        log.info( "(" + trace.toString() + ") IMPORTANT: Update Quote Response from JM for add Payment Plan is complete, quoteId: " + updQuoteResult.getQuoteId() );
-        return new AddPaymentPlanResponseDto( UUID.fromString( updQuoteResult.getQuoteId() ) );
-    }
-
-
     private AddQuoteResult getJmUpdateQuoteResult( final JMAuthResult jmAuthResult,
                                                    final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
                                                    final AddQuoteRequest addQuoteRequest,
@@ -388,7 +418,7 @@ public class JMAddQuoteHelperImpl
             errorMessages.add( e.contentUTF8() );
 
             List<String> respMessages = new ArrayList<>();
-            respMessages.add( "We are unable to provide a quote at this time." );
+            respMessages.add( GENERIC_FAILED_QUOTE_MESSSAGE );
             return AddQuoteResult.builder().errorMessages( errorMessages ).respMessageList( respMessages ).build();
         }
     }
@@ -409,14 +439,14 @@ public class JMAddQuoteHelperImpl
         }
         catch ( FeignException e )
         {
-            log.error( e.getMessage() );
+            log.error( "IMPORTANT: an error occured when calling JM AddQuote: " + e.getMessage() );
             List<Object> errorMessages = new ArrayList<>();
             errorMessages.add( "An Error Occured when calling JM AddQuote." );
             //TODO: Parse out error message to extract cause
             errorMessages.add( e.contentUTF8() );
 
             List<String> respMessages = new ArrayList<>();
-            respMessages.add( "We are unable to provide a quote at this time." );
+            respMessages.add( GENERIC_FAILED_QUOTE_MESSSAGE );
             return AddQuoteResult.builder().errorMessages( errorMessages ).respMessageList( respMessages ).build();
         }
     }
@@ -432,11 +462,10 @@ public class JMAddQuoteHelperImpl
         List<PubMessageDto> errorMessages = new ArrayList<>();
         if ( addQuoteResult.getErrorMessages() != null )
         {
-            errorMessages = addQuoteResult.getErrorMessages().stream().map( message ->
-                                                                                  PubMessageDto.builder()
-                                                                                               .type( ContentScopeType.ERROR )
-                                                                                               .message( message.toString() )
-                                                                                               .build()
+            errorMessages = addQuoteResult.getErrorMessages().stream().map( message -> PubMessageDto.builder()
+                                                                                                    .type( ContentScopeType.ERROR )
+                                                                                                    .message( message.toString() )
+                                                                                                    .build()
             ).collect( Collectors.toList() );
         }
 
@@ -470,6 +499,22 @@ public class JMAddQuoteHelperImpl
                                                .messages( ListUtils.union( responseMessages, errorMessages ) )
                                                .build();
         return rejectedQuote;
+    }
+
+
+    private QuoteDto getRejectedQuoteDto( final FiredTriggerDto firedTriggerDto,
+                                          final UUID requestId,
+                                          final QuoteRequestSpecDto triggerSpec,
+                                          final LocalDate effectiveDate,
+                                          final Exception e )
+    {
+        QuoteDto rejectedQuoteDto = getRejectedQuoteDto( firedTriggerDto, requestId, triggerSpec, effectiveDate, new AddQuoteResult(), Collections.emptyMap() );
+        List<PubMessageDto> messages = rejectedQuoteDto.getMessages();
+        PubMessageDto errorMessage = PubMessageDto.builder().type( ContentScopeType.ERROR ).message( e.getMessage() ).build();
+        PubMessageDto consumerMessage = PubMessageDto.builder().type( ContentScopeType.CONSUMER ).message( GENERIC_FAILED_QUOTE_MESSSAGE ).build();
+        messages.add( errorMessage );
+        messages.add( consumerMessage );
+        return rejectedQuoteDto;
     }
 
 
@@ -661,120 +706,120 @@ public class JMAddQuoteHelperImpl
         cancelledCoverage.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCanceledOrDeniedCoverage() ).getAnswer(), "" ) );
         underwritingInfo.getUnderwritingQuestions().add( cancelledCoverage );
 
-        AddQuoteRequest.UnderwritingQuestion coverageDenyReason = new AddQuoteRequest.UnderwritingQuestion();
-        coverageDenyReason.setKey( "CoverageDenyReason" );
-        coverageDenyReason.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCoverageDenyReason() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( coverageDenyReason );
-
-        AddQuoteRequest.UnderwritingQuestion storeJewelryInSafeDepositBox = new AddQuoteRequest.UnderwritingQuestion();
-        storeJewelryInSafeDepositBox.setKey( "StoreJewelryInSafeDepositBox" );
-        storeJewelryInSafeDepositBox.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getStoreJewelryInSafeDepositBox() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( storeJewelryInSafeDepositBox );
-
-        AddQuoteRequest.UnderwritingQuestion safeDepositBoxLocation = new AddQuoteRequest.UnderwritingQuestion();
-        safeDepositBoxLocation.setKey( "SafeDepositBoxLocation" );
-        safeDepositBoxLocation.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getSafeDepositBoxLocation() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( safeDepositBoxLocation );
-
-        AddQuoteRequest.UnderwritingQuestion safeDepositBoxAddress = new AddQuoteRequest.UnderwritingQuestion();
-        safeDepositBoxAddress.setKey( "SafeDepositBoxAddress" );
-        safeDepositBoxAddress.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getSafeDepositBoxLocation() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( safeDepositBoxAddress );
-
-        AddQuoteRequest.UnderwritingQuestion livesInGatedEntranceCommunity = new AddQuoteRequest.UnderwritingQuestion();
-        livesInGatedEntranceCommunity.setKey( "LivesInGatedEntranceCommunity" );
-        livesInGatedEntranceCommunity.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getLivesInGatedEntranceCommunity() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( livesInGatedEntranceCommunity );
-
-        AddQuoteRequest.UnderwritingQuestion communityHasFence = new AddQuoteRequest.UnderwritingQuestion();
-        communityHasFence.setKey( "CommunityHasFence" );
-        communityHasFence.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityHasFence() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( communityHasFence );
-
-        AddQuoteRequest.UnderwritingQuestion communityHasGuardsAtGate = new AddQuoteRequest.UnderwritingQuestion();
-        communityHasGuardsAtGate.setKey( "CommunityHasGuardsAtGate" );
-        communityHasGuardsAtGate.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityHasGuardsAtGate() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( communityHasGuardsAtGate );
-
-        AddQuoteRequest.UnderwritingQuestion communityGuardsFrequency = new AddQuoteRequest.UnderwritingQuestion();
-        communityGuardsFrequency.setKey( "CommunityGuardsFrequency" );
-        communityGuardsFrequency.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityGuardsFrequency() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( communityGuardsFrequency );
-
-        AddQuoteRequest.UnderwritingQuestion communityIsPatrolled = new AddQuoteRequest.UnderwritingQuestion();
-        communityIsPatrolled.setKey( "CommunityIsPatrolled" );
-        communityIsPatrolled.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityIsPatrolled() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( communityIsPatrolled );
-
-        AddQuoteRequest.UnderwritingQuestion communityPatrolFrequency = new AddQuoteRequest.UnderwritingQuestion();
-        communityPatrolFrequency.setKey( "CommunityPatrolFrequency" );
-        communityPatrolFrequency.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityPatrolFrequency() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( communityPatrolFrequency );
-
-        AddQuoteRequest.UnderwritingQuestion communityResidentEntranceDescription = new AddQuoteRequest.UnderwritingQuestion();
-        communityResidentEntranceDescription.setKey( "CommunityResidentEntranceDescription" );
-        communityResidentEntranceDescription.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityResidentEntranceDescription() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( communityResidentEntranceDescription );
-
-        AddQuoteRequest.UnderwritingQuestion communityGuestEntranceDescription = new AddQuoteRequest.UnderwritingQuestion();
-        communityGuestEntranceDescription.setKey( "CommunityGuestEntranceDescription" );
-        communityGuestEntranceDescription.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityGuestEntranceDescription() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( communityGuestEntranceDescription );
-
-        AddQuoteRequest.UnderwritingQuestion domesticHelpEmployed = new AddQuoteRequest.UnderwritingQuestion();
-        domesticHelpEmployed.setKey( "DomesticHelpEmployed" );
-        domesticHelpEmployed.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getDomesticHelpEmployed() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( domesticHelpEmployed );
-
-        AddQuoteRequest.UnderwritingQuestion domesticHelpDescription = new AddQuoteRequest.UnderwritingQuestion();
-        domesticHelpDescription.setKey( "DomesticHelpDescription" );
-        domesticHelpDescription.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getDomesticHelpDescription() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( domesticHelpDescription );
-
-        AddQuoteRequest.UnderwritingQuestion domesticHelpEmploymentLength = new AddQuoteRequest.UnderwritingQuestion();
-        domesticHelpEmploymentLength.setKey( "DomesticHelpEmploymentLength" );
-        domesticHelpEmploymentLength.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getDomesticHelpEmploymentLength() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( domesticHelpEmploymentLength );
-
-        AddQuoteRequest.UnderwritingQuestion domesticHelpResidesAtHome = new AddQuoteRequest.UnderwritingQuestion();
-        domesticHelpResidesAtHome.setKey( "DomesticHelpResidesAtHome" );
-        domesticHelpResidesAtHome.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getDomesticHelpResidesAtHome() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( domesticHelpResidesAtHome );
-
-        AddQuoteRequest.UnderwritingQuestion homeHasOtherResidents = new AddQuoteRequest.UnderwritingQuestion();
-        homeHasOtherResidents.setKey( "HomeHasOtherResidents" );
-        homeHasOtherResidents.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getHomeHasOtherResidents() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( homeHasOtherResidents );
-
-        AddQuoteRequest.UnderwritingQuestion homeOtherResidentsDescription = new AddQuoteRequest.UnderwritingQuestion();
-        homeOtherResidentsDescription.setKey( "HomeOtherResidentsDescription" );
-        homeOtherResidentsDescription.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getHomeOtherResidentsDescription() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( homeOtherResidentsDescription );
-
-        AddQuoteRequest.UnderwritingQuestion howOftenJewelryWorn = new AddQuoteRequest.UnderwritingQuestion();
-        howOftenJewelryWorn.setKey( "HowOftenJewelryWorn" );
-        howOftenJewelryWorn.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getHowOftenJewelryWorn() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( howOftenJewelryWorn );
-
-        AddQuoteRequest.UnderwritingQuestion travelOvernightFrequency = new AddQuoteRequest.UnderwritingQuestion();
-        travelOvernightFrequency.setKey( "TravelOvernightFrequency" );
-        travelOvernightFrequency.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getTravelOvernightFrequency() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( travelOvernightFrequency );
-
-        AddQuoteRequest.UnderwritingQuestion travelOverseas = new AddQuoteRequest.UnderwritingQuestion();
-        travelOverseas.setKey( "TravelOverseas" );
-        travelOverseas.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getTravelOverseas() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( travelOverseas );
-
-        AddQuoteRequest.UnderwritingQuestion travelPrecautionOption = new AddQuoteRequest.UnderwritingQuestion();
-        travelPrecautionOption.setKey( "TravelPrecautionOption" );
-        travelPrecautionOption.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getTravelPrecautionOption() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( travelPrecautionOption );
-
-        AddQuoteRequest.UnderwritingQuestion travelPrecautionOtherDescription = new AddQuoteRequest.UnderwritingQuestion();
-        travelPrecautionOtherDescription.setKey( "TravelPrecautionOtherDescription" );
-        travelPrecautionOtherDescription.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getTravelPrecautionOtherDesc() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( travelPrecautionOtherDescription );
+//        AddQuoteRequest.UnderwritingQuestion coverageDenyReason = new AddQuoteRequest.UnderwritingQuestion();
+//        coverageDenyReason.setKey( "CoverageDenyReason" );
+//        coverageDenyReason.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCoverageDenyReason() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( coverageDenyReason );
+//
+//        AddQuoteRequest.UnderwritingQuestion storeJewelryInSafeDepositBox = new AddQuoteRequest.UnderwritingQuestion();
+//        storeJewelryInSafeDepositBox.setKey( "StoreJewelryInSafeDepositBox" );
+//        storeJewelryInSafeDepositBox.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getStoreJewelryInSafeDepositBox() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( storeJewelryInSafeDepositBox );
+//
+//        AddQuoteRequest.UnderwritingQuestion safeDepositBoxLocation = new AddQuoteRequest.UnderwritingQuestion();
+//        safeDepositBoxLocation.setKey( "SafeDepositBoxLocation" );
+//        safeDepositBoxLocation.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getSafeDepositBoxLocation() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( safeDepositBoxLocation );
+//
+//        AddQuoteRequest.UnderwritingQuestion safeDepositBoxAddress = new AddQuoteRequest.UnderwritingQuestion();
+//        safeDepositBoxAddress.setKey( "SafeDepositBoxAddress" );
+//        safeDepositBoxAddress.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getSafeDepositBoxLocation() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( safeDepositBoxAddress );
+//
+//        AddQuoteRequest.UnderwritingQuestion livesInGatedEntranceCommunity = new AddQuoteRequest.UnderwritingQuestion();
+//        livesInGatedEntranceCommunity.setKey( "LivesInGatedEntranceCommunity" );
+//        livesInGatedEntranceCommunity.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getLivesInGatedEntranceCommunity() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( livesInGatedEntranceCommunity );
+//
+//        AddQuoteRequest.UnderwritingQuestion communityHasFence = new AddQuoteRequest.UnderwritingQuestion();
+//        communityHasFence.setKey( "CommunityHasFence" );
+//        communityHasFence.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityHasFence() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( communityHasFence );
+//
+//        AddQuoteRequest.UnderwritingQuestion communityHasGuardsAtGate = new AddQuoteRequest.UnderwritingQuestion();
+//        communityHasGuardsAtGate.setKey( "CommunityHasGuardsAtGate" );
+//        communityHasGuardsAtGate.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityHasGuardsAtGate() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( communityHasGuardsAtGate );
+//
+//        AddQuoteRequest.UnderwritingQuestion communityGuardsFrequency = new AddQuoteRequest.UnderwritingQuestion();
+//        communityGuardsFrequency.setKey( "CommunityGuardsFrequency" );
+//        communityGuardsFrequency.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityGuardsFrequency() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( communityGuardsFrequency );
+//
+//        AddQuoteRequest.UnderwritingQuestion communityIsPatrolled = new AddQuoteRequest.UnderwritingQuestion();
+//        communityIsPatrolled.setKey( "CommunityIsPatrolled" );
+//        communityIsPatrolled.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityIsPatrolled() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( communityIsPatrolled );
+//
+//        AddQuoteRequest.UnderwritingQuestion communityPatrolFrequency = new AddQuoteRequest.UnderwritingQuestion();
+//        communityPatrolFrequency.setKey( "CommunityPatrolFrequency" );
+//        communityPatrolFrequency.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityPatrolFrequency() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( communityPatrolFrequency );
+//
+//        AddQuoteRequest.UnderwritingQuestion communityResidentEntranceDescription = new AddQuoteRequest.UnderwritingQuestion();
+//        communityResidentEntranceDescription.setKey( "CommunityResidentEntranceDescription" );
+//        communityResidentEntranceDescription.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityResidentEntranceDescription() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( communityResidentEntranceDescription );
+//
+//        AddQuoteRequest.UnderwritingQuestion communityGuestEntranceDescription = new AddQuoteRequest.UnderwritingQuestion();
+//        communityGuestEntranceDescription.setKey( "CommunityGuestEntranceDescription" );
+//        communityGuestEntranceDescription.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityGuestEntranceDescription() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( communityGuestEntranceDescription );
+//
+//        AddQuoteRequest.UnderwritingQuestion domesticHelpEmployed = new AddQuoteRequest.UnderwritingQuestion();
+//        domesticHelpEmployed.setKey( "DomesticHelpEmployed" );
+//        domesticHelpEmployed.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getDomesticHelpEmployed() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( domesticHelpEmployed );
+//
+//        AddQuoteRequest.UnderwritingQuestion domesticHelpDescription = new AddQuoteRequest.UnderwritingQuestion();
+//        domesticHelpDescription.setKey( "DomesticHelpDescription" );
+//        domesticHelpDescription.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getDomesticHelpDescription() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( domesticHelpDescription );
+//
+//        AddQuoteRequest.UnderwritingQuestion domesticHelpEmploymentLength = new AddQuoteRequest.UnderwritingQuestion();
+//        domesticHelpEmploymentLength.setKey( "DomesticHelpEmploymentLength" );
+//        domesticHelpEmploymentLength.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getDomesticHelpEmploymentLength() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( domesticHelpEmploymentLength );
+//
+//        AddQuoteRequest.UnderwritingQuestion domesticHelpResidesAtHome = new AddQuoteRequest.UnderwritingQuestion();
+//        domesticHelpResidesAtHome.setKey( "DomesticHelpResidesAtHome" );
+//        domesticHelpResidesAtHome.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getDomesticHelpResidesAtHome() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( domesticHelpResidesAtHome );
+//
+//        AddQuoteRequest.UnderwritingQuestion homeHasOtherResidents = new AddQuoteRequest.UnderwritingQuestion();
+//        homeHasOtherResidents.setKey( "HomeHasOtherResidents" );
+//        homeHasOtherResidents.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getHomeHasOtherResidents() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( homeHasOtherResidents );
+//
+//        AddQuoteRequest.UnderwritingQuestion homeOtherResidentsDescription = new AddQuoteRequest.UnderwritingQuestion();
+//        homeOtherResidentsDescription.setKey( "HomeOtherResidentsDescription" );
+//        homeOtherResidentsDescription.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getHomeOtherResidentsDescription() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( homeOtherResidentsDescription );
+//
+//        AddQuoteRequest.UnderwritingQuestion howOftenJewelryWorn = new AddQuoteRequest.UnderwritingQuestion();
+//        howOftenJewelryWorn.setKey( "HowOftenJewelryWorn" );
+//        howOftenJewelryWorn.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getHowOftenJewelryWorn() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( howOftenJewelryWorn );
+//
+//        AddQuoteRequest.UnderwritingQuestion travelOvernightFrequency = new AddQuoteRequest.UnderwritingQuestion();
+//        travelOvernightFrequency.setKey( "TravelOvernightFrequency" );
+//        travelOvernightFrequency.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getTravelOvernightFrequency() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( travelOvernightFrequency );
+//
+//        AddQuoteRequest.UnderwritingQuestion travelOverseas = new AddQuoteRequest.UnderwritingQuestion();
+//        travelOverseas.setKey( "TravelOverseas" );
+//        travelOverseas.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getTravelOverseas() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( travelOverseas );
+//
+//        AddQuoteRequest.UnderwritingQuestion travelPrecautionOption = new AddQuoteRequest.UnderwritingQuestion();
+//        travelPrecautionOption.setKey( "TravelPrecautionOption" );
+//        travelPrecautionOption.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getTravelPrecautionOption() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( travelPrecautionOption );
+//
+//        AddQuoteRequest.UnderwritingQuestion travelPrecautionOtherDescription = new AddQuoteRequest.UnderwritingQuestion();
+//        travelPrecautionOtherDescription.setKey( "TravelPrecautionOtherDescription" );
+//        travelPrecautionOtherDescription.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getTravelPrecautionOtherDesc() ).getAnswer(), "" ) );
+//        underwritingInfo.getUnderwritingQuestions().add( travelPrecautionOtherDescription );
 
         AddQuoteRequest.UnderwritingQuestion additionalUnderwriting = new AddQuoteRequest.UnderwritingQuestion();
         additionalUnderwriting.setKey( "IsAdditionalUnderwritingNeeded" );
@@ -874,22 +919,22 @@ public class JMAddQuoteHelperImpl
             item.setItemDescription(
                   getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemDescription() ).getAnswer(), "" )
             );
-
-            item.setItemDamage(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemDamage() ).getAnswer(), "" )
-            );
-
-            item.setItemPossession(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemPossession() ).getAnswer(), "" )
-            );
-
-            item.setSerialNumber(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getSerialNumber() ).getAnswer(), "" )
-            );
-
-            item.setLastAppraisalDate(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getLastAppraisalDate() ).getAnswer(), "" )
-            );
+//
+//            item.setItemDamage(
+//                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemDamage() ).getAnswer(), "" )
+//            );
+//
+//            item.setItemPossession(
+//                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemPossession() ).getAnswer(), "" )
+//            );
+//
+//            item.setSerialNumber(
+//                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getSerialNumber() ).getAnswer(), "" )
+//            );
+//
+//            item.setLastAppraisalDate(
+//                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getLastAppraisalDate() ).getAnswer(), "" )
+//            );
           /*  item.setItemDamage(
                   getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemDamage() ).getAnswer(), "" ).toString()
             );
@@ -1083,9 +1128,9 @@ public class JMAddQuoteHelperImpl
 
         );
 
-        primaryWearer.setRelationWithApplicant(
-              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerRelationWithApplicant() ).getAnswer().toString(), "" )
-        );
+//        primaryWearer.setRelationWithApplicant(
+//              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerRelationWithApplicant() ).getAnswer().toString(), "" )
+//        );
 
         AddQuoteRequest.ResidentialAddress primaryWearerResidentialAddress = new AddQuoteRequest.ResidentialAddress();
 

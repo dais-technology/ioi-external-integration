@@ -12,6 +12,7 @@ import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
 import com.dais.ioi.external.domain.dto.jm.QuickQuoteRequest;
 import com.dais.ioi.external.domain.dto.jm.QuickQuoteResult;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
+import com.dais.ioi.external.domain.exception.ExternalApiException;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
 import com.dais.ioi.external.util.NormalizedPremium;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
@@ -30,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -134,10 +136,7 @@ public class JMQuickQuoteHelperImpl
             URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getQuickQuoteUrl() );
 
             log.info( "(" + trace.toString() + ") IMPORTANT: requesting JM QUICK QUOTE with body: " + objectMapper.writeValueAsString( quickQuoteRequest ) );
-            QuickQuoteResult quickQuoteResult = jmQuoteClient.getQuickQuote( determinedBasePathUri,
-                                                                             "Bearer " + jmAuthResult.getAccess_token(),
-                                                                             actionJMSQuoteSpecDto.getApiSubscriptionkey(),
-                                                                             quickQuoteRequest );
+            QuickQuoteResult quickQuoteResult = getQuickQuoteResult( jmAuthResult, actionJMSQuoteSpecDto, quickQuoteRequest, determinedBasePathUri );
 
             log.info( "(" + trace.toString() + ") IMPORTANT: JM QUICK QUOTE response: " + objectMapper.writeValueAsString( quickQuoteRequest ) );
 
@@ -173,6 +172,26 @@ public class JMQuickQuoteHelperImpl
             log.info( "(" + trace.toString() + ") IMPORTANT: JM QUICK QUOTE Response transformed to ioi quoteOptions: " + objectMapper.writeValueAsString( newQuote ) );
             log.info( "(" + trace.toString() + ") IMPORTANT: End getQuickQuoteCall" );
             return newQuote;
+        }
+    }
+
+
+    private QuickQuoteResult getQuickQuoteResult( final JMAuthResult jmAuthResult,
+                                                  final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
+                                                  final QuickQuoteRequest quickQuoteRequest,
+                                                  final URI determinedBasePathUri )
+    {
+        try
+        {
+            return jmQuoteClient.getQuickQuote( determinedBasePathUri,
+                                                "Bearer " + jmAuthResult.getAccess_token(),
+                                                actionJMSQuoteSpecDto.getApiSubscriptionkey(),
+                                                quickQuoteRequest );
+        }
+        catch ( Exception e )
+        {
+            log.error( "IMPORTANT: An exception occurred when attempting to get a quickQuote response from JM: " + e.getMessage(), e );
+            throw new ExternalApiException( "Unable to get response from URL: " + determinedBasePathUri.toString() + " Message: " + e.getMessage(), e );
         }
     }
 
