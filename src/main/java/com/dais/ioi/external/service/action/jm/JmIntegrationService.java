@@ -7,6 +7,7 @@ import com.dais.ioi.external.domain.dto.internal.enums.IntegrationType;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
+import com.dais.ioi.external.domain.dto.jm.GetPolicyNumberResponse;
 import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
@@ -16,6 +17,7 @@ import com.dais.ioi.external.entity.IntegrationEntity;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
 import com.dais.ioi.external.service.ExternalQuoteDataService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -127,6 +129,27 @@ public class JmIntegrationService
     }
 
 
+    public GetPolicyNumberResponse getPolicyNumber( final String accountNumber,
+                                                    final UUID lineId )
+    {
+        UUID trace = UUID.randomUUID();
+        log.info( "(" + trace + ") IMPORTANT: Begin JM GetPolicyNumber" );
+        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( lineId, IntegrationType.JM_GET_POLICY_NUMBER );
+
+        final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( integrationEntity.getSpec(), ActionJMSQuoteSpecDto.class );
+
+        final JMAuthResult jmAuthResult = getAuth( actionJMSQuoteSpecDto, jmAuthClient );
+
+        final URI uri = URI.create( actionJMSQuoteSpecDto.getGetPolicyNumberUrl() );
+
+        final GetPolicyNumberResponse getPolicyNumberResponse = getPolicyNumber( accountNumber, actionJMSQuoteSpecDto, jmAuthResult, uri );
+
+        log.info( "(" + trace + ") IMPORTANT: JM GetPolicyNumber call Successful." );
+        log.info( "(" + trace + ") IMPORTANT: End JM GetPolicyNumber" );
+        return getPolicyNumberResponse;
+    }
+
+
     private ByteArrayResource downloadApplication( final DownloadApplicationRequest downloadApplicationRequest,
                                                    final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
                                                    final JMAuthResult jmAuthResult,
@@ -143,6 +166,32 @@ public class JmIntegrationService
         catch ( Exception e )
         {
             log.error( "IMPORTANT: An exception occurred when attempting to get a downloadApplication response from JM: " + e.getMessage(), e );
+            throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
+        }
+    }
+
+
+    private GetPolicyNumberResponse getPolicyNumber( final String accountNumber,
+                                                         final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
+                                                         final JMAuthResult jmAuthResult,
+                                                         final URI uri )
+    {
+        try
+        {
+            final GetPolicyNumberResponse getPolicyNumberResponse = jmApplicationClient.getPolicyNumber( uri,
+                                                                                                         "Bearer " + jmAuthResult.getAccess_token(),
+                                                                                                         actionJMSQuoteSpecDto.getApiSubscriptionkey(),
+                                                                                                         accountNumber );
+            return getPolicyNumberResponse;
+        }
+        catch ( FeignException e )
+        {
+            log.error( "IMPORTANT: An exception occurred when attempting to get a policy number response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
+            throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
+        }
+        catch ( Exception e )
+        {
+            log.error( "IMPORTANT: An exception occurred when attempting to get a policy number response from JM: " + e.getMessage(), e );
             throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
         }
     }
