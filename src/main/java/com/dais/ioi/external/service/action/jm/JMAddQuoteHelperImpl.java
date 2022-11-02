@@ -786,6 +786,11 @@ public class JMAddQuoteHelperImpl
         domesticHelpResidesAtHome.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getDomesticHelpResidesAtHome() ).getAnswer(), "" ) );
         underwritingInfo.getUnderwritingQuestions().add( domesticHelpResidesAtHome );
 
+        AddQuoteRequest.UnderwritingQuestion domesticHelpVisitFrequency = new AddQuoteRequest.UnderwritingQuestion();
+        domesticHelpVisitFrequency.setKey( "DomesticHelpVisitFrequency" );
+        domesticHelpVisitFrequency.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getDomesticHelpVisitFrequency() ).getAnswer(), "" ) );
+        underwritingInfo.getUnderwritingQuestions().add( domesticHelpVisitFrequency );
+
         AddQuoteRequest.UnderwritingQuestion homeHasOtherResidents = new AddQuoteRequest.UnderwritingQuestion();
         homeHasOtherResidents.setKey( "HomeHasOtherResidents" );
         homeHasOtherResidents.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getHomeHasOtherResidents() ).getAnswer(), "" ) );
