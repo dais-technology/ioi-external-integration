@@ -1,168 +1,179 @@
 {
-  "signonDto": {
-    "clientAppDto": {
-      "channelCode": 1
+  "signonRq": {
+    "clientApp": {
+      "org": "1"
     }
   },
-  "insuranceServiceDto": {
+  "insuranceSvcRq": {
     "rqUID": "58155c74-ef16-4091-858d-51671558238a",
-    "workCompPolicyQuoteDto": {
+    "workCompPolicyQuoteInqRq": {
       "transactionRequestDt": "2022-10-27",
-      "producerDto": {
-        "itemIdInfoDto": {
+      "producer": {
+        "itemIdInfo": {
           "agencyId": "CW48619"
         },
-        "generalPartyInformationDto": {
-          "nameDto": {
+        "generalPartyInfo": {
+          "nameInfo": {
             "id": "ProducerName",
-            "personNameDto": {
+            "personName": {
               "surname": "ch",
               "givenName": "Haala"
             }
           }
         }
       },
-      "insuredOrPrincipalDto": {
-        "generalPartyInformationDto": {
-          "nameDto": {
-            "commercialNameDto": {
+      "insuredOrPrincipal": {
+        "id": "n0",
+        "generalPartyInfo": {
+          "nameInfo": {
+            "commlName": {
               "commercialName": "WTest"
             },
             "legalEntityCd": "CORPORATION",
-            "taxIdentityDto": {
-              "taxId": 654979854
-            }
+            "taxIdentity": [
+              {
+                "taxId": "654979854"
+              }
+            ]
           },
-          "addressDto": {
-            "addressTypeCd": "MailingAddress",
-            "address1": "435 Tasso Street",
+          "addr": {
+            "addrTypeCd": "MailingAddress",
+            "addr1": "435 Tasso Street",
             "city": "Palo Alto",
             "stateProvCd": "CA",
-            "postalCd": "94301",
+            "postalCode": "94301",
             "countryCd": "US"
           },
-          "communicationsDto": {
-            "phoneDto": {
+          "communications": {
+            "phoneInfo": {
               "phoneNumber": "2014497192"
             },
-            "emailDto": {
-              "emailAddress": "testops@webomates.com"
+            "emailInfo": {
+              "emailAddr": "testops@webomates.com"
             }
           }
         }
       },
-      "commercialPolicyDto": {
+      "commlPolicy": {
         "controllingStateProvCd": "CA",
-        "totalEmployees": 5,
-        "contractTermDto": {
+        "comAfgTotalEmployees": 5,
+        "contractTerm": {
           "effectiveDt": "2022-12-30",
           "expirationDt": "2023-12-30"
         },
-        "commercialPolicySupplementDto": {
+        "commlPolicySupplement": {
           "operationsDesc": "WTest is a(n) Continuing Care Retirement Community company with operations primarily located in Palo Alto, CA.",
-          "businessLengthDto": {
+          "lengthTimeInBusiness": {
             "numUnits": 6
           },
           "lossDataAvailable": "N"
         }
       },
-      "locationDto": [
+      "location": [
         {
           "id": "l1",
-          "addressDto": {
-            "address1": "435 Tasso Street",
+          "addr": {
+            "addr1": "435 Tasso Street",
             "city": "Palo Alto",
             "stateProvCd": "CA",
-            "postalCd": "94301"
+            "postalCode": "94301"
           }
         },
         {
           "id": "l2",
-          "addressDto": {
-            "address1": "144 Melrose Street",
+          "addr": {
+            "addr1": "144 Melrose Street",
             "city": "Palo Alto",
             "stateProvCd": "CA",
-            "postalCd": "94301"
+            "postalCode": "94301"
           }
         }
       ],
-      "workCompLineBusinessDto": {
-        "workCompRateStateDto": [
+      "workCompLineBusiness": {
+        "workCompRateState": [
           {
-            "workCompLocationDto": {
-              "locationRef": "l1",
-              "workCompRateClassDto": {
-                "ratingClassificationCd": 9070,
-                "ratingClassificationLetter": null,
-                "ratingClassificationSubCd": "01",
-                "payrollAmount": "50000"
+            "workCompLocInfo": [
+              {
+                "locationRef": "l1",
+                "workCompRateClass": [
+                  {
+                    "ratingClassificationCd": "9070",
+                    "ratingClassificationSubCd": "01",
+                    "exposure": "50000"
+                  }
+                ]
               }
-            }
+            ]
           },
           {
-            "workCompLocationDto": {
-              "locationRef": "l2",
-              "workCompRateClassDto": {
-                "ratingClassificationCd": 9070,
-                "ratingClassificationLetter": null,
-                "ratingClassificationSubCd": "01",
-                "payrollAmount": "50000",
-                "classCodeQuestionsDto": {
-                  "classCodeQuestionDto": [
-                    {
-                      "questionId": "r4:ml:349",
-                      "questionCd": null,
-                      "responseInd": "N",
-                      "percentageAnswerValue": 10,
-                      "optionResponseDto": [
+            "workCompLocInfo": [
+              {
+                "locationRef": "l2",
+                "workCompRateClass": [
+                  {
+                    "ratingClassificationCd": "9070",
+                    "ratingClassificationLetter": null,
+                    "ratingClassificationSubCd": "01",
+                    "exposure": "50000",
+                    "classCodeQuestions": {
+                      "classCodeQuestion": [
                         {
-                          "optionResponseCd": "N"
+                          "questionId": "r4:ml:349",
+                          "responseInd": "N",
+                          "percentageAnswerValue": "10",
+                          "optionResponse": [
+                            {
+                              "yesOptionResponse": "N"
+                            }
+                          ]
                         }
                       ]
                     }
-                  ]
-                }
+                  }
+                ]
               }
-            }
+            ]
           }
         ],
-        "commercialCoverageDto": {
-          "limitDto": [
+        "commlCoverage": {
+          "coverageCd": "WC7WorkersCompEmpLiabInsurancePolicyACov",
+          "coverageDesc": "Employers Liability",
+          "limit": [
             {
-              "amountDto": {
-                "amount": 1000000
+              "formatCurrencyAmt": {
+                "amt": "1000000"
               },
               "limitAppliesToCd": "EachClaim"
             },
             {
-              "amountDto": {
-                "amount": 1000000
+              "formatCurrencyAmt": {
+                "amt": "1000000"
               },
               "limitAppliesToCd": "PolicyLimit"
             }
           ]
         },
-        "ineligibilityDto": {
-          "questionAnswerDto": [
+        "ineligibility": {
+          "questionAnswer": [
             {
               "questionCd": "WC7Wrecking",
-              "responseCd": "N"
+              "yesNoCd": "N"
             },
             {
               "questionCd": "WC7Asbestos_Ext",
-              "responseCd": "N"
+              "yesNoCd": "N"
             }
           ]
         },
-        "statementDto": {
-          "questionAnswerDto": [
+        "statement": {
+          "questionAnswer": [
             {
               "questionCd": "WC7Sublet",
-              "responseCd": "N"
+              "yesNoCd": "N"
             },
             {
               "questionCd": "WC7GroundTransport",
-              "responseCd": "N"
+              "yesNoCd": "N"
             }
           ]
         }

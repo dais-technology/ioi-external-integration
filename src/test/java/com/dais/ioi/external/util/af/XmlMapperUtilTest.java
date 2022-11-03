@@ -1,18 +1,16 @@
 package com.dais.ioi.external.util.af;
 
-import com.dais.ioi.external.domain.dto.af.QuoteDto;
+import com.dais.ioi.external.domain.dto.af.ACORD;
 import com.dais.utils.test.JsonFileUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.Test;
-import org.xmlunit.builder.DiffBuilder;
-import org.xmlunit.diff.Diff;
 
+import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public class XmlMapperUtilTest
@@ -22,10 +20,10 @@ public class XmlMapperUtilTest
 
     @Test
     public void testXmlIsGeneratedFromJson()
-          throws IOException
+          throws IOException, JAXBException
     {
         final XmlMapperUtil xmlMapperUtil = givenAnXmlMapper();
-        final QuoteDto xmlObject = givenAnXmlObject();
+        final ACORD xmlObject = givenAnXmlObject();
         final String output = whenXmlMapperUtilIsCalled( xmlObject, xmlMapperUtil );
         thenVerifyTheOutput( output );
     }
@@ -36,31 +34,24 @@ public class XmlMapperUtilTest
     {
         final String expectedXml = JsonFileUtils.loadResourceAs( "util/XmlMapperUtilTestData/expectedXml.xml", String.class );
 
-
-        final Diff xmlComparison = DiffBuilder.compare( expectedXml ).withTest( output )
-                                              .checkForSimilar()
-                                              .ignoreWhitespace()
-                                              .ignoreComments()
-                                              .build();
-
-        assertFalse( xmlComparison.hasDifferences() );
+        assertEquals( expectedXml, output );
     }
 
 
-    private String whenXmlMapperUtilIsCalled( final QuoteDto xmlObject,
+    private String whenXmlMapperUtilIsCalled( final ACORD xmlObject,
                                               final XmlMapperUtil xmlMapperUtil )
-          throws JsonProcessingException
+          throws JAXBException
     {
         return xmlMapperUtil.buildXml( xmlObject );
     }
 
 
-    private QuoteDto givenAnXmlObject()
+    private ACORD givenAnXmlObject()
           throws IOException
     {
         OBJECT_MAPPER.registerModule( new JavaTimeModule() );
         InputStream is = XmlMapperUtilTest.class.getClassLoader().getResourceAsStream( "util/XmlMapperUtilTestData/getQuotesData.json" );
-        return OBJECT_MAPPER.readValue( is, QuoteDto.class );
+        return OBJECT_MAPPER.readValue( is, ACORD.class );
     }
 
 
