@@ -29,6 +29,7 @@ import java.net.URI;
 public interface JMApplicationClient
 {
     @RequestMapping(
+          value = "/application/submit",
           method = RequestMethod.POST,
           headers = { "Content-Type=application/json" } )
     @ResponseStatus( HttpStatus.OK )
@@ -38,6 +39,7 @@ public interface JMApplicationClient
                                                  @RequestBody final SubmitApplicationRequest submitApplicationRequest );
 
     @RequestMapping(
+          value = "/account/create",
           method = RequestMethod.POST,
           headers = { "Content-Type=application/json" } )
     @ResponseStatus( HttpStatus.OK )
@@ -47,6 +49,7 @@ public interface JMApplicationClient
                                          @RequestBody final CreateAccountRequest createAccountRequest );
 
     @RequestMapping(
+          value = "/application/application-page",
           method = RequestMethod.POST,
           headers = { "Content-Type=application/json" } )
     @ResponseStatus( HttpStatus.OK )
@@ -57,11 +60,11 @@ public interface JMApplicationClient
 
 
     @RequestMapping(
-          value = "/{accountNumber}",
+          value = "/account/getpolicynumber/{accountNumber}",
           method = RequestMethod.GET )
     @ResponseStatus( HttpStatus.OK )
     GetPolicyNumberResponse getPolicyNumber( URI baseUrl,
-                                                @RequestHeader( HttpHeader.AUTHORIZATION ) String bearer,
-                                                @RequestHeader( "Ocp-Apim-Subscription-Key" ) String subscriptionKey,
-                                                @PathVariable( value = "accountNumber" ) String accountNumber );
+                                             @RequestHeader( HttpHeader.AUTHORIZATION ) String bearer,
+                                             @RequestHeader( "Ocp-Apim-Subscription-Key" ) String subscriptionKey,
+                                             @PathVariable( value = "accountNumber" ) String accountNumber );
 }

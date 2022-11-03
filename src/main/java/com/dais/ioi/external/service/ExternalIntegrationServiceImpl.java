@@ -286,10 +286,10 @@ public class ExternalIntegrationServiceImpl
     @SneakyThrows
     @Override
     public ResponseEntity<Resource> downloadApplication( final DownloadApplicationRequest downloadApplicationRequest,
-                                                         final UUID orgId )
+                                                         final UUID lineId )
     {
-        log.info( String.format( "downloadApplication: %s -> %s", orgId.toString(), new ObjectMapper().writeValueAsString( downloadApplicationRequest ) ) );
-        return jmIntegrationService.downloadApplication( downloadApplicationRequest, orgId );
+        log.info( String.format( "downloadApplication: %s -> %s", lineId.toString(), new ObjectMapper().writeValueAsString( downloadApplicationRequest ) ) );
+        return jmIntegrationService.downloadApplication( downloadApplicationRequest, lineId );
     }
 
 
