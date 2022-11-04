@@ -10,11 +10,13 @@ import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
+import com.dais.ioi.external.domain.dto.jm.GetPolicyNumberResponse;
 import com.dais.ioi.external.domain.dto.jm.JmQuoteOptionDto;
 import com.dais.ioi.external.domain.dto.jm.RegisterUserRequest;
 import com.dais.ioi.external.domain.dto.jm.RegisterUserResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
+import com.dais.ioi.external.domain.dto.jm.UploadAppraisalResponse;
 import com.dais.ioi.external.domain.exception.ExternalApiException;
 import com.dais.ioi.external.entity.IntegrationEntity;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
@@ -33,6 +35,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.EntityNotFoundException;
@@ -287,10 +290,32 @@ public class ExternalIntegrationServiceImpl
     @SneakyThrows
     @Override
     public ResponseEntity<Resource> downloadApplication( final DownloadApplicationRequest downloadApplicationRequest,
-                                                         final UUID orgId )
+                                                         final UUID lineId )
     {
-        log.info( String.format( "downloadApplication: %s -> %s", orgId.toString(), new ObjectMapper().writeValueAsString( downloadApplicationRequest ) ) );
-        return jmIntegrationService.downloadApplication( downloadApplicationRequest, orgId );
+        log.info( String.format( "downloadApplication: %s -> %s", lineId.toString(), new ObjectMapper().writeValueAsString( downloadApplicationRequest ) ) );
+        return jmIntegrationService.downloadApplication( downloadApplicationRequest, lineId );
+    }
+
+
+    @SneakyThrows
+    @Override
+    public GetPolicyNumberResponse getPolicyNumber( final String accountNumber,
+                                                    final UUID lineId )
+    {
+        log.info( String.format( "getPolicyNumber: %s -> %s", lineId.toString(), accountNumber ) );
+        return jmIntegrationService.getPolicyNumber( accountNumber, lineId );
+    }
+
+
+    @SneakyThrows
+    @Override
+    public UploadAppraisalResponse uploadAppraisal( final String accountNumber,
+                                                    final String policyNumber,
+                                                    final MultipartFile appraisalDocument,
+                                                    final UUID lineId )
+    {
+        log.info( String.format( "uploadAppraisal: %s -> accountNumber: %s, policyNumber: %s", lineId.toString(), accountNumber, policyNumber) );
+        return jmIntegrationService.uploadAppraisal( accountNumber, policyNumber, appraisalDocument, lineId );
     }
 
 
