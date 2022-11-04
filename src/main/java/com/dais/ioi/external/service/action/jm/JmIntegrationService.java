@@ -251,6 +251,11 @@ public class JmIntegrationService
                                                                                              createAccountRequest );
             return createAccountResponse;
         }
+        catch ( FeignException e )
+        {
+            log.error( "IMPORTANT: An exception occurred when attempting to get a createAccount response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
+            throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
+        }
         catch ( Exception e )
         {
             log.error( "IMPORTANT: An exception occurred when attempting to get a createAccount response from JM: " + e.getMessage(), e );
@@ -271,6 +276,11 @@ public class JmIntegrationService
                                                                                               jmApiSpec.getApiSubscriptionkey(),
                                                                                               submitApplicationRequest );
             return response;
+        }
+        catch ( FeignException e )
+        {
+            log.error( "IMPORTANT: An exception occurred when attempting to get a submitApplication response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
+            throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
         }
         catch ( Exception e )
         {
