@@ -12,7 +12,6 @@ import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import com.dais.ioi.external.domain.dto.jm.UploadAppraisalResponse;
-import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
 import com.dais.ioi.external.domain.dto.spec.JmApiSpec;
 import com.dais.ioi.external.domain.exception.ExternalApiException;
 import com.dais.ioi.external.entity.IntegrationEntity;
@@ -159,12 +158,14 @@ public class JmIntegrationService
     }
 
 
+    @SneakyThrows
     public UploadAppraisalResponse uploadAppraisal( final String accountNumber,
                                                     final String policyNumber,
                                                     final MultipartFile appraisalDocument,
                                                     final UUID lineId )
     {
-
+        UUID trace = UUID.randomUUID();
+        log.info( "(" + trace + ") IMPORTANT: Begin JM UploadAppraisal" );
         final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( lineId, IntegrationType.JM_UPLOAD_APPRAISAL );
 
         final JmApiSpec jmApiSpec = objectMapper.convertValue( integrationEntity.getSpec(), JmApiSpec.class );
@@ -172,14 +173,13 @@ public class JmIntegrationService
         final JMAuthResult jmAuthResult = getAuth( jmApiSpec, jmAuthClient );
 
         final URI uri = URI.create( jmApiSpec.getBaseUrl() );
+        log.info( "(" + trace + ") IMPORTANT: Base URI: {}, accountNumber: {}, policyNumber: {}", uri, accountNumber, policyNumber );
 
-        final UploadAppraisalResponse uploadAppraisalResponse = jmApplicationClient.uploadAppraisal( uri,
-                                                                                                     "Bearer " + jmAuthResult.getAccess_token(),
-                                                                                                     jmApiSpec.getApiSubscriptionkey(),
-                                                                                                     accountNumber,
-                                                                                                     policyNumber,
-                                                                                                     appraisalDocument );
+        final UploadAppraisalResponse uploadAppraisalResponse = uploadAppraisal( accountNumber, policyNumber, appraisalDocument, jmApiSpec, jmAuthResult, uri );
 
+        log.info( "(" + trace + ") IMPORTANT: JM UploadAppraisal RESPONSE: {}.", objectMapper.writeValueAsString( uploadAppraisalResponse ) );
+        log.info( "(" + trace + ") IMPORTANT: JM UploadAppraisal call Successful." );
+        log.info( "(" + trace + ") IMPORTANT: End JM UploadAppraisal" );
         return uploadAppraisalResponse;
     }
 
@@ -231,6 +231,36 @@ public class JmIntegrationService
         catch ( Exception e )
         {
             log.error( "IMPORTANT: An exception occurred when attempting to get a policy number response from JM: " + e.getMessage(), e );
+            throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
+        }
+    }
+
+
+    private UploadAppraisalResponse uploadAppraisal( final String accountNumber,
+                                                     final String policyNumber,
+                                                     final MultipartFile appraisalDocument,
+                                                     final JmApiSpec jmApiSpec,
+                                                     final JMAuthResult jmAuthResult,
+                                                     final URI uri )
+    {
+        try
+        {
+            final UploadAppraisalResponse uploadAppraisalResponse = jmApplicationClient.uploadAppraisal( uri,
+                                                                                                         "Bearer " + jmAuthResult.getAccess_token(),
+                                                                                                         jmApiSpec.getApiSubscriptionkey(),
+                                                                                                         accountNumber,
+                                                                                                         policyNumber,
+                                                                                                         appraisalDocument );
+            return uploadAppraisalResponse;
+        }
+        catch ( FeignException e )
+        {
+            log.error( "IMPORTANT: An exception occurred when attempting to get a UploadAppraisal response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
+            throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
+        }
+        catch ( Exception e )
+        {
+            log.error( "IMPORTANT: An exception occurred when attempting to get a UploadAppraisal response from JM: " + e.getMessage(), e );
             throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
         }
     }
