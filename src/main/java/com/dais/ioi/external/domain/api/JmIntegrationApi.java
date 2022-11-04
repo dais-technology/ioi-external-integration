@@ -3,12 +3,12 @@ package com.dais.ioi.external.domain.api;
 import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.domain.dto.GetQuoteDto;
-import com.dais.ioi.external.domain.dto.IntegrationDto;
 import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanRequestDto;
 import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
+import com.dais.ioi.external.domain.dto.jm.GetPolicyNumberResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import com.dais.ioi.external.domain.dto.jm.UploadAppraisalResponse;
@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -74,6 +75,13 @@ public interface JmIntegrationApi
     @ApiOperation( value = "Download Application PDF" )
     ResponseEntity<Resource> downloadApplication( @RequestBody @Valid final DownloadApplicationRequest downloadApplicationRequest,
                                                   @PathVariable final UUID orgId );
+
+    @ResponseStatus( HttpStatus.OK )
+    @RequestMapping( value = "/getpolicynumber/{lineId}",
+                     method = RequestMethod.GET )
+    @ApiOperation( value = "Get Policy Number" )
+    GetPolicyNumberResponse getPolicyNumber( @RequestParam( value = "accountNumber" ) final String accountNumber,
+                                             @PathVariable final UUID lineId );
 
 
     @ResponseStatus( HttpStatus.OK )

@@ -26,14 +26,6 @@ public class ActionJMSQuoteSpecDto
 
     private String updateQuoteUrl;
 
-    private String submitApplicationUrl;
-
-    private String createAccountUrl;
-
-    private String downloadApplicationUrl;
-
-    private String uploadAppraisalUrl;
-
     // Quick Quote fields
     private String county;
 

@@ -9,6 +9,7 @@ import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
+import com.dais.ioi.external.domain.dto.jm.GetPolicyNumberResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import com.dais.ioi.external.domain.dto.jm.UploadAppraisalResponse;
@@ -158,6 +159,26 @@ public class JmIntegrationController
         try
         {
             return externalIntegrationService.downloadApplication( downloadApplicationRequest, orgId );
+        }
+        catch ( FeignException e )
+        {
+            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.contentUTF8() );
+        }
+        catch ( Exception e )
+        {
+            log.error( e.getMessage(), e );
+            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage() );
+        }
+    }
+
+
+    @Override
+    public GetPolicyNumberResponse getPolicyNumber( final String accountNumber,
+                                                    final UUID lineId )
+    {
+        try
+        {
+            return externalIntegrationService.getPolicyNumber( accountNumber, lineId);
         }
         catch ( FeignException e )
         {

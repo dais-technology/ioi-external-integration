@@ -9,6 +9,7 @@ import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
+import com.dais.ioi.external.domain.dto.jm.GetPolicyNumberResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import com.dais.ioi.external.domain.dto.jm.UploadAppraisalResponse;
@@ -53,6 +54,9 @@ public interface ExternalIntegrationService
 
     ResponseEntity<Resource> downloadApplication( final DownloadApplicationRequest createAccountRequest,
                                                   final UUID orgId );
+
+    GetPolicyNumberResponse getPolicyNumber( final String accountNumber,
+                                             final UUID lineId );
 
     UploadAppraisalResponse uploadAppraisal( final String accountNumber,
                                              final String policyNumber,

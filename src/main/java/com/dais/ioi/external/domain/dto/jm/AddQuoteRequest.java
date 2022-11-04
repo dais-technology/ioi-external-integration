@@ -74,17 +74,20 @@ public class AddQuoteRequest
         @JsonProperty( "ItemDamage" )
         private String itemDamage;
 
-//        @JsonProperty( "LastAppraisalDate" )
-//        public String lastAppraisalDate;
-//
-//        @JsonProperty( "SerialNumber" )
-//        public String serialNumber;
+        @JsonProperty( "LastAppraisalDate" )
+        public String lastAppraisalDate;
+
+        @JsonProperty( "SerialNumber" )
+        public String serialNumber;
 
         @JsonProperty( "ItemPossession" )
         private String itemPossession;
 
         @JsonProperty( "ItemDescription" )
         public String itemDescription;
+
+        @JsonProperty( "Gender" )
+        public String gender;
 
         @JsonProperty( "PrimaryWearer" )
         public PrimaryWearer primaryWearer;
@@ -172,9 +175,9 @@ public class AddQuoteRequest
 
         @JsonProperty( "ContactPreference" )
         public Object contactPreference;
-//
-//        @JsonProperty( "RelationWithApplicant" )
-//        public String relationWithApplicant;
+
+        @JsonProperty( "RelationWithApplicant" )
+        public String relationWithApplicant;
     }
 
     @Data
