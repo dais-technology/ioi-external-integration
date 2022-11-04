@@ -12,9 +12,11 @@ import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.GetPolicyNumberResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
+import com.dais.ioi.external.domain.dto.jm.UploadAppraisalResponse;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -54,5 +56,10 @@ public interface ExternalIntegrationService
                                                   final UUID orgId );
 
     GetPolicyNumberResponse getPolicyNumber( final String accountNumber,
+                                             final UUID lineId );
+
+    UploadAppraisalResponse uploadAppraisal( final String accountNumber,
+                                             final String policyNumber,
+                                             final MultipartFile appraisalDocument,
                                              final UUID lineId );
 }
