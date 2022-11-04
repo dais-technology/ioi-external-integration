@@ -9,6 +9,8 @@ import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.GetPolicyNumberResponse;
+import com.dais.ioi.external.domain.dto.jm.RegisterUserRequest;
+import com.dais.ioi.external.domain.dto.jm.RegisterUserResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import com.dais.ioi.external.domain.dto.jm.UploadAppraisalResponse;
@@ -23,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -54,27 +55,27 @@ public interface JmIntegrationApi
     AddPaymentPlanResponseDto addPaymentPlan( @RequestBody @Valid final AddPaymentPlanRequestDto addPaymentPlanRequest );
 
     @ResponseStatus( HttpStatus.OK )
-    @RequestMapping( value = "/submit/application/{orgId}",
+    @RequestMapping( value = "/submit/application/{lineId}",
                      method = RequestMethod.POST )
     @ApiOperation( value = "Submit application" )
     SubmitApplicationResponse submit( @RequestBody @Valid final SubmitApplicationRequest submitApplicationRequest,
-                                      @PathVariable final UUID orgId )
+                                      @PathVariable final UUID lineId )
           throws IllegalAccessException;
 
     @ResponseStatus( HttpStatus.OK )
-    @RequestMapping( value = "/create/account/{orgId}",
+    @RequestMapping( value = "/create/account/{lineId}",
                      method = RequestMethod.POST )
     @ApiOperation( value = "create account" )
     CreateAccountResponse create( @RequestBody @Valid final CreateAccountRequest createAccountRequest,
-                                  @PathVariable final UUID orgId )
+                                  @PathVariable final UUID lineId )
           throws IllegalAccessException;
 
     @ResponseStatus( HttpStatus.OK )
-    @RequestMapping( value = "/download/application/{orgId}",
+    @RequestMapping( value = "/download/application/{lineId}",
                      method = RequestMethod.POST )
     @ApiOperation( value = "Download Application PDF" )
     ResponseEntity<Resource> downloadApplication( @RequestBody @Valid final DownloadApplicationRequest downloadApplicationRequest,
-                                                  @PathVariable final UUID orgId );
+                                                  @PathVariable final UUID lineId );
 
     @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/getpolicynumber/{lineId}",
@@ -88,8 +89,17 @@ public interface JmIntegrationApi
     @RequestMapping( value = "/upload/appraisal/{lineId}",
                      method = RequestMethod.POST )
     @ApiOperation( value = "Upload Appraisal Doc" )
-    UploadAppraisalResponse uploadAppraisal( @RequestParam( value = "accountNumber", required = false ) String accountNumber,
-                                             @RequestParam( value = "policyNumber", required = false ) String policyNumber,
+    UploadAppraisalResponse uploadAppraisal( @RequestParam( value = "accountNumber",
+                                                            required = false ) String accountNumber,
+                                             @RequestParam( value = "policyNumber",
+                                                            required = false ) String policyNumber,
                                              @RequestPart( value = "file" ) final MultipartFile appraisalDocument,
+                                             @PathVariable final UUID lineId );
+
+    @ResponseStatus( HttpStatus.OK )
+    @RequestMapping( value = "/register/user/{lineId}",
+                     method = RequestMethod.POST )
+    @ApiOperation( value = "Register Portal User" )
+    RegisterUserResponse registerPortalUser( @RequestBody @Valid final RegisterUserRequest registerUserRequest,
                                              @PathVariable final UUID lineId );
 }

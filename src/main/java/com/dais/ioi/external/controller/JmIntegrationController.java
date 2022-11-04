@@ -10,6 +10,8 @@ import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.GetPolicyNumberResponse;
+import com.dais.ioi.external.domain.dto.jm.RegisterUserRequest;
+import com.dais.ioi.external.domain.dto.jm.RegisterUserResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import com.dais.ioi.external.domain.dto.jm.UploadAppraisalResponse;
@@ -199,5 +201,25 @@ public class JmIntegrationController
                                                     final UUID lineId )
     {
         return externalIntegrationService.uploadAppraisal( accountNumber, policyNumber, appraisalDocument, lineId );
+    }
+
+
+    @Override
+    public RegisterUserResponse registerPortalUser( final RegisterUserRequest registerUserRequest,
+                                                    final UUID lineId )
+    {
+        try
+        {
+            return externalIntegrationService.registerPortalUser( registerUserRequest, lineId );
+        }
+        catch ( FeignException e )
+        {
+            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.contentUTF8() );
+        }
+        catch ( Exception e )
+        {
+            log.error( e.getMessage(), e );
+            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage() );
+        }
     }
 }

@@ -5,6 +5,8 @@ import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.GetPolicyNumberResponse;
+import com.dais.ioi.external.domain.dto.jm.RegisterUserRequest;
+import com.dais.ioi.external.domain.dto.jm.RegisterUserResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import com.dais.ioi.external.domain.dto.jm.UploadAppraisalResponse;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.net.URI;
 
 
@@ -85,4 +88,14 @@ public interface JMApplicationClient
                                              @RequestParam( value = "policyNumber",
                                                             required = false ) String policyNumber,
                                              @Param( "file" ) MultipartFile file );
+
+    @RequestMapping(
+          value = "/account/RegisterPortalUser",
+          method = RequestMethod.POST,
+          headers = { "Content-Type=application/json" } )
+    @ResponseStatus( HttpStatus.OK )
+    RegisterUserResponse registerPortalUser( URI baseUrl,
+                                             @RequestHeader( HttpHeader.AUTHORIZATION ) String bearer,
+                                             @RequestHeader( "Ocp-Apim-Subscription-Key" ) String subscriptionKey,
+                                             @RequestBody @Valid final RegisterUserRequest registerUserRequest );
 }

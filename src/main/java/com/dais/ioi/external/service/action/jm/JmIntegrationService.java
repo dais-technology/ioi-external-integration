@@ -9,6 +9,8 @@ import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.GetPolicyNumberResponse;
 import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
+import com.dais.ioi.external.domain.dto.jm.RegisterUserRequest;
+import com.dais.ioi.external.domain.dto.jm.RegisterUserResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import com.dais.ioi.external.domain.dto.jm.UploadAppraisalResponse;
@@ -34,6 +36,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import static com.dais.ioi.external.service.action.jm.JMAuth.getAuth;
 
@@ -43,6 +46,8 @@ import static com.dais.ioi.external.service.action.jm.JMAuth.getAuth;
 @RequiredArgsConstructor
 public class JmIntegrationService
 {
+    private static Pattern PASSWORD_VALIDATION_REGEX = Pattern.compile( "^(?=.*[a-z])(?=.*[A-Z])(?=.*[\\d@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$" );
+
     @Autowired
     JMAuthClient jmAuthClient;
 
@@ -184,6 +189,40 @@ public class JmIntegrationService
     }
 
 
+    @SneakyThrows
+    public RegisterUserResponse registerPortalUser( RegisterUserRequest registerUserRequest,
+                                                    UUID lineId )
+    {
+        UUID trace = UUID.randomUUID();
+        log.info( "(" + trace + ") IMPORTANT: Begin JM RegisterPortalUser" );
+
+        //validate password
+        if ( !PASSWORD_VALIDATION_REGEX.matcher( registerUserRequest.getApplicant().getPortalPassword() ).matches() )
+        {
+            log.info( "(" + trace + ") IMPORTANT: Password validation Failed." );
+            throw new RuntimeException( "Password validation Failed. Your password must be at least 8 characters long and must contain at least one of each of the following:\n" +
+                                        "• lower case letter\n" +
+                                        "• UPPER case letter\n" +
+                                        "• Number (1, 2, 3, etc.) or special character (#, $, ?, etc.)" );
+        }
+
+        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( lineId, IntegrationType.JM_REGISTER_PORTAL_USER );
+
+        final JmApiSpec jmApiSpec = objectMapper.convertValue( integrationEntity.getSpec(), JmApiSpec.class );
+
+        final JMAuthResult jmAuthResult = getAuth( jmApiSpec, jmAuthClient );
+
+        final URI uri = URI.create( jmApiSpec.getBaseUrl() );
+
+        log.info( "(" + trace + ") IMPORTANT: Sending JM RegisterPortalUser request -> Base URI: {}, body: {}", uri, objectMapper.writeValueAsString( registerUserRequest ) );
+        final RegisterUserResponse registerPortalUserResponse = processRegisterPortalUser( registerUserRequest, jmApiSpec, jmAuthResult, uri );
+
+        log.info( "(" + trace + ") IMPORTANT: JM RegisterPortalUser call Successful." );
+        log.info( "(" + trace + ") IMPORTANT: End JM RegisterPortalUser" );
+        return registerPortalUserResponse;
+    }
+
+
     private ByteArrayResource downloadApplication( final DownloadApplicationRequest downloadApplicationRequest,
                                                    final JmApiSpec jmApiSpec,
                                                    final JMAuthResult jmAuthResult,
@@ -236,6 +275,7 @@ public class JmIntegrationService
     }
 
 
+
     private UploadAppraisalResponse uploadAppraisal( final String accountNumber,
                                                      final String policyNumber,
                                                      final MultipartFile appraisalDocument,
@@ -261,6 +301,32 @@ public class JmIntegrationService
         catch ( Exception e )
         {
             log.error( "IMPORTANT: An exception occurred when attempting to get a UploadAppraisal response from JM: " + e.getMessage(), e );
+            throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
+        }
+    }
+
+
+    private RegisterUserResponse processRegisterPortalUser( final RegisterUserRequest registerUserRequest,
+                                                            final JmApiSpec jmApiSpec,
+                                                            final JMAuthResult jmAuthResult,
+                                                            final URI uri )
+    {
+        try
+        {
+            final RegisterUserResponse registerPortalUserResponse = jmApplicationClient.registerPortalUser( uri,
+                                                                                                            "Bearer " + jmAuthResult.getAccess_token(),
+                                                                                                            jmApiSpec.getApiSubscriptionkey(),
+                                                                                                            registerUserRequest );
+            return registerPortalUserResponse;
+        }
+        catch ( FeignException e )
+        {
+            log.error( "IMPORTANT: An exception occurred when attempting to get a registerPortalUser response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
+            throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
+        }
+        catch ( Exception e )
+        {
+            log.error( "IMPORTANT: An exception occurred when attempting to get a registerPortalUser response from JM: " + e.getMessage(), e );
             throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
         }
     }
