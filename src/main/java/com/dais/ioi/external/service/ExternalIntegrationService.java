@@ -47,15 +47,15 @@ public interface ExternalIntegrationService
           throws Exception;
 
     SubmitApplicationResponse submitApplication( final SubmitApplicationRequest submitApplicationRequest,
-                                                 final UUID orgId );
+                                                 final UUID lineId );
 
     CreateAccountResponse createAccount( final CreateAccountRequest createAccountRequest,
-                                         final UUID orgId );
+                                         final UUID lineId );
 
     void deleteById( UUID integrationId );
 
     ResponseEntity<Resource> downloadApplication( final DownloadApplicationRequest createAccountRequest,
-                                                  final UUID orgId );
+                                                  final UUID lineId );
 
     GetPolicyNumberResponse getPolicyNumber( final String accountNumber,
                                              final UUID lineId );

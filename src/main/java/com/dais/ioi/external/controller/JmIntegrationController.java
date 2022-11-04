@@ -115,12 +115,12 @@ public class JmIntegrationController
 
     @Override
     public CreateAccountResponse create( final CreateAccountRequest createAccountRequest,
-                                         final UUID orgId )
+                                         final UUID lineId )
           throws IllegalAccessException
     {
         try
         {
-            return externalIntegrationService.createAccount( createAccountRequest, orgId );
+            return externalIntegrationService.createAccount( createAccountRequest, lineId );
         }
         catch ( FeignException e )
         {
@@ -136,11 +136,11 @@ public class JmIntegrationController
 
     @Override
     public SubmitApplicationResponse submit( final SubmitApplicationRequest submitApplicationRequest,
-                                             final UUID orgId )
+                                             final UUID lineId )
     {
         try
         {
-            return externalIntegrationService.submitApplication( submitApplicationRequest, orgId );
+            return externalIntegrationService.submitApplication( submitApplicationRequest, lineId );
         }
         catch ( FeignException e )
         {
@@ -156,11 +156,11 @@ public class JmIntegrationController
 
     @Override
     public ResponseEntity<Resource> downloadApplication( final DownloadApplicationRequest downloadApplicationRequest,
-                                                         final UUID orgId )
+                                                         final UUID lineId )
     {
         try
         {
-            return externalIntegrationService.downloadApplication( downloadApplicationRequest, orgId );
+            return externalIntegrationService.downloadApplication( downloadApplicationRequest, lineId );
         }
         catch ( FeignException e )
         {

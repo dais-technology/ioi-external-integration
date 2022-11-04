@@ -66,12 +66,12 @@ public class JmIntegrationService
 
     @SneakyThrows
     public CreateAccountResponse createAccount( final CreateAccountRequest createAccountRequest,
-                                                final UUID orgId )
+                                                final UUID lineId )
     {
 
         UUID trace = UUID.randomUUID();
         log.info( "(" + trace + ") IMPORTANT: Begin JM crateAccount" );
-        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( orgId, IntegrationType.JM_CREATE_ACCOUNT );
+        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( lineId, IntegrationType.JM_CREATE_ACCOUNT );
         final JmApiSpec jmApiSpec = objectMapper.convertValue( integrationEntity.getSpec(), JmApiSpec.class );
         final JMAuthResult jmAuthResult = getAuth( jmApiSpec, jmAuthClient );
 
@@ -88,11 +88,11 @@ public class JmIntegrationService
 
     @SneakyThrows
     public SubmitApplicationResponse submitApplication( final SubmitApplicationRequest submitApplicationRequest,
-                                                        final UUID orgId )
+                                                        final UUID lineId )
     {
         UUID trace = UUID.randomUUID();
         log.info( "(" + trace + ") IMPORTANT: Begin JM SubmitApplication" );
-        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( orgId, IntegrationType.JM_SUBMIT_APPLICATION ); // TODO check should tis be lineId or orgId
+        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( lineId, IntegrationType.JM_SUBMIT_APPLICATION );
 
         final JmApiSpec jmApiSpec = objectMapper.convertValue( integrationEntity.getSpec(), JmApiSpec.class );
         final JMAuthResult jmAuthResult = getAuth( jmApiSpec, jmAuthClient );

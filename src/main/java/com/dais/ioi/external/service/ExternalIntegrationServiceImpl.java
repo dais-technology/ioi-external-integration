@@ -270,20 +270,20 @@ public class ExternalIntegrationServiceImpl
     @SneakyThrows
     @Override
     public SubmitApplicationResponse submitApplication( final SubmitApplicationRequest submitApplicationRequest,
-                                                        final UUID orgId )
+                                                        final UUID lineId )
     {
-        log.info( String.format( "submitApplication: %s -> %s", orgId.toString(), new ObjectMapper().writeValueAsString( submitApplicationRequest ) ) );
-        return jmIntegrationService.submitApplication( submitApplicationRequest, orgId );
+        log.info( String.format( "submitApplication: %s -> %s", lineId.toString(), new ObjectMapper().writeValueAsString( submitApplicationRequest ) ) );
+        return jmIntegrationService.submitApplication( submitApplicationRequest, lineId );
     }
 
 
     @SneakyThrows
     @Override
     public CreateAccountResponse createAccount( final CreateAccountRequest createAccountRequest,
-                                                final UUID orgId )
+                                                final UUID lineId )
     {
-        log.info( String.format( "createAccount: %s -> %s", orgId.toString(), new ObjectMapper().writeValueAsString( createAccountRequest ) ) );
-        return jmIntegrationService.createAccount( createAccountRequest, orgId );
+        log.info( String.format( "createAccount: %s -> %s", lineId.toString(), new ObjectMapper().writeValueAsString( createAccountRequest ) ) );
+        return jmIntegrationService.createAccount( createAccountRequest, lineId );
     }
 
 
