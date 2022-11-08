@@ -165,11 +165,17 @@ public class ActionJMSQuoteSpecDto
 
     private String communityResidentEntranceDescription;
 
+    private String communityResidentEntranceDescriptionOther;
+
     private String communityGuestEntranceDescription;
+
+    private String communityGuestEntranceDescriptionOther;
 
     private String domesticHelpEmployed;
 
     private String domesticHelpDescription;
+
+    private String domesticHelpDescriptionOther;
 
     private String domesticHelpEmploymentLength;
 

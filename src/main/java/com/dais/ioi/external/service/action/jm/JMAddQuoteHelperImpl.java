@@ -758,12 +758,28 @@ public class JMAddQuoteHelperImpl
 
         AddQuoteRequest.UnderwritingQuestion communityResidentEntranceDescription = new AddQuoteRequest.UnderwritingQuestion();
         communityResidentEntranceDescription.setKey( "CommunityResidentEntranceDescription" );
-        communityResidentEntranceDescription.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityResidentEntranceDescription() ).getAnswer(), "" ) );
+        final String communityResidentEntranceDescriptionValue = getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityResidentEntranceDescription() ).getAnswer(), "" );
+        if ( "Other".equalsIgnoreCase( communityResidentEntranceDescriptionValue ) )
+        {
+            communityResidentEntranceDescription.setValue( "Other - " + getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityResidentEntranceDescriptionOther() ).getAnswer(), "" ) );
+        }
+        else
+        {
+            communityResidentEntranceDescription.setValue( communityResidentEntranceDescriptionValue );
+        }
         underwritingInfo.getUnderwritingQuestions().add( communityResidentEntranceDescription );
 
         AddQuoteRequest.UnderwritingQuestion communityGuestEntranceDescription = new AddQuoteRequest.UnderwritingQuestion();
         communityGuestEntranceDescription.setKey( "CommunityGuestEntranceDescription" );
-        communityGuestEntranceDescription.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityGuestEntranceDescription() ).getAnswer(), "" ) );
+        final String communityGuestEntranceDescriptionValue = getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityGuestEntranceDescription() ).getAnswer(), "" );
+        if ( "Other".equalsIgnoreCase( communityGuestEntranceDescriptionValue ) )
+        {
+            communityGuestEntranceDescription.setValue( "Other - " + getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityGuestEntranceDescriptionOther() ).getAnswer(), "" ) );
+        }
+        else
+        {
+            communityGuestEntranceDescription.setValue( communityGuestEntranceDescriptionValue );
+        }
         underwritingInfo.getUnderwritingQuestions().add( communityGuestEntranceDescription );
 
         AddQuoteRequest.UnderwritingQuestion domesticHelpEmployed = new AddQuoteRequest.UnderwritingQuestion();
@@ -773,7 +789,15 @@ public class JMAddQuoteHelperImpl
 
         AddQuoteRequest.UnderwritingQuestion domesticHelpDescription = new AddQuoteRequest.UnderwritingQuestion();
         domesticHelpDescription.setKey( "DomesticHelpDescription" );
-        domesticHelpDescription.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getDomesticHelpDescription() ).getAnswer(), "" ) );
+        final String domesticHelpDescriptionValue = getValue( () -> intake.get( actionJMSQuoteSpecDto.getDomesticHelpDescription() ).getAnswer(), "" );
+        if ( "Other".equalsIgnoreCase( domesticHelpDescriptionValue ) )
+        {
+            domesticHelpDescription.setValue( "Other - " + getValue( () -> intake.get( actionJMSQuoteSpecDto.getDomesticHelpDescriptionOther() ).getAnswer(), "" ) );
+        }
+        else
+        {
+            domesticHelpDescription.setValue( domesticHelpDescriptionValue );
+        }
         underwritingInfo.getUnderwritingQuestions().add( domesticHelpDescription );
 
         AddQuoteRequest.UnderwritingQuestion domesticHelpEmploymentLength = new AddQuoteRequest.UnderwritingQuestion();
