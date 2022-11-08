@@ -941,9 +941,9 @@ public class JMAddQuoteHelperImpl
                   getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getLastAppraisalDate() ).getAnswer(), "" )
             );
 
-            item.setGender(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemGender() ).getAnswer(), "" )
-            );
+            //            item.setGender(
+            //                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemGender() ).getAnswer(), "" )
+            //            );
           /*  item.setItemDamage(
                   getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemDamage() ).getAnswer(), "" ).toString()
             );
@@ -976,6 +976,10 @@ public class JMAddQuoteHelperImpl
                 }
                 primaryWearer = nonContactWearer;
             }
+
+            primaryWearer.setGender(
+                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemGender() ).getAnswer().toString(), "" )
+            );
 
             AddQuoteRequest.DeductibleOption deductibleOption = new AddQuoteRequest.DeductibleOption();
 
@@ -1061,6 +1065,10 @@ public class JMAddQuoteHelperImpl
               getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerPhoneNumber() ).getAnswer().toString(), "" )
         );
 
+        primaryWearer.setGender(
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getItemGender() ).getAnswer().toString(), "" )
+        );
+
         AddQuoteRequest.ResidentialAddress primaryWearerResidentialAddress = new AddQuoteRequest.ResidentialAddress();
 
         primaryWearerResidentialAddress.setAddress1(
@@ -1121,6 +1129,10 @@ public class JMAddQuoteHelperImpl
 
         primaryWearer.setEmailAddress(
               getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryContactEmail() ).getAnswer().toString(), "" )
+        );
+
+        primaryWearer.setGender(
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getItemGender() ).getAnswer().toString(), "" )
         );
 
         primaryWearer.setRelationWithApplicant(
