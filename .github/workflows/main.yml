@@ -1,9 +1,14 @@
 name: CI
 on:
-  workflow_dispatch:
+  pull_request:
+    types: [opened, reopened]
+  push:
+    branches:
+      - '*'
 jobs:
   java-gradle-build:
     uses: dais-technology/workflow-templates/.github/workflows/java-gradle.yml@main
     with:
       aws-role-to-assume: arn:aws:iam::991853876083:role/spiderman-eks-master-NodeInstanceRole-1CGN6EINNA20W
     secrets:  inherit
+
