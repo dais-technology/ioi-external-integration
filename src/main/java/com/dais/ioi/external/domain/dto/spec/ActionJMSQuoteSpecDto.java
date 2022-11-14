@@ -195,7 +195,7 @@ public class ActionJMSQuoteSpecDto
 
     private String travelPrecautionOption;
 
-    private String travelPrecautionOtherDesc;
+    private String travelPrecautionOtherDescription;
 
     private String hasPaperlessDelivery;
 
