@@ -847,7 +847,7 @@ public class JMAddQuoteHelperImpl
 
         AddQuoteRequest.UnderwritingQuestion travelPrecautionOtherDescription = new AddQuoteRequest.UnderwritingQuestion();
         travelPrecautionOtherDescription.setKey( "TravelPrecautionOtherDescription" );
-        travelPrecautionOtherDescription.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getTravelPrecautionOtherDesc() ).getAnswer(), "" ) );
+        travelPrecautionOtherDescription.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getTravelPrecautionOtherDescription() ).getAnswer(), "" ) );
         underwritingInfo.getUnderwritingQuestions().add( travelPrecautionOtherDescription );
 
         AddQuoteRequest.UnderwritingQuestion additionalUnderwriting = new AddQuoteRequest.UnderwritingQuestion();
