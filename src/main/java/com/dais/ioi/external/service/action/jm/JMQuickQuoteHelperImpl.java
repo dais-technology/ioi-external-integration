@@ -25,6 +25,7 @@ import com.dais.ioi.quote.domain.dto.pub.PubExternalDataDto;
 import com.dais.ioi.quote.domain.dto.pub.PubPremiumDto;
 import com.dais.ioi.quote.domain.dto.pub.PubQuoteDetailsDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.dais.ioi.external.service.action.jm.JMUtils.getValue;
+import static com.dais.ioi.external.service.action.jm.JMUtils.isCanadianZipcode;
 
 
 @Slf4j
@@ -188,6 +190,11 @@ public class JMQuickQuoteHelperImpl
                                                 actionJMSQuoteSpecDto.getApiSubscriptionkey(),
                                                 quickQuoteRequest );
         }
+        catch ( FeignException e )
+        {
+            log.error( "IMPORTANT: An exception occurred when attempting to get a quickQuote response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
+            throw new ExternalApiException( "Unable to get response from URL: " + determinedBasePathUri.toString() + " Message: " + e.getMessage(), e );
+        }
         catch ( Exception e )
         {
             log.error( "IMPORTANT: An exception occurred when attempting to get a quickQuote response from JM: " + e.getMessage(), e );
@@ -298,9 +305,18 @@ public class JMQuickQuoteHelperImpl
         try
         {
 
+            final String zipcode = getValue( () -> intake.get( actionJMSQuoteSpecDto.getZip() ).getAnswer(), "" );
+
             quickQuoteRequest.setPostalCode(
-                  JMUtils.formatZipCode( getValue( () -> intake.get( actionJMSQuoteSpecDto.getZip() ).getAnswer(), "" ) )
+                  JMUtils.formatZipCode( zipcode )
             );
+
+            if ( !isCanadianZipcode(zipcode) )
+            {
+                quickQuoteRequest.setCounty( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCounty() ).getAnswer(), null ) );
+            }
+
+            quickQuoteRequest.setState( getValue( () -> intake.get( actionJMSQuoteSpecDto.getState() ).getAnswer(), null ) );
 
             processQuickQuoteIterations( quickQuoteRequest, getValue( () -> intake.get( actionJMSQuoteSpecDto.getItemLoop() ).getIterations(), new ArrayList<>() ), actionJMSQuoteSpecDto );
 
