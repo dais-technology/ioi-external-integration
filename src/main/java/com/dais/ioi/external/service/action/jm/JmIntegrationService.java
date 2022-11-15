@@ -70,17 +70,19 @@ public class JmIntegrationService
     {
 
         UUID trace = UUID.randomUUID();
-        log.info( "(" + trace + ") IMPORTANT: Begin JM crateAccount" );
+        log.info( "(" + trace + ") IMPORTANT: Begin JM createAccount" );
         final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( lineId, IntegrationType.JM_CREATE_ACCOUNT );
+        log.info( "(" + trace + ") IMPORTANT: integrationEntity fetched" );
         final JmApiSpec jmApiSpec = objectMapper.convertValue( integrationEntity.getSpec(), JmApiSpec.class );
+        log.info( "(" + trace + ") IMPORTANT: JmApiSpec parsed from Integration" );
         final JMAuthResult jmAuthResult = getAuth( jmApiSpec, jmAuthClient );
-
+        log.info( "(" + trace + ") IMPORTANT: Jm Api authentication complete" );
         final URI uri = URI.create( jmApiSpec.getBaseUrl() );
-        log.info( "(" + trace + ") IMPORTANT: JM crateAccount URI: " + uri );
-        log.info( "(" + trace + ") IMPORTANT: JM crateAccount request: " + objectMapper.writeValueAsString( createAccountRequest ) );
+        log.info( "(" + trace + ") IMPORTANT: JM createAccount URI: " + uri );
+        log.info( "(" + trace + ") IMPORTANT: JM createAccount request: " + objectMapper.writeValueAsString( createAccountRequest ) );
         CreateAccountResponse createAccountResponse = getCreateAccountResponse( createAccountRequest, jmApiSpec, jmAuthResult, uri );
-        log.info( "(" + trace + ") IMPORTANT: JM crateAccount response: " + objectMapper.writeValueAsString( createAccountResponse ) );
-        log.info( "(" + trace + ") IMPORTANT: End JM crateAccount" );
+        log.info( "(" + trace + ") IMPORTANT: JM createAccount response: " + objectMapper.writeValueAsString( createAccountResponse ) );
+        log.info( "(" + trace + ") IMPORTANT: End JM createAccount" );
         return createAccountResponse;
     }
 
@@ -98,8 +100,8 @@ public class JmIntegrationService
         final JMAuthResult jmAuthResult = getAuth( jmApiSpec, jmAuthClient );
         final URI uri = URI.create( jmApiSpec.getBaseUrl() );
 
-        log.info( "(" + trace + ") IMPORTANT: JM crateAccount URI: " + uri );
-        log.info( "(" + trace + ") IMPORTANT: JM crateAccount request: " + objectMapper.writeValueAsString( submitApplicationRequest ) );
+        log.info( "(" + trace + ") IMPORTANT: JM createAccount URI: " + uri );
+        log.info( "(" + trace + ") IMPORTANT: JM createAccount request: " + objectMapper.writeValueAsString( submitApplicationRequest ) );
 
         final SubmitApplicationResponse response = getSubmitApplicationResponse( submitApplicationRequest, jmApiSpec, jmAuthResult, uri );
         log.info( "(" + trace + ") IMPORTANT: JM submitApplication response: " + objectMapper.writeValueAsString( response ) );
