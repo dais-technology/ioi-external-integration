@@ -35,4 +35,11 @@ public class JMUtils
         }
         return returnCode;
     }
+
+    public static boolean isCanadianZipcode( String zipCode )
+    {
+        final String formattedCode = zipCode.trim().toUpperCase().replaceAll( " ", "" ); // 'code' is the zipcode from front-end.
+
+        return REGEX_CA_ZIP.matcher( formattedCode ).matches();
+    }
 }
