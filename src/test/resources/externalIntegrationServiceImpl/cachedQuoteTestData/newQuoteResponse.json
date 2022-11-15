@@ -1,0 +1,173 @@
+{
+  "quoteTimestamp": "2022-11-10T14:13:01.452-08:00",
+  "quoteDetails": {
+    "premium": {
+      "amount": 30.00
+    },
+    "coverageTypes": [
+      {
+        "type": "brooch",
+        "coverages": [
+          {
+            "premium": 27.00,
+            "details": {
+              "itemId": [
+                {
+                  "amount": "1",
+                  "amountType": "TEXT"
+                }
+              ],
+              "itemTaxesAndSurcharges": [
+                {
+                  "amount": "0.54",
+                  "amountType": "DOLLAR"
+                }
+              ],
+              "deductible": [
+                {
+                  "amount": "0",
+                  "amountType": "DOLLAR"
+                }
+              ],
+              "itemValue": [
+                {
+                  "amount": "2000.0",
+                  "amountType": "DOLLAR"
+                }
+              ]
+            }
+          },
+          {
+            "premium": 25.00,
+            "details": {
+              "itemId": [
+                {
+                  "amount": "1",
+                  "amountType": "TEXT"
+                }
+              ],
+              "itemTaxesAndSurcharges": [
+                {
+                  "amount": "0.51",
+                  "amountType": "DOLLAR"
+                }
+              ],
+              "deductible": [
+                {
+                  "amount": "100",
+                  "amountType": "DOLLAR"
+                }
+              ],
+              "itemValue": [
+                {
+                  "amount": "2000.0",
+                  "amountType": "DOLLAR"
+                }
+              ]
+            }
+          },
+          {
+            "premium": 24.00,
+            "details": {
+              "itemId": [
+                {
+                  "amount": "1",
+                  "amountType": "TEXT"
+                }
+              ],
+              "itemTaxesAndSurcharges": [
+                {
+                  "amount": "0.48",
+                  "amountType": "DOLLAR"
+                }
+              ],
+              "deductible": [
+                {
+                  "amount": "250",
+                  "amountType": "DOLLAR"
+                }
+              ],
+              "itemValue": [
+                {
+                  "amount": "2000.0",
+                  "amountType": "DOLLAR"
+                }
+              ]
+            }
+          },
+          {
+            "premium": 23.00,
+            "details": {
+              "itemId": [
+                {
+                  "amount": "1",
+                  "amountType": "TEXT"
+                }
+              ],
+              "itemTaxesAndSurcharges": [
+                {
+                  "amount": "0.46",
+                  "amountType": "DOLLAR"
+                }
+              ],
+              "deductible": [
+                {
+                  "amount": "500",
+                  "amountType": "DOLLAR"
+                }
+              ],
+              "itemValue": [
+                {
+                  "amount": "2000.0",
+                  "amountType": "DOLLAR"
+                }
+              ]
+            }
+          },
+          {
+            "premium": 22.00,
+            "details": {
+              "itemId": [
+                {
+                  "amount": "1",
+                  "amountType": "TEXT"
+                }
+              ],
+              "itemTaxesAndSurcharges": [
+                {
+                  "amount": "0.44",
+                  "amountType": "DOLLAR"
+                }
+              ],
+              "deductible": [
+                {
+                  "amount": "1000",
+                  "amountType": "DOLLAR"
+                }
+              ],
+              "itemValue": [
+                {
+                  "amount": "2000.0",
+                  "amountType": "DOLLAR"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "bindable": false,
+  "effectiveDate": "2022-11-10",
+  "type": "QUOTE",
+  "lineId": "7f983dc1-629e-4064-be31-2e448a916d26",
+  "clientId": "b46861ad-182d-438f-8fa3-4daf119040a6",
+  "clientOrganizationId": "418cc25b-fdb9-4aaa-a8a8-1263cbb70c92",
+  "metadata": {
+    "minimumPremium": 30.0,
+    "minimumTaxesAndSurcharges": 0.6,
+    "totalTaxesAndSurcharges": 0.6
+  },
+  "rawQuoteRequest": {},
+  "rawQuoteDetails": {}
+}
