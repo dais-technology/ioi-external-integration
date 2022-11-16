@@ -1093,6 +1093,10 @@ public class JMAddQuoteHelperImpl
               getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getItemGender() ).getAnswer().toString(), "" )
         );
 
+        primaryWearer.setRelationWithApplicant(
+              getValue( () -> wearerDto.getAnswers().get( actionJMSQuoteSpecDto.getPrimaryWearerRelationWithApplicant() ).getAnswer().toString(), "" )
+        );
+
         AddQuoteRequest.ResidentialAddress primaryWearerResidentialAddress = new AddQuoteRequest.ResidentialAddress();
 
         primaryWearerResidentialAddress.setAddress1(
