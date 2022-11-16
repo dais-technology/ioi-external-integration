@@ -1,0 +1,105 @@
+{
+  "lineId": "7f983dc1-629e-4064-be31-2e448a916d26",
+  "externalIntegrationType": "JM_QUICKQUOTE",
+  "agentInfo": {
+    "firstName": "Edin (AG)",
+    "lastName": "Arslanagic",
+    "email": "edin.arslanagic+edin1@dais.com"
+  },
+  "organizationId": "418cc25b-fdb9-4aaa-a8a8-1263cbb70c92",
+  "intake": {
+    "analytics_userBrowserType": {
+      "type": "ANSWER",
+      "answer": "Chrome",
+      "qid": "analytics_userBrowserType"
+    },
+    "analytics_userScreenWidth": {
+      "type": "ANSWER",
+      "answer": "1536",
+      "qid": "analytics_userScreenWidth"
+    },
+    "customerInfoFirstName": {
+      "type": "ANSWER",
+      "answer": "Test",
+      "qid": "customerInfoFirstName"
+    },
+    "customerInfoLastName": {
+      "type": "ANSWER",
+      "answer": "Tester",
+      "qid": "customerInfoLastName"
+    },
+    "client.city": {
+      "type": "ANSWER",
+      "answer": "Naples",
+      "qid": "client.city"
+    },
+    "client.state": {
+      "type": "ANSWER",
+      "answer": "FL",
+      "qid": "client.state"
+    },
+    "client.zipcode": {
+      "type": "ANSWER",
+      "answer": "34101",
+      "qid": "client.zipcode"
+    },
+    "client.phoneNumber": {
+      "type": "ANSWER",
+      "answer": "1231231231",
+      "qid": "client.phoneNumber"
+    },
+    "customerInfoPrimaryEmail": {
+      "type": "ANSWER",
+      "answer": "default@answer.com",
+      "qid": "customerInfoPrimaryEmail"
+    },
+    "customerInfoReferralSource": {
+      "type": "ANSWER",
+      "answer": "Customer Care",
+      "qid": "customerInfoReferralSource"
+    },
+    "CommercialStructure_PhysicalAddress_CountyName_A": {
+      "type": "ANSWER",
+      "answer": "Collier",
+      "qid": "CommercialStructure_PhysicalAddress_CountyName_A"
+    },
+    "customerInfoCountry": {
+      "type": "ANSWER",
+      "answer": "US",
+      "qid": "customerInfoCountry"
+    },
+    "dateOfLastQuote": {
+      "type": "ANSWER",
+      "answer": "10/01/2022",
+      "qid": "dateOfLastQuote"
+    },
+    "jewelryItems": {
+      "type": "LOOP",
+      "qid": "jewelryItems",
+      "iterations": [
+        {
+          "iterationId": "7e12914f-b101-46f1-b8e3-6633941bb1e2",
+          "answers": {
+            "jewelryType": {
+              "type": "ANSWER",
+              "answer": "Brooch",
+              "qid": "jewelryType"
+            },
+            "jewelryValue": {
+              "type": "ANSWER",
+              "answer": "2000",
+              "qid": "jewelryValue"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "intakeLoopIterationIdsToDelete": [],
+  "storeFrontId": "a3f4fe9a-a6ff-4330-921f-006a870bc02f",
+  "pipelines": [
+    "1e484a58-f0ab-4e87-9223-d543fb72fd7f"
+  ],
+  "clientId": "b46861ad-182d-438f-8fa3-4daf119040a6",
+  "effectiveDate": "2022-10-02"
+}

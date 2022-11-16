@@ -86,8 +86,8 @@ public class AddQuoteRequest
         @JsonProperty( "ItemDescription" )
         public String itemDescription;
 
-//        @JsonProperty( "Gender" )
-//        public String gender;
+        @JsonProperty( "Gender" )
+        public String gender;
 
         @JsonProperty( "PrimaryWearer" )
         public PrimaryWearer primaryWearer;
