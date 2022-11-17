@@ -18,8 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 import static com.dais.ioi.external.service.action.jm.JMAuth.getAuth;
-import static com.dais.ioi.external.service.action.jm.JMUtils.getValue;
 
 
 @Service
@@ -59,27 +60,15 @@ public class JMQuoteServiceImpl
 
         if ( entity.getType().equals( IntegrationType.JM_ADDQUOTE ) )
         {
-
             triggerResponseDto = jmAddQuoteHelper.processAddQuote( ap, jmAuthResult, actionJMSQuoteSpecDto );
-
-            String externalQuoteId = (String) ap.getPayload().get( "externalQuoteId" );
-
-            if ( externalQuoteId != null && !externalQuoteId.equalsIgnoreCase( "" ) )
-            {
-
-                return triggerResponseDto;
-            }
-
-            if ( getValue( () -> triggerResponseDto.getMetadata().get( "isCoverageAvailable" ).toString(), "true" ).equalsIgnoreCase( "false" ) )
-            {
-
-                return triggerResponseDto;
-            }
         }
         else
         {
-            triggerResponseDto = jmQuickQuoteHelper.processQuickQuote( ap, jmAuthResult, actionJMSQuoteSpecDto );
+            final UUID requestId = null == ap.getTriggerRequestId() ? UUID.randomUUID() : ap.getTriggerRequestId();
+
+            triggerResponseDto = TriggerResponseDto.builder().triggerRequestId( requestId ).build();
         }
+
         return triggerResponseDto;
     }
 
