@@ -5,6 +5,7 @@ import com.dais.ioi.external.domain.dto.internal.enums.IntegrationType;
 import com.dais.ioi.external.entity.IntegrationEntity;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.UUID;
 
 
@@ -19,4 +20,6 @@ public interface ExternalIntegrationRepository
 
     IntegrationEntity getIntegrationEntityByUsageAndType( String useage,
                                                           IntegrationType type );
+
+    List<IntegrationEntity> getIntegrationEntityByType( IntegrationType type );
 }
