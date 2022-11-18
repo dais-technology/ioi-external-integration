@@ -950,11 +950,11 @@ public class JMAddQuoteHelperImpl
             );
 
             item.setItemDamage(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemDamage() ).getAnswer(), "" )
+                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemDamage() ).getAnswer(), null )
             );
 
             item.setItemPossession(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemPossession() ).getAnswer(), "" )
+                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemPossession() ).getAnswer(), null )
             );
 
             item.setSerialNumber(
