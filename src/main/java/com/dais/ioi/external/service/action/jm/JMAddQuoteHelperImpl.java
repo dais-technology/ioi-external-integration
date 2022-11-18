@@ -58,6 +58,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -621,11 +622,44 @@ public class JMAddQuoteHelperImpl
 
         List<ClientLoopIterationDto> jewerlyWearers = intake.get( "jewelryWearers" ).getIterations();
 
-        processAddQuoteIteration( addQuoteRequest, intake.get( actionJMSQuoteSpecDto.getItemLoop() ).getIterations(), actionJMSQuoteSpecDto, jewerlyWearers, pluginFields );
+        final Map<UUID, String> possessionAnswersByIterationId = mapPossessionAnswers( intake, actionJMSQuoteSpecDto );
+
+        processAddQuoteIteration( addQuoteRequest, intake.get( actionJMSQuoteSpecDto.getItemLoop() ).getIterations(), actionJMSQuoteSpecDto, jewerlyWearers, pluginFields, possessionAnswersByIterationId );
 
         setCanadianParameters( addQuoteRequest, intake, actionJMSQuoteSpecDto );
 
         return addQuoteRequest;
+    }
+
+
+    private Map<UUID, String> mapPossessionAnswers( final Map<String, ClientAnswerDto> intake,
+                                                    final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
+    {
+        final Map<UUID, String> possessionAnswers = new HashMap<>();
+        final List<ClientLoopIterationDto> iterations = intake.get( actionJMSQuoteSpecDto.getItemLoop() ).getIterations();
+        final Optional<String> possessionOfAllItems = Optional.of( getValue( () -> intake.get( actionJMSQuoteSpecDto.getItemPossession() ).getAnswer(), null ) );
+        possessionOfAllItems.ifPresent( value -> {
+            if ( "YES".equalsIgnoreCase( value ) )
+            {
+                iterations.forEach( iteration -> possessionAnswers.put( iteration.getIterationId(), "Yes" ) );
+            }
+            else if ( "NO".equalsIgnoreCase( value ) )
+            {
+                final String itemsNotInPossession = getValue( () -> intake.get( actionJMSQuoteSpecDto.getItemsNotInPossession() ).getAnswer(), null );
+                iterations.forEach( iteration -> {
+                    if ( itemsNotInPossession.contains( iteration.getIterationId().toString() ) )
+                    {
+                        possessionAnswers.put( iteration.getIterationId(), "No" );
+                    }
+                    else
+                    {
+                        possessionAnswers.put( iteration.getIterationId(), "Yes" );
+                    }
+                } );
+            }
+        } );
+
+        return possessionAnswers;
     }
 
 
@@ -922,7 +956,8 @@ public class JMAddQuoteHelperImpl
                                            List<ClientLoopIterationDto> iterations,
                                            ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
                                            List<ClientLoopIterationDto> jewerlyWearers,
-                                           Map<String, String> pluginFields )
+                                           Map<String, String> pluginFields,
+                                           final Map<UUID, String> possessionAnswersByIterationId )
     {
         ArrayList<AddQuoteRequest.JeweleryItem> jeweleryItems = new ArrayList<>();
         int itemNumber = 1;
@@ -953,9 +988,7 @@ public class JMAddQuoteHelperImpl
                   getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemDamage() ).getAnswer(), "" )
             );
 
-            item.setItemPossession(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemPossession() ).getAnswer(), "" )
-            );
+            item.setItemPossession( possessionAnswersByIterationId.getOrDefault( clientLoopIterationDto.getIterationId(), null ) );
 
             item.setSerialNumber(
                   getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getSerialNumber() ).getAnswer(), "" )
