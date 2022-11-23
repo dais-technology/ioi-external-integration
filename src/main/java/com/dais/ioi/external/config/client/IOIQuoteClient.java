@@ -15,7 +15,7 @@ import java.util.UUID;
 @FeignClient( "ioi-quote-service" )
 public interface IOIQuoteClient
 {
-    //TODO Delete this when migration V1_7 is applied to all env
+    //NOTE: This can be deleted when client_id migration is applied to all env
     @RequestMapping( value = "/pub/v1/quotes",
                      method = RequestMethod.POST )
     @ApiOperation( value = "Inbound API" )
