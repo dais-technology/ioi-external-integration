@@ -1474,6 +1474,7 @@ public class JMAddQuoteHelperImpl
             details.put( "itemValue", Collections.singletonList( itemValueBuilder.build() ) );
         }
 
+        
         //TODO: Disabled until JM Prod is Stable
         //        if ( additionalItemInfo.getIterationId() != null )
         //        {
