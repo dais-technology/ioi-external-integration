@@ -32,7 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -311,7 +310,7 @@ public class JMQuickQuoteHelperImpl
                   JMUtils.formatZipCode( zipcode )
             );
 
-            if ( !isCanadianZipcode(zipcode) )
+            if ( !isCanadianZipcode( zipcode ) )
             {
                 quickQuoteRequest.setCounty( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCounty() ).getAnswer(), null ) );
             }
@@ -341,7 +340,7 @@ public class JMQuickQuoteHelperImpl
         {
             QuickQuoteRequest.JeweleryItem item = new QuickQuoteRequest.JeweleryItem();
             item.setItemId( ( String.valueOf( itemId ) ) );
-            item.setItemValue( getValue( () -> Integer.parseInt( iteration.getAnswers().get( actionJMSQuoteSpecDto.getItemValue() ).getAnswer() ), 0 ) );
+            item.setItemValue( getValue( () -> Double.parseDouble( iteration.getAnswers().get( actionJMSQuoteSpecDto.getItemValue() ).getAnswer() ), 0.00 ) );
             item.setJeweleryType( getValue( () -> iteration.getAnswers().get( actionJMSQuoteSpecDto.getItemType() ).getAnswer().toLowerCase(), "" ) );
             jeweleryItems.add( item );
             itemId++;
