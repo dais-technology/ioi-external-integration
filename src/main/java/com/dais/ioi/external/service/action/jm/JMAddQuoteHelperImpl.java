@@ -416,8 +416,8 @@ public class JMAddQuoteHelperImpl
         }
         catch ( FeignException e )
         {
-            log.error( e.getMessage() );
             log.error( "IMPORTANT: An exception occurred when attempting to get a UpdateQuote response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
+            log.error( "IMPORTANT: an error occured when calling JM UpdateQuote: " + e.getMessage() );
             List<Object> errorMessages = new ArrayList<>();
             errorMessages.add( "An Error Occured when calling JM UpdateQuote." );
             //TODO: Parse out error message to extract cause
@@ -445,8 +445,8 @@ public class JMAddQuoteHelperImpl
         }
         catch ( FeignException e )
         {
+            log.error( "IMPORTANT: An exception occurred when attempting to get a AddQuote response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
             log.error( "IMPORTANT: an error occured when calling JM AddQuote: " + e.getMessage() );
-            log.error( "IMPORTANT: An exception occurred when attempting to get a UpdateQuote response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
             List<Object> errorMessages = new ArrayList<>();
             errorMessages.add( "An Error Occured when calling JM AddQuote." );
             //TODO: Parse out error message to extract cause
