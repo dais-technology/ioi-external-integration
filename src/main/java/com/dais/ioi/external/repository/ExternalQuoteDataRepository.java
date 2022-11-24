@@ -19,5 +19,5 @@ public interface ExternalQuoteDataRepository
     Optional<ExternalQuoteDataEntity> getExternalQuoteDataEntityByExternalQuoteId( String externalQuoteId );
 
     @Query("select eqd.quoteId from ExternalQuoteDataEntity eqd where clientId is null and quoteId is not null")
-    List<UUID> getQuoteIdsToUpdateClientIds();
+    List<UUID> getQuoteIdsWIthEmptyClientIds();
 }

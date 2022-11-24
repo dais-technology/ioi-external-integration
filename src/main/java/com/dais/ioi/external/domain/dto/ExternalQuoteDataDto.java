@@ -23,4 +23,6 @@ public class ExternalQuoteDataDto
     private UUID quoteId;
 
     private Map<String, ?> quoteData;
+
+    private UUID clientId;
 }

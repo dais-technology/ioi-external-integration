@@ -18,8 +18,8 @@ public class MigrationController
 
 
     @Override
-    public void populateClientId()
+    public void populateExternalQuoteDataClientId()
     {
-        migrationService.populateClientIdInExternalQuoteData();
+        migrationService.populateExternalQuoteDataClientId();
     }
 }

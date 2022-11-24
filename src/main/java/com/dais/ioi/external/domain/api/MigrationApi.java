@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public interface MigrationApi
 {
     @ResponseStatus( HttpStatus.OK )
-    @RequestMapping( value = "/populateClientId",
+    @RequestMapping( value = "/populateExternalQuoteDataClientId",
                      method = RequestMethod.POST )
-    @ApiOperation( value = "PopulateClientId" )
-    void populateClientId();
+    @ApiOperation( value = "Populate ExternalQuoteData ClientId" )
+    void populateExternalQuoteDataClientId();
 }

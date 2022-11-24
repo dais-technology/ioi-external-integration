@@ -34,11 +34,11 @@ public class MigrationServiceImpl
 
     @Override
     @Transactional
-    public void populateClientIdInExternalQuoteData()
+    public void populateExternalQuoteDataClientId()
     {
         log.info( "MIGRATION: Started!" );
 
-        List<UUID> quoteIds = externalQuoteDataRepository.getQuoteIdsToUpdateClientIds();
+        List<UUID> quoteIds = externalQuoteDataRepository.getQuoteIdsWIthEmptyClientIds();
         log.info( "MIGRATION: Found {} rows to update!", quoteIds.size() );
 
         List<QuoteDto> quotes = ioiQuoteClient.getQuotesByRequestIds( quoteIds );
