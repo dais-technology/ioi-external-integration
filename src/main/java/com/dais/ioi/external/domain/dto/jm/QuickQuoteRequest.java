@@ -34,7 +34,7 @@ public class QuickQuoteRequest
     {
         public String jeweleryType;
 
-        public int itemValue;
+        public double itemValue;
 
         public String itemId;
     }

@@ -72,6 +72,7 @@ serviceSecrets:
   - ioi-action-service.ribbon.listOfServers
   - track-hubspot.ribbon.listOfServers
   - feign.logging.level
+  - ioi-quote-service.ribbon.listOfServers
 
 environmentVariables:
   - name: SPRING_ENVIRONMENT_PROFILE

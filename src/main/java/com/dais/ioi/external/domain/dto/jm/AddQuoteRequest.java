@@ -66,7 +66,7 @@ public class AddQuoteRequest
         public String jewelerySubType;
 
         @JsonProperty( "ItemValue" )
-        public int itemValue;
+        public double itemValue;
 
         @JsonProperty( "ItemNumber" )
         public int itemNumber;
