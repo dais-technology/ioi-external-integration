@@ -149,8 +149,6 @@ public class ActionJMSQuoteSpecDto
 
     private String safeDepositBoxLocation;
 
-    private String safeDepositBoxAddress;
-
     private String livesInGatedEntranceCommunity;
 
     private String communityHasFence;
