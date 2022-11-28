@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ACORD>
+    <SignonRs>
+        <Status>
+            <StatusCd>DECLINE</StatusCd>
+            <StatusDesc>
+                <Desc>Level of Touch=No</Desc>
+            </StatusDesc>
+        </Status>
+        <ClientApp>
+            <Org>2-Digital Storefront</Org>
+            <Name>com.HeadlessInterface</Name>
+            <Version>1.0</Version>
+        </ClientApp>
+    </SignonRs>
+    <InsuranceSvcRs>
+        <RqUID>d98b4f30-1f1d-428e-b818-60475158802c</RqUID>
+        <WorkCompPolicyAddRs>
+            <com.afg_PDFContent>
+                <CommlPolicy>
+                    <PolicyNumber>0000106134</PolicyNumber>
+                    <PolicyVersion>0</PolicyVersion>
+                    <CurrentTermAmt/>
+                    <ContractTerm/>
+                </CommlPolicy>
+            </com.afg_PDFContent>
+        </WorkCompPolicyAddRs>
+    </InsuranceSvcRs>
+</ACORD>
