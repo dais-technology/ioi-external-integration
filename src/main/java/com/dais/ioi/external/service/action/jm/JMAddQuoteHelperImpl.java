@@ -255,7 +255,7 @@ public class JMAddQuoteHelperImpl
             PubQuoteDetailsDto quoteDetailsForQuoteOption = getQuoteDetailsForQuoteOption( updateQuoteResult, addQuoteRequest, actionJMSQuoteSpecDto, triggerSpec.getIntake() );
             PubQuoteDetailsDto quoteDetailsForIOI = getQuoteDetailsForIOI( updateQuoteResult, addQuoteRequest, actionJMSQuoteSpecDto, triggerSpec.getIntake() );
 
-            saveFieldsForPlugin( requestId, addQuoteResult, pluginFields );
+            saveFieldsForPlugin( requestId, addQuoteResult, pluginFields, triggerSpec.getClientId() );
 
             TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
 
@@ -1500,7 +1500,8 @@ public class JMAddQuoteHelperImpl
 
     private void saveFieldsForPlugin( UUID requestId,
                                       AddQuoteResult addQuoteResult,
-                                      HashMap<String, String> fieldsForPlugin )
+                                      HashMap<String, String> fieldsForPlugin,
+                                      UUID clientId )
     {
 
         ExternalQuoteDataDto externalQuoteDataDto = new ExternalQuoteDataDto();
@@ -1510,6 +1511,8 @@ public class JMAddQuoteHelperImpl
         externalQuoteDataDto.setExternalQuoteId( addQuoteResult.getQuoteId() );
 
         externalQuoteDataDto.setQuoteData( fieldsForPlugin );
+
+        externalQuoteDataDto.setClientId( clientId );
 
         externalQuoteDataService.saveOrUpdate( externalQuoteDataDto );
     }

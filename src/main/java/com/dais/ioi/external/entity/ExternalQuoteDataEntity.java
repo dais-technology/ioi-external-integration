@@ -42,4 +42,7 @@ public class ExternalQuoteDataEntity
              columnDefinition = "jsonb" )
     @Type( type = "jsonb" )
     private Map<String, ?> quoteData;
+
+    @Column( name = "client_id" )
+    private UUID clientId;
 }
