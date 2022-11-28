@@ -100,8 +100,8 @@ public class JmIntegrationService
         final JMAuthResult jmAuthResult = getAuth( jmApiSpec, jmAuthClient );
         final URI uri = URI.create( jmApiSpec.getBaseUrl() );
 
-        log.info( "(" + trace + ") IMPORTANT: JM createAccount URI: " + uri );
-        log.info( "(" + trace + ") IMPORTANT: JM createAccount request: " + objectMapper.writeValueAsString( submitApplicationRequest ) );
+        log.info( "(" + trace + ") IMPORTANT: JM submitApplication URI: " + uri );
+        log.info( "(" + trace + ") IMPORTANT: JM submitApplication request: " + objectMapper.writeValueAsString( submitApplicationRequest ) );
 
         final SubmitApplicationResponse response = getSubmitApplicationResponse( submitApplicationRequest, jmApiSpec, jmAuthResult, uri );
         log.info( "(" + trace + ") IMPORTANT: JM submitApplication response: " + objectMapper.writeValueAsString( response ) );

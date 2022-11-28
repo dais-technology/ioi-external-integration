@@ -255,7 +255,7 @@ public class JMAddQuoteHelperImpl
             PubQuoteDetailsDto quoteDetailsForQuoteOption = getQuoteDetailsForQuoteOption( updateQuoteResult, addQuoteRequest, actionJMSQuoteSpecDto, triggerSpec.getIntake() );
             PubQuoteDetailsDto quoteDetailsForIOI = getQuoteDetailsForIOI( updateQuoteResult, addQuoteRequest, actionJMSQuoteSpecDto, triggerSpec.getIntake() );
 
-            saveFieldsForPlugin( requestId, addQuoteResult, pluginFields );
+            saveFieldsForPlugin( requestId, addQuoteResult, pluginFields, triggerSpec.getClientId() );
 
             TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
 
@@ -365,6 +365,11 @@ public class JMAddQuoteHelperImpl
                                               actionJMSQuoteSpecDto.getApiSubscriptionkey(),
                                               addQuoteRequest );
         }
+        catch ( FeignException e )
+        {
+            log.error( "IMPORTANT: An exception occurred when attempting to get a UpdateQuote response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
+            throw new ExternalApiException( "Unable to get response from URL: " + determinedBasePathUri.toString() + " Message: " + e.getMessage(), e );
+        }
         catch ( Exception e )
         {
             log.error( "IMPORTANT: An exception occurred when attempting to get a UpdateQuote response from JM: " + e.getMessage(), e );
@@ -411,7 +416,8 @@ public class JMAddQuoteHelperImpl
         }
         catch ( FeignException e )
         {
-            log.error( e.getMessage() );
+            log.error( "IMPORTANT: An exception occurred when attempting to get a UpdateQuote response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
+            log.error( "IMPORTANT: an error occured when calling JM UpdateQuote: " + e.getMessage() );
             List<Object> errorMessages = new ArrayList<>();
             errorMessages.add( "An Error Occured when calling JM UpdateQuote." );
             //TODO: Parse out error message to extract cause
@@ -439,6 +445,7 @@ public class JMAddQuoteHelperImpl
         }
         catch ( FeignException e )
         {
+            log.error( "IMPORTANT: An exception occurred when attempting to get a AddQuote response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
             log.error( "IMPORTANT: an error occured when calling JM AddQuote: " + e.getMessage() );
             List<Object> errorMessages = new ArrayList<>();
             errorMessages.add( "An Error Occured when calling JM AddQuote." );
@@ -721,11 +728,6 @@ public class JMAddQuoteHelperImpl
         safeDepositBoxLocation.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getSafeDepositBoxLocation() ).getAnswer(), "" ) );
         underwritingInfo.getUnderwritingQuestions().add( safeDepositBoxLocation );
 
-        AddQuoteRequest.UnderwritingQuestion safeDepositBoxAddress = new AddQuoteRequest.UnderwritingQuestion();
-        safeDepositBoxAddress.setKey( "SafeDepositBoxAddress" );
-        safeDepositBoxAddress.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getSafeDepositBoxLocation() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( safeDepositBoxAddress );
-
         AddQuoteRequest.UnderwritingQuestion livesInGatedEntranceCommunity = new AddQuoteRequest.UnderwritingQuestion();
         livesInGatedEntranceCommunity.setKey( "LivesInGatedEntranceCommunity" );
         livesInGatedEntranceCommunity.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getLivesInGatedEntranceCommunity() ).getAnswer(), "" ) );
@@ -942,7 +944,7 @@ public class JMAddQuoteHelperImpl
                   itemNumber
             );
             item.setItemValue(
-                  Integer.parseInt( getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemValue() ).getAnswer(), "" ).toString() )
+                  Double.parseDouble( getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemValue() ).getAnswer(), "0.00" ) )
             );
 
             item.setItemDescription(
@@ -950,11 +952,11 @@ public class JMAddQuoteHelperImpl
             );
 
             item.setItemDamage(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemDamage() ).getAnswer(), "" )
+                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemDamage() ).getAnswer(), null )
             );
 
             item.setItemPossession(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemPossession() ).getAnswer(), "" )
+                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemPossession() ).getAnswer(), null )
             );
 
             item.setSerialNumber(
@@ -1474,6 +1476,7 @@ public class JMAddQuoteHelperImpl
             details.put( "itemValue", Collections.singletonList( itemValueBuilder.build() ) );
         }
 
+
         //TODO: Disabled until JM Prod is Stable
         //        if ( additionalItemInfo.getIterationId() != null )
         //        {
@@ -1483,6 +1486,7 @@ public class JMAddQuoteHelperImpl
         //            details.put( "iterationId", Collections.singletonList( iterationIdBuilder.build() ) );
         //        }
 
+
         pubCoverageBuilder.details( details );
         PubCoverageDto pubCoverageDto = pubCoverageBuilder.build();
         return pubCoverageDto;
@@ -1491,7 +1495,8 @@ public class JMAddQuoteHelperImpl
 
     private void saveFieldsForPlugin( UUID requestId,
                                       AddQuoteResult addQuoteResult,
-                                      HashMap<String, String> fieldsForPlugin )
+                                      HashMap<String, String> fieldsForPlugin,
+                                      UUID clientId )
     {
 
         ExternalQuoteDataDto externalQuoteDataDto = new ExternalQuoteDataDto();
@@ -1501,6 +1506,8 @@ public class JMAddQuoteHelperImpl
         externalQuoteDataDto.setExternalQuoteId( addQuoteResult.getQuoteId() );
 
         externalQuoteDataDto.setQuoteData( fieldsForPlugin );
+
+        externalQuoteDataDto.setClientId( clientId );
 
         externalQuoteDataService.saveOrUpdate( externalQuoteDataDto );
     }
