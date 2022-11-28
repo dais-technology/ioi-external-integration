@@ -763,7 +763,7 @@ public class JMAddQuoteHelperImpl
         final String communityResidentEntranceDescriptionValue = getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityResidentEntranceDescription() ).getAnswer(), "" );
         if ( "Other".equalsIgnoreCase( communityResidentEntranceDescriptionValue ) )
         {
-            communityResidentEntranceDescription.setValue( "Other - " + getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityResidentEntranceDescriptionOther() ).getAnswer(), "" ) );
+            communityResidentEntranceDescription.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityResidentEntranceDescriptionOther() ).getAnswer(), "" ) );
         }
         else
         {
@@ -776,7 +776,7 @@ public class JMAddQuoteHelperImpl
         final String communityGuestEntranceDescriptionValue = getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityGuestEntranceDescription() ).getAnswer(), "" );
         if ( "Other".equalsIgnoreCase( communityGuestEntranceDescriptionValue ) )
         {
-            communityGuestEntranceDescription.setValue( "Other - " + getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityGuestEntranceDescriptionOther() ).getAnswer(), "" ) );
+            communityGuestEntranceDescription.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getCommunityGuestEntranceDescriptionOther() ).getAnswer(), "" ) );
         }
         else
         {
@@ -794,7 +794,7 @@ public class JMAddQuoteHelperImpl
         final String domesticHelpDescriptionValue = getValue( () -> intake.get( actionJMSQuoteSpecDto.getDomesticHelpDescription() ).getAnswer(), "" );
         if ( "Other".equalsIgnoreCase( domesticHelpDescriptionValue ) )
         {
-            domesticHelpDescription.setValue( "Other - " + getValue( () -> intake.get( actionJMSQuoteSpecDto.getDomesticHelpDescriptionOther() ).getAnswer(), "" ) );
+            domesticHelpDescription.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getDomesticHelpDescriptionOther() ).getAnswer(), "" ) );
         }
         else
         {
