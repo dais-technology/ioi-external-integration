@@ -728,11 +728,6 @@ public class JMAddQuoteHelperImpl
         safeDepositBoxLocation.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getSafeDepositBoxLocation() ).getAnswer(), "" ) );
         underwritingInfo.getUnderwritingQuestions().add( safeDepositBoxLocation );
 
-        AddQuoteRequest.UnderwritingQuestion safeDepositBoxAddress = new AddQuoteRequest.UnderwritingQuestion();
-        safeDepositBoxAddress.setKey( "SafeDepositBoxAddress" );
-        safeDepositBoxAddress.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getSafeDepositBoxLocation() ).getAnswer(), "" ) );
-        underwritingInfo.getUnderwritingQuestions().add( safeDepositBoxAddress );
-
         AddQuoteRequest.UnderwritingQuestion livesInGatedEntranceCommunity = new AddQuoteRequest.UnderwritingQuestion();
         livesInGatedEntranceCommunity.setKey( "LivesInGatedEntranceCommunity" );
         livesInGatedEntranceCommunity.setValue( getValue( () -> intake.get( actionJMSQuoteSpecDto.getLivesInGatedEntranceCommunity() ).getAnswer(), "" ) );
