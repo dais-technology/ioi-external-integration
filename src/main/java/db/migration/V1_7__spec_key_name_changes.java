@@ -11,7 +11,7 @@ import java.util.Map;
 
 
 @Slf4j
-public class V1_6__spec_key_name_changes
+public class V1_7__spec_key_name_changes
       extends BaseJavaMigration
 {
     @Override
