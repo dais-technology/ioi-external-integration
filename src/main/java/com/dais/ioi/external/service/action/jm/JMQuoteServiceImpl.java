@@ -73,7 +73,7 @@ public class JMQuoteServiceImpl
         if ( entity.getType().equals( IntegrationType.JM_ADDQUOTE ) )
         {
 
-            triggerResponseDto = jmAddQuoteHelper.processAddQuote( ap, jmApiSpec, jmAuthClient, actionJMSQuoteSpecDto );
+            triggerResponseDto = jmAddQuoteHelper.processAddQuote( ap, jmApiSpec, actionJMSQuoteSpecDto );
 
             String externalQuoteId = (String) ap.getPayload().get( "externalQuoteId" );
 

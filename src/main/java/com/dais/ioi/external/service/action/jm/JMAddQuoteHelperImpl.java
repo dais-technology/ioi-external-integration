@@ -86,22 +86,25 @@ public class JMAddQuoteHelperImpl
 
     private final JmQuoteOptionsService jmQuoteOptionsService;
 
+    private final JMAuthClient jmAuthClient;
+
 
     public JMAddQuoteHelperImpl( @Autowired final JMQuoteClient jmQuoteClient,
                                  @Autowired final ObjectMapper objectMapper,
                                  @Autowired final ExternalQuoteDataService externalQuoteDataService,
-                                 @Autowired final JmQuoteOptionsService jmQuoteOptionsService )
+                                 @Autowired final JmQuoteOptionsService jmQuoteOptionsService,
+                                 @Autowired final JMAuthClient jmAuthClient )
     {
         this.jmQuoteClient = jmQuoteClient;
         this.objectMapper = objectMapper;
         this.externalQuoteDataService = externalQuoteDataService;
         this.jmQuoteOptionsService = jmQuoteOptionsService;
+        this.jmAuthClient = jmAuthClient;
     }
 
 
     public TriggerResponseDto processAddQuote( FiredTriggerDto firedTriggerDto,
                                                JmApiSpec jmApiSpec,
-                                               JMAuthClient jmAuthClient,
                                                ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
           throws Exception
     {
