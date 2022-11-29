@@ -9,6 +9,7 @@ import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanRequestDto;
 import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
 import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
+import com.dais.ioi.external.domain.dto.spec.JmApiSpec;
 import com.dais.ioi.external.entity.IntegrationEntity;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
@@ -17,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 import static com.dais.ioi.external.service.action.jm.JMAuth.getAuth;
 import static com.dais.ioi.external.service.action.jm.JMUtils.getValue;
@@ -53,14 +56,24 @@ public class JMQuoteServiceImpl
 
         ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( entity.getSpec(), ActionJMSQuoteSpecDto.class );
 
-        final JMAuthResult jmAuthResult = getAuth( actionJMSQuoteSpecDto, jmAuthClient );
+        List<IntegrationEntity> authEntity = externalIntegrationRepository.getIntegrationEntityByType( IntegrationType.JM_AUTH );
+
+        if ( authEntity.size() > 1 )
+        {
+            throw new Exception( "Misconfiguration of JM AUTH entity!! Only single JM_AUTH entity allowed but found multiple" );
+        }
+
+        final JmApiSpec jmApiSpec = objectMapper.convertValue( authEntity.get( 0 ).getSpec(), JmApiSpec.class );
+
+        final JMAuthResult jmAuthResult = getAuth( jmApiSpec, jmAuthClient );
+
 
         TriggerResponseDto triggerResponseDto;
 
         if ( entity.getType().equals( IntegrationType.JM_ADDQUOTE ) )
         {
 
-            triggerResponseDto = jmAddQuoteHelper.processAddQuote( ap, jmAuthResult, actionJMSQuoteSpecDto );
+            triggerResponseDto = jmAddQuoteHelper.processAddQuote( ap, jmApiSpec, actionJMSQuoteSpecDto );
 
             String externalQuoteId = (String) ap.getPayload().get( "externalQuoteId" );
 

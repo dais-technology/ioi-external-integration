@@ -4,8 +4,6 @@ import com.dais.ioi.external.config.client.JMAuthClient;
 import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
 import com.dais.ioi.external.domain.dto.spec.JmApiSpec;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,10 +15,6 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 public abstract class JMAuth
 {
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper()
-          .configure( DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false );
-
-
 
     @SneakyThrows
     public static JMAuthResult getAuth( final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
@@ -44,8 +38,16 @@ public abstract class JMAuth
     public static JMAuthResult getAuth( final JmApiSpec jmApiSpec,
                                         final JMAuthClient jmAuthClient )
     {
-        final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = OBJECT_MAPPER.convertValue( jmApiSpec, ActionJMSQuoteSpecDto.class );
+        final String authTokenRequest = String.join( "&",
+                                                     "grant_type=password",
+                                                     "scope=partyAPI offline_access",
+                                                     "username=" + URLEncoder.encode( jmApiSpec.getUserName(), StandardCharsets.UTF_8.toString() ),
+                                                     "client_id=" + URLEncoder.encode( jmApiSpec.getClientId(), StandardCharsets.UTF_8.toString() ),
+                                                     "client_secret=" + URLEncoder.encode( jmApiSpec.getClientSecret(), StandardCharsets.UTF_8.toString() ),
+                                                     "password=" + URLEncoder.encode( jmApiSpec.getClientPassword(), StandardCharsets.UTF_8.toString() ) );
 
-        return getAuth( actionJMSQuoteSpecDto, jmAuthClient );
+        final URI determinedBasePathUri = URI.create( jmApiSpec.getAuthUrl() );
+
+        return jmAuthClient.getToken( determinedBasePathUri, authTokenRequest );
     }
 }
