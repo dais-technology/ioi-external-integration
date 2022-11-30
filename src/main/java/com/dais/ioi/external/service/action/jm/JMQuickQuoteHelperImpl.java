@@ -2,9 +2,8 @@ package com.dais.ioi.external.service.action.jm;
 
 import com.dais.common.ioi.dto.answer.ClientAnswerDto;
 import com.dais.common.ioi.dto.answer.ClientLoopIterationDto;
-import com.dais.ioi.action.domain.dto.FiredTriggerDto;
-import com.dais.ioi.action.domain.dto.internal.spec.QuoteRequestSpecDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
+import com.dais.ioi.external.config.client.JMAuthClient;
 import com.dais.ioi.external.config.client.JMQuoteClient;
 import com.dais.ioi.external.domain.dto.GetQuoteDto;
 import com.dais.ioi.external.domain.dto.jm.AdditionalItemInfoDto;
@@ -12,6 +11,7 @@ import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
 import com.dais.ioi.external.domain.dto.jm.QuickQuoteRequest;
 import com.dais.ioi.external.domain.dto.jm.QuickQuoteResult;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
+import com.dais.ioi.external.domain.dto.spec.JmApiSpec;
 import com.dais.ioi.external.domain.exception.ExternalApiException;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
 import com.dais.ioi.external.util.NormalizedPremium;
@@ -45,6 +45,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.dais.ioi.external.service.action.jm.JMAuth.getAuth;
 import static com.dais.ioi.external.service.action.jm.JMUtils.getValue;
 import static com.dais.ioi.external.service.action.jm.JMUtils.isCanadianZipcode;
 
@@ -62,69 +63,11 @@ public class JMQuickQuoteHelperImpl
     @Autowired
     private ExternalIntegrationRepository externalIntegrationRepository;
 
-
-    @Deprecated
-    public TriggerResponseDto processQuickQuote( FiredTriggerDto firedTriggerDto,
-                                                 JMAuthResult jmAuthResult,
-                                                 ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
-          throws Exception
-    {
-        final UUID requestId = null == firedTriggerDto.getTriggerRequestId() ? UUID.randomUUID() : firedTriggerDto.getTriggerRequestId();
-
-        QuoteRequestSpecDto triggerSpec = objectMapper.convertValue( firedTriggerDto.getPayload(), QuoteRequestSpecDto.class );
-
-        QuickQuoteRequest quickQuoteRequest = createQuickQuoteRequest( triggerSpec.getIntake(), actionJMSQuoteSpecDto );
-
-        URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getQuickQuoteUrl() );
-
-        QuickQuoteResult quickQuoteResult = jmQuoteClient.getQuickQuote( determinedBasePathUri,
-                                                                         "Bearer " + jmAuthResult.getAccess_token(),
-                                                                         actionJMSQuoteSpecDto.getApiSubscriptionkey(),
-                                                                         quickQuoteRequest );
-
-
-        if ( getValue( () -> quickQuoteResult.getErrorMessages().size(), 0 ) > 0 )
-        {
-            String errorMessage = quickQuoteResult.getErrorMessages().stream().map( s -> s.toString() ).collect( Collectors.joining( "," ) );
-            throw new Exception( errorMessage );
-        }
-
-        // Map to the ioi generic quote DTO
-        PubQuoteDetailsDto quoteDetails = getQuoteDetails( quickQuoteResult, triggerSpec.getIntake(), actionJMSQuoteSpecDto );
-
-        TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
-
-
-        HashMap<String, Object> metaDatamap = new HashMap<>();
-        metaDatamap.put( "totalTaxesAndSurcharges", (Double) quickQuoteResult.getTotalTaxesAndSurcharges() );
-        metaDatamap.put( "minimumPremium", quickQuoteResult.getMinimumPremium() );
-        metaDatamap.put( "minimumTaxesAndSurcharges", quickQuoteResult.getMinimumTaxesAndSurcharges() );
-
-
-        QuoteDto newQuote = QuoteDto.builder()
-                                    .clientOrganizationId( firedTriggerDto.getSource().getOrganizationId() )
-                                    .quoteTimestamp( OffsetDateTime.now() )
-                                    .source( firedTriggerDto.getSource() )
-                                    .clientOrganizationId( firedTriggerDto.getSource().getOrganizationId() )
-                                    .type( QuoteType.QUOTE )
-                                    .clientId( triggerSpec.getClientId() )
-                                    .requestId( requestId )
-                                    .bindable( false )
-                                    .effectiveDate( LocalDate.now() )
-                                    .quoteDetails( quoteDetails )
-                                    .metadata( metaDatamap )
-                                    .build();
-
-        triggerResponseDto.getMetadata().put( requestId.toString(), newQuote );
-
-        triggerResponseDto.setTriggerRequestId( requestId );
-
-        return triggerResponseDto;
-    }
-
+    @Autowired
+    private JMAuthClient jmAuthClient;
 
     public QuoteDto getQuickQuote( GetQuoteDto getQuickQuote,
-                                   JMAuthResult jmAuthResult,
+                                   JmApiSpec jmApiSpec,
                                    ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
           throws Exception
     {
@@ -134,7 +77,9 @@ public class JMQuickQuoteHelperImpl
             log.info( "(" + trace.toString() + ") IMPORTANT: Received getQuickQuote request with GetQuoteDto: " + objectMapper.writeValueAsString( getQuickQuote ) );
             QuickQuoteRequest quickQuoteRequest = createQuickQuoteRequest( getQuickQuote.getIntake(), actionJMSQuoteSpecDto );
 
-            URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getQuickQuoteUrl() );
+            URI determinedBasePathUri = URI.create( jmApiSpec.getBaseUrl() );
+
+            final JMAuthResult jmAuthResult = getAuth( actionJMSQuoteSpecDto, jmAuthClient );
 
             log.info( "(" + trace.toString() + ") IMPORTANT: requesting JM QUICK QUOTE with body: " + objectMapper.writeValueAsString( quickQuoteRequest ) );
             QuickQuoteResult quickQuoteResult = getQuickQuoteResult( jmAuthResult, actionJMSQuoteSpecDto, quickQuoteRequest, determinedBasePathUri );
