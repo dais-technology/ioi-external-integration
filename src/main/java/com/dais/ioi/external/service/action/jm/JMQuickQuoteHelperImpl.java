@@ -5,6 +5,7 @@ import com.dais.common.ioi.dto.answer.ClientLoopIterationDto;
 import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.internal.spec.QuoteRequestSpecDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
+import com.dais.ioi.external.config.client.JMAuthClient;
 import com.dais.ioi.external.config.client.JMQuoteClient;
 import com.dais.ioi.external.domain.dto.GetQuoteDto;
 import com.dais.ioi.external.domain.dto.jm.AdditionalItemInfoDto;
@@ -12,6 +13,7 @@ import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
 import com.dais.ioi.external.domain.dto.jm.QuickQuoteRequest;
 import com.dais.ioi.external.domain.dto.jm.QuickQuoteResult;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
+import com.dais.ioi.external.domain.dto.spec.JmApiSpec;
 import com.dais.ioi.external.domain.exception.ExternalApiException;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
 import com.dais.ioi.external.util.NormalizedPremium;
@@ -45,6 +47,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.dais.ioi.external.service.action.jm.JMAuth.getAuth;
 import static com.dais.ioi.external.service.action.jm.JMUtils.getValue;
 import static com.dais.ioi.external.service.action.jm.JMUtils.isCanadianZipcode;
 
@@ -62,10 +65,13 @@ public class JMQuickQuoteHelperImpl
     @Autowired
     private ExternalIntegrationRepository externalIntegrationRepository;
 
+    @Autowired
+    private JMAuthClient jmAuthClient;
+
 
     @Deprecated
     public TriggerResponseDto processQuickQuote( FiredTriggerDto firedTriggerDto,
-                                                 JMAuthResult jmAuthResult,
+                                                 JmApiSpec jmApiSpec,
                                                  ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
           throws Exception
     {
@@ -75,7 +81,9 @@ public class JMQuickQuoteHelperImpl
 
         QuickQuoteRequest quickQuoteRequest = createQuickQuoteRequest( triggerSpec.getIntake(), actionJMSQuoteSpecDto );
 
-        URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getQuickQuoteUrl() );
+        URI determinedBasePathUri = URI.create( jmApiSpec.getBaseUrl() );
+
+        final JMAuthResult jmAuthResult = getAuth( jmApiSpec, jmAuthClient );
 
         QuickQuoteResult quickQuoteResult = jmQuoteClient.getQuickQuote( determinedBasePathUri,
                                                                          "Bearer " + jmAuthResult.getAccess_token(),

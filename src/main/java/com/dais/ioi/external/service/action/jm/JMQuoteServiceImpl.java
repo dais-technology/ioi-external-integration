@@ -65,9 +65,6 @@ public class JMQuoteServiceImpl
 
         final JmApiSpec jmApiSpec = objectMapper.convertValue( authEntity.get( 0 ).getSpec(), JmApiSpec.class );
 
-        final JMAuthResult jmAuthResult = getAuth( jmApiSpec, jmAuthClient );
-
-
         TriggerResponseDto triggerResponseDto;
 
         if ( entity.getType().equals( IntegrationType.JM_ADDQUOTE ) )
@@ -91,7 +88,7 @@ public class JMQuoteServiceImpl
         }
         else
         {
-            triggerResponseDto = jmQuickQuoteHelper.processQuickQuote( ap, jmAuthResult, actionJMSQuoteSpecDto );
+            triggerResponseDto = jmQuickQuoteHelper.processQuickQuote( ap, jmApiSpec, actionJMSQuoteSpecDto );
         }
         return triggerResponseDto;
     }
