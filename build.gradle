@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = '2.1.6.RELEASE'
+        springBootVersion = '2.7.3'
     }
 
     repositories {
@@ -104,6 +104,7 @@ dependencies {
 
     implementation( "org.springframework.boot:spring-boot-starter-security" )
     implementation( "org.springframework.boot:spring-boot-starter-web" )
+    implementation( "org.springframework.boot:spring-boot-starter-quartz" )
     implementation( "org.springframework.cloud:spring-cloud-starter-openfeign" )
     implementation( "org.springframework.cloud:spring-cloud-starter-netflix-ribbon" )
     implementation( "org.springframework:spring-context-support" )

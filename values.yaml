@@ -73,6 +73,7 @@ serviceSecrets:
   - track-hubspot.ribbon.listOfServers
   - feign.logging.level
   - ioi-quote-service.ribbon.listOfServers
+  - dais.count.aggregation.cron
 
 environmentVariables:
   - name: SPRING_ENVIRONMENT_PROFILE
