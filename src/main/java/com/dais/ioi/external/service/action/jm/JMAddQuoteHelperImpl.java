@@ -5,6 +5,7 @@ import com.dais.common.ioi.dto.answer.ClientLoopIterationDto;
 import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.internal.spec.QuoteRequestSpecDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
+import com.dais.ioi.external.config.client.JMAuthClient;
 import com.dais.ioi.external.config.client.JMQuoteClient;
 import com.dais.ioi.external.domain.dto.AgentInfoDto;
 import com.dais.ioi.external.domain.dto.ExternalQuoteDataDto;
@@ -15,6 +16,7 @@ import com.dais.ioi.external.domain.dto.jm.AdditionalItemInfoDto;
 import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
 import com.dais.ioi.external.domain.dto.jm.JmQuoteOptionDto;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
+import com.dais.ioi.external.domain.dto.spec.JmApiSpec;
 import com.dais.ioi.external.domain.exception.ExternalApiException;
 import com.dais.ioi.external.service.ExternalQuoteDataService;
 import com.dais.ioi.external.service.jm.JmQuoteOptionsService;
@@ -61,6 +63,7 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.dais.ioi.external.service.action.jm.JMAuth.getAuth;
 import static com.dais.ioi.external.service.action.jm.JMUtils.getValue;
 
 
@@ -83,21 +86,25 @@ public class JMAddQuoteHelperImpl
 
     private final JmQuoteOptionsService jmQuoteOptionsService;
 
+    private final JMAuthClient jmAuthClient;
+
 
     public JMAddQuoteHelperImpl( @Autowired final JMQuoteClient jmQuoteClient,
                                  @Autowired final ObjectMapper objectMapper,
                                  @Autowired final ExternalQuoteDataService externalQuoteDataService,
-                                 @Autowired final JmQuoteOptionsService jmQuoteOptionsService )
+                                 @Autowired final JmQuoteOptionsService jmQuoteOptionsService,
+                                 @Autowired final JMAuthClient jmAuthClient )
     {
         this.jmQuoteClient = jmQuoteClient;
         this.objectMapper = objectMapper;
         this.externalQuoteDataService = externalQuoteDataService;
         this.jmQuoteOptionsService = jmQuoteOptionsService;
+        this.jmAuthClient = jmAuthClient;
     }
 
 
     public TriggerResponseDto processAddQuote( FiredTriggerDto firedTriggerDto,
-                                               JMAuthResult jmAuthResult,
+                                               JmApiSpec jmApiSpec,
                                                ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
           throws Exception
     {
@@ -119,6 +126,9 @@ public class JMAddQuoteHelperImpl
         final String effectiveDateAnswer = triggerSpec.getIntake().get( actionJMSQuoteSpecDto.getEffectiveDate() ).getAnswer();
 
         final LocalDateTime effectiveDate = OffsetDateTime.parse( effectiveDateAnswer ).toLocalDateTime().with( LocalTime.MIDNIGHT );
+
+        final JMAuthResult jmAuthResult = getAuth( jmApiSpec, jmAuthClient );
+
         try
         {
             final String formattedEffectiveDateForJmQuoteRequest = effectiveDate.format( EFFECTIVE_DATE_FORMAT );
@@ -179,8 +189,7 @@ public class JMAddQuoteHelperImpl
                 return triggerResponseDto;
             }
 
-
-            URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getAddQuoteUrl() );
+            URI determinedBasePathUri = URI.create( jmApiSpec.getBaseUrl() );
 
             log.info( "(" + requestId.toString() + ") IMPORTANT: JM ADDQUOTE request uri: " + determinedBasePathUri.toString() );
             log.info( "(" + requestId.toString() + ") IMPORTANT: JM ADDQUOTE request body: " + objectMapper.writeValueAsString( addQuoteRequest ) );

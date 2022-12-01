@@ -1,0 +1,9 @@
+{
+  "authUrl": "url",
+  "userName": "username",
+  "clientId": "clientId",
+  "clientSecret": "secret",
+  "clientPassword": "password",
+  "apiSubscriptionkey": "key",
+  "baseUrl": "url"
+}
