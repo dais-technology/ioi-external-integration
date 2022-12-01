@@ -5,8 +5,9 @@ import com.dais.ioi.external.domain.dto.count.CountForClient;
 import com.dais.ioi.external.domain.dto.internal.enums.CounterType;
 import com.dais.ioi.external.entity.AggregateCountEntity;
 import com.dais.ioi.external.entity.CountEntity;
-import com.dais.ioi.external.repository.AggregateCountRepository;
 import com.dais.ioi.external.repository.AggregateCountByKeyValue;
+import com.dais.ioi.external.repository.AggregateCountRepository;
+import com.dais.ioi.external.repository.CountByKeyValue;
 import com.dais.ioi.external.repository.CountRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Slf4j
@@ -49,12 +51,12 @@ public class CounterServiceSqlImpl
     @Override
     public int getCount( final CountForClient key )
     {
-        Map<String, ?> keyAsMap = objectMapper.convertValue( key, Map.class );
+        final Map<String, ?> keyAsMap = objectMapper.convertValue( key, Map.class );
         final List<CountEntity> increment = countRepository.getCountEntityByKeyAndType( keyAsMap, CounterType.INCREMENT );
         final List<CountEntity> decrement = countRepository.getCountEntityByKeyAndType( keyAsMap, CounterType.DECREMENT );
         final int delta = increment.size() - decrement.size();
-        AggregateCountEntity aggregateCount = aggregateCountRepository.getByKey( keyAsMap )
-                                                                      .orElse( new AggregateCountEntity( keyAsMap, 0 ) );
+        final AggregateCountEntity aggregateCount = aggregateCountRepository.getByKey( keyAsMap )
+                                                                            .orElse( new AggregateCountEntity( keyAsMap, 0 ) );
         return aggregateCount.getCount() + delta;
     }
 
@@ -62,15 +64,15 @@ public class CounterServiceSqlImpl
     @Override
     public void aggregate()
     {
-        List<Map<String, Object>> keys = countRepository.getDistinctCountEntityByKey();
+        final List<Map<String, Object>> keys = countRepository.getDistinctCountEntityByKey();
         keys.forEach( key -> {
             final List<CountEntity> increment = countRepository.getCountEntityByKeyAndType( key, CounterType.INCREMENT );
             final List<CountEntity> decrement = countRepository.getCountEntityByKeyAndType( key, CounterType.DECREMENT );
             final int count = increment.size() - decrement.size();
-            Optional<AggregateCountEntity> aggregateOptional = aggregateCountRepository.getByKey( key );
+            final Optional<AggregateCountEntity> aggregateOptional = aggregateCountRepository.getByKey( key );
             if ( aggregateOptional.isPresent() )
             {
-                AggregateCountEntity existingAggregateCount = aggregateOptional.get();
+                final AggregateCountEntity existingAggregateCount = aggregateOptional.get();
                 existingAggregateCount.setCount( existingAggregateCount.getCount() + count );
                 aggregateCountRepository.save( existingAggregateCount );
             }
@@ -78,17 +80,22 @@ public class CounterServiceSqlImpl
             {
                 aggregateCountRepository.save( new AggregateCountEntity( key, count ) );
             }
-            List<CountEntity> entitiesToDelete = ListUtils.union( increment, decrement );
+            final List<CountEntity> entitiesToDelete = ListUtils.union( increment, decrement );
             countRepository.deleteInBatch( entitiesToDelete );
         } );
     }
 
 
     @Override
-    public List<AggregateCountEntity> getByKeyValue( final String key,
-                                                     final String value )
+    public List<Map<String, ?>> getByKeyValue( final String key,
+                                               final String value )
     {
-        AggregateCountByKeyValue spec = new AggregateCountByKeyValue( key, value );
-        return aggregateCountRepository.findAll( spec );
+        final CountByKeyValue countSpec = new CountByKeyValue( key, value );
+        final List<CountEntity> counts = countRepository.findAll( countSpec );
+        final List<? extends Map<String, ?>> countKeys = counts.stream().map( countEntity -> countEntity.getKey() ).distinct().collect( Collectors.toList() );
+        final AggregateCountByKeyValue aggregateCountSpec = new AggregateCountByKeyValue( key, value );
+        final List<AggregateCountEntity> aggregateCountEntities = aggregateCountRepository.findAll( aggregateCountSpec );
+        final List<? extends Map<String, ?>> aggregateKeys = aggregateCountEntities.stream().map( countEntity -> countEntity.getKey() ).collect( Collectors.toList() );
+        return ListUtils.union( countKeys, aggregateKeys );
     }
 }
