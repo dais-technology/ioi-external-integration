@@ -87,6 +87,8 @@ dependencies {
     implementation( "com.dais:ioi-action-service-domain:0.0.795" )
     implementation( "com.dais:ioi-report-service-domain:0.0.31" )
     implementation( "com.dais:user-management-domain:1.0.60" )
+    implementation( "com.dais:ioi-client-domain:1.0.487" )
+    implementation( 'com.dais:file-storage:0.0.35' )
 
     implementation( "io.springfox:springfox-swagger2:2.9.2+" )
     implementation( "io.springfox:springfox-swagger-ui:2.9.2+" )

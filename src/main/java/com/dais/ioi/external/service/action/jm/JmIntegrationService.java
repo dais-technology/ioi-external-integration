@@ -1,5 +1,10 @@
 package com.dais.ioi.external.service.action.jm;
 
+import com.dais.authorization.ForwardingAuthorization;
+import com.dais.file.storage.FileReference;
+import com.dais.file.storage.cms.CmsFiles;
+import com.dais.ioi.action.domain.dto.FiredTriggerDto;
+import com.dais.ioi.client.domain.dto.client.ClientDto;
 import com.dais.ioi.external.config.client.JMApplicationClient;
 import com.dais.ioi.external.config.client.JMAuthClient;
 import com.dais.ioi.external.domain.dto.ExternalQuoteDataDto;
@@ -19,11 +24,15 @@ import com.dais.ioi.external.domain.exception.ExternalApiException;
 import com.dais.ioi.external.entity.IntegrationEntity;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
 import com.dais.ioi.external.service.ExternalQuoteDataService;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItem;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -31,14 +40,20 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
 import static com.dais.ioi.external.service.action.jm.JMAuth.getAuth;
+import static com.dais.ioi.external.service.action.jm.JMUtils.getValue;
 
 
 @Service
@@ -62,6 +77,9 @@ public class JmIntegrationService
 
     @Autowired
     private ExternalQuoteDataService externalQuoteDataService;
+
+    @Autowired
+    private CmsFiles cmsFiles;
 
 
     @SneakyThrows
@@ -166,13 +184,14 @@ public class JmIntegrationService
 
 
     @SneakyThrows
-    public UploadAppraisalResponse uploadAppraisal( final String accountNumber,
-                                                    final String policyNumber,
-                                                    final MultipartFile appraisalDocument,
-                                                    final UUID lineId )
+    public List<UploadAppraisalResponse> uploadAppraisal( final String accountNumber,
+                                                          final FiredTriggerDto firedTriggerDto,
+                                                          final UUID lineId )
     {
         UUID trace = UUID.randomUUID();
+
         log.info( "(" + trace + ") IMPORTANT: Begin JM UploadAppraisal" );
+
         final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( lineId, IntegrationType.JM_UPLOAD_APPRAISAL );
 
         final JmApiSpec jmApiSpec = objectMapper.convertValue( integrationEntity.getSpec(), JmApiSpec.class );
@@ -180,14 +199,49 @@ public class JmIntegrationService
         final JMAuthResult jmAuthResult = getAuth( jmApiSpec, jmAuthClient );
 
         final URI uri = URI.create( jmApiSpec.getBaseUrl() );
-        log.info( "(" + trace + ") IMPORTANT: Base URI: {}, accountNumber: {}, policyNumber: {}", uri, accountNumber, policyNumber );
+        log.info( "(" + trace + ") IMPORTANT: Base URI: {}, accountNumber: {}", uri, accountNumber );
 
-        final UploadAppraisalResponse uploadAppraisalResponse = uploadAppraisal( accountNumber, policyNumber, appraisalDocument, jmApiSpec, jmAuthResult, uri );
+        final ForwardingAuthorization cmsAuthorization = new ForwardingAuthorization();
 
-        log.info( "(" + trace + ") IMPORTANT: JM UploadAppraisal RESPONSE: {}.", objectMapper.writeValueAsString( uploadAppraisalResponse ) );
+        final ClientDto clientDto = objectMapper.convertValue( firedTriggerDto.getPayload(), ClientDto.class );
+
+        //List<LinkedHashMap<String, String>> files = clientDto.getClientIntake().getClientAnswers().get( "fileQuestion1" ).getFiles();
+        List<LinkedHashMap<String, String>> filesInfo = objectMapper.readValue( clientDto.getClientIntake().getClientAnswers().get( "fileQuestion1" ).getAnswer(), new TypeReference<List<LinkedHashMap<String, String>>>() {} );
+
+        final List<UploadAppraisalResponse> responses = new ArrayList<>();
+
+        for ( LinkedHashMap<String, String> fileInfo : filesInfo )
+        {
+            final String contentId = getValue( () -> fileInfo.get( jmApiSpec.getContentId() ), "" );
+            final String fileType = getValue( () -> fileInfo.get( jmApiSpec.getFileType() ), "" );
+            final String fileName = getValue( () -> fileInfo.get( jmApiSpec.getFileName() ), "" );
+            final Integer fileSizeKb = Integer.valueOf( getValue( () -> fileInfo.get( jmApiSpec.getFileSizeKb() ), "0" ) );
+
+            Optional<FileReference> fileReference = cmsFiles.findById( UUID.fromString( contentId ), cmsAuthorization );
+
+            if ( fileReference.isPresent() )
+            {
+                log.info( "(" + trace + ") IMPORTANT: JM UploadAppraisal: file with contentId {} is found on s3.", objectMapper.writeValueAsString( responses ) );
+                final FileItem fileItem = new DiskFileItem( "mainFile", fileType, false, fileName, fileSizeKb, null );
+
+                IOUtils.copy( fileReference.get().get(), fileItem.getOutputStream() );
+                MultipartFile multipartFile = new CommonsMultipartFile( fileItem );
+
+                final UploadAppraisalResponse uploadAppraisalResponse = uploadAppraisal( accountNumber, multipartFile, jmApiSpec, jmAuthResult, uri );
+
+                responses.add( uploadAppraisalResponse );
+            }
+            else
+            {
+                log.error( "(" + trace + ") IMPORTANT: File with contentId: {} and fileName: {} is NOT FOUND on s3!", contentId, fileName );
+            }
+        }
+
+        log.info( "(" + trace + ") IMPORTANT: JM UploadAppraisal RESPONSE: {}.", objectMapper.writeValueAsString( responses ) );
         log.info( "(" + trace + ") IMPORTANT: JM UploadAppraisal call Successful." );
         log.info( "(" + trace + ") IMPORTANT: End JM UploadAppraisal" );
-        return uploadAppraisalResponse;
+
+        return responses;
     }
 
 
@@ -279,7 +333,6 @@ public class JmIntegrationService
 
 
     private UploadAppraisalResponse uploadAppraisal( final String accountNumber,
-                                                     final String policyNumber,
                                                      final MultipartFile appraisalDocument,
                                                      final JmApiSpec jmApiSpec,
                                                      final JMAuthResult jmAuthResult,
@@ -291,7 +344,6 @@ public class JmIntegrationService
                                                                                                          "Bearer " + jmAuthResult.getAccess_token(),
                                                                                                          jmApiSpec.getApiSubscriptionkey(),
                                                                                                          accountNumber,
-                                                                                                         policyNumber,
                                                                                                          appraisalDocument );
             return uploadAppraisalResponse;
         }

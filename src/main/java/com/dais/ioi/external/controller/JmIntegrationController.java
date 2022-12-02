@@ -31,6 +31,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.util.UUID;
+import java.util.List;
 
 
 @Slf4j
@@ -195,12 +196,10 @@ public class JmIntegrationController
 
 
     @Override
-    public UploadAppraisalResponse uploadAppraisal( final String accountNumber,
-                                                    final String policyNumber,
-                                                    final MultipartFile appraisalDocument,
-                                                    final UUID lineId )
+    public List<UploadAppraisalResponse> uploadAppraisal( final String accountNumber,
+                                                    final FiredTriggerDto firedTriggerDto)
     {
-        return externalIntegrationService.uploadAppraisal( accountNumber, policyNumber, appraisalDocument, lineId );
+        return externalIntegrationService.uploadAppraisal( accountNumber, firedTriggerDto, firedTriggerDto.getLineId() );
     }
 
 

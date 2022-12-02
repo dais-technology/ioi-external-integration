@@ -19,4 +19,15 @@ public class JmApiSpec
     private String apiSubscriptionkey;
 
     private String baseUrl;
+
+    //document upload
+    private String contentId;
+
+    private String fileName;
+
+    private String fileSizeKb;
+
+    private String fileType;
+
+    private String uploadDate;
 }

@@ -35,13 +35,13 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -309,13 +309,12 @@ public class ExternalIntegrationServiceImpl
 
     @SneakyThrows
     @Override
-    public UploadAppraisalResponse uploadAppraisal( final String accountNumber,
-                                                    final String policyNumber,
-                                                    final MultipartFile appraisalDocument,
-                                                    final UUID lineId )
+    public List<UploadAppraisalResponse> uploadAppraisal( final String accountNumber,
+                                                          final FiredTriggerDto firedTriggerDto,
+                                                          final UUID lineId )
     {
-        log.info( String.format( "uploadAppraisal: %s -> accountNumber: %s, policyNumber: %s", lineId.toString(), accountNumber, policyNumber) );
-        return jmIntegrationService.uploadAppraisal( accountNumber, policyNumber, appraisalDocument, lineId );
+        log.info( String.format( "uploadAppraisal: %s -> accountNumber: %s", lineId.toString(), accountNumber ) );
+        return jmIntegrationService.uploadAppraisal( accountNumber, firedTriggerDto, lineId );
     }
 
 
