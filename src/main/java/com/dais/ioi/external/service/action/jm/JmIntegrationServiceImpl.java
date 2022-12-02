@@ -1,6 +1,7 @@
 package com.dais.ioi.external.service.action.jm;
 
 import com.dais.authorization.ForwardingAuthorization;
+import com.dais.common.ioi.dto.answer.FileReferenceDto;
 import com.dais.file.storage.FileReference;
 import com.dais.file.storage.cms.CmsFiles;
 import com.dais.ioi.action.domain.dto.FiredTriggerDto;
@@ -30,7 +31,6 @@ import com.dais.ioi.external.repository.ExternalIntegrationRepository;
 import com.dais.ioi.external.service.CounterService;
 import com.dais.ioi.external.service.ExternalQuoteDataService;
 import com.dais.ioi.external.service.jm.JmQuoteOptionsService;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
@@ -46,13 +46,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -60,7 +59,6 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import static com.dais.ioi.external.service.action.jm.JMAuth.getAuth;
-import static com.dais.ioi.external.service.action.jm.JMUtils.getValue;
 
 
 @Service
@@ -219,27 +217,24 @@ public class JmIntegrationServiceImpl
 
         final ClientDto clientDto = objectMapper.convertValue( firedTriggerDto.getPayload(), ClientDto.class );
 
-        //List<LinkedHashMap<String, String>> files = clientDto.getClientIntake().getClientAnswers().get( "fileQuestion1" ).getFiles();
-        List<LinkedHashMap<String, String>> filesInfo = objectMapper.readValue( clientDto.getClientIntake().getClientAnswers().get( "fileQuestion1" ).getAnswer(), new TypeReference<List<LinkedHashMap<String, String>>>() {} );
+        final List<FileReferenceDto> fileReferences = clientDto.getClientIntake().getClientAnswers().get( jmApiSpec.getFileQuestion() ).getFiles();
 
         final List<UploadAppraisalResponse> responses = new ArrayList<>();
 
-        for ( LinkedHashMap<String, String> fileInfo : filesInfo )
+        for ( final FileReferenceDto fileReference : fileReferences )
         {
-            final String contentId = getValue( () -> fileInfo.get( jmApiSpec.getContentId() ), "" );
-            final String fileType = getValue( () -> fileInfo.get( jmApiSpec.getFileType() ), "" );
-            final String fileName = getValue( () -> fileInfo.get( jmApiSpec.getFileName() ), "" );
-            final Integer fileSizeKb = Integer.valueOf( getValue( () -> fileInfo.get( jmApiSpec.getFileSizeKb() ), "0" ) );
+            Optional<FileReference> cmsFileReference = cmsFiles.findById( fileReference.getContentId(), cmsAuthorization );
 
-            Optional<FileReference> fileReference = cmsFiles.findById( UUID.fromString( contentId ), cmsAuthorization );
-
-            if ( fileReference.isPresent() )
+            if ( cmsFileReference.isPresent() )
             {
-                log.info( "(" + trace + ") IMPORTANT: JM UploadAppraisal: file with contentId {} is found on s3.", objectMapper.writeValueAsString( responses ) );
-                final FileItem fileItem = new DiskFileItem( "mainFile", fileType, false, fileName, fileSizeKb, null );
+                log.info( "(" + trace + ") IMPORTANT: JM UploadAppraisal: file with contentId {} is found on s3.", fileReference.getContentId() );
 
-                IOUtils.copy( fileReference.get().get(), fileItem.getOutputStream() );
-                MultipartFile multipartFile = new CommonsMultipartFile( fileItem );
+                final FileItem fileItem = new DiskFileItem( "mainFile", fileReference.getFileType(), false,
+                                                            fileReference.getFileName(), fileReference.getFileSizeKb().intValue(), null );
+
+                IOUtils.copy( cmsFileReference.get().get(), fileItem.getOutputStream() );
+
+                final MultipartFile multipartFile = new CommonsMultipartFile( fileItem );
 
                 final UploadAppraisalResponse uploadAppraisalResponse = uploadAppraisal( accountNumber, multipartFile, jmApiSpec, jmAuthResult, uri );
 
@@ -247,7 +242,8 @@ public class JmIntegrationServiceImpl
             }
             else
             {
-                log.error( "(" + trace + ") IMPORTANT: File with contentId: {} and fileName: {} is NOT FOUND on s3!", contentId, fileName );
+                throw new RuntimeException( String.format( "(" + trace + ") IMPORTANT: File with contentId: %s and fileName: %s is NOT FOUND on s3!",
+                                                           fileReference.getContentId().toString(), fileReference.getFileName() ) );
             }
         }
 
