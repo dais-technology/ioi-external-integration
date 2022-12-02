@@ -1,7 +1,6 @@
 package com.dais.ioi.external.service;
 
 import com.dais.ioi.external.domain.dto.count.CountDto;
-import com.dais.ioi.external.domain.dto.count.CountForClient;
 import com.dais.ioi.external.domain.dto.internal.enums.CounterType;
 import com.dais.ioi.external.entity.AggregateCountEntity;
 import com.dais.ioi.external.entity.CountEntity;
@@ -49,14 +48,13 @@ public class CounterServiceSqlImpl
 
 
     @Override
-    public int getCount( final CountForClient key )
+    public int getCount( final Map<String, ?> key )
     {
-        final Map<String, ?> keyAsMap = objectMapper.convertValue( key, Map.class );
-        final List<CountEntity> increment = countRepository.getCountEntityByKeyAndType( keyAsMap, CounterType.INCREMENT );
-        final List<CountEntity> decrement = countRepository.getCountEntityByKeyAndType( keyAsMap, CounterType.DECREMENT );
+        final List<CountEntity> increment = countRepository.getCountEntityByKeyAndType( key, CounterType.INCREMENT );
+        final List<CountEntity> decrement = countRepository.getCountEntityByKeyAndType( key, CounterType.DECREMENT );
         final int delta = increment.size() - decrement.size();
-        final AggregateCountEntity aggregateCount = aggregateCountRepository.getByKey( keyAsMap )
-                                                                            .orElse( new AggregateCountEntity( keyAsMap, 0 ) );
+        final AggregateCountEntity aggregateCount = aggregateCountRepository.getByKey( key )
+                                                                            .orElse( new AggregateCountEntity( key, 0 ) );
         return aggregateCount.getCount() + delta;
     }
 

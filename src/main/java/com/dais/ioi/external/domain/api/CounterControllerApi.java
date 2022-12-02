@@ -1,7 +1,6 @@
 package com.dais.ioi.external.domain.api;
 
 import com.dais.ioi.external.domain.dto.count.CountDto;
-import com.dais.ioi.external.domain.dto.count.CountForClient;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.validation.Valid;
+import java.util.Map;
 
 
 public interface CounterControllerApi
@@ -28,5 +28,5 @@ public interface CounterControllerApi
     @ResponseStatus( HttpStatus.OK )
     @RequestMapping( method = RequestMethod.GET )
     @ApiOperation( value = "Increment/Decrement a counter" )
-    int getCount( @RequestBody @Valid final CountForClient key );
+    int getCount( @RequestBody @Valid final Map<String, ?> key );
 }
