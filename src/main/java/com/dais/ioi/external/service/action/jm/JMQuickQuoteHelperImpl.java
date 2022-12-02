@@ -6,6 +6,10 @@ import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.config.client.JMAuthClient;
 import com.dais.ioi.external.config.client.JMQuoteClient;
 import com.dais.ioi.external.domain.dto.GetQuoteDto;
+import com.dais.ioi.external.domain.dto.count.CountDto;
+import com.dais.ioi.external.domain.dto.count.CountForClient;
+import com.dais.ioi.external.domain.dto.internal.enums.CounterType;
+import com.dais.ioi.external.domain.dto.internal.enums.JmMixpanelLabel;
 import com.dais.ioi.external.domain.dto.jm.AdditionalItemInfoDto;
 import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
 import com.dais.ioi.external.domain.dto.jm.QuickQuoteRequest;
@@ -14,6 +18,7 @@ import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
 import com.dais.ioi.external.domain.dto.spec.JmApiSpec;
 import com.dais.ioi.external.domain.exception.ExternalApiException;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
+import com.dais.ioi.external.service.CounterService;
 import com.dais.ioi.external.util.NormalizedPremium;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
 import com.dais.ioi.quote.domain.dto.enums.AmountType;
@@ -66,6 +71,10 @@ public class JMQuickQuoteHelperImpl
     @Autowired
     private JMAuthClient jmAuthClient;
 
+    @Autowired
+    private CounterService counterService;
+
+
     public QuoteDto getQuickQuote( GetQuoteDto getQuickQuote,
                                    JmApiSpec jmApiSpec,
                                    ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
@@ -117,8 +126,17 @@ public class JMQuickQuoteHelperImpl
                                         .build();
             log.info( "(" + trace.toString() + ") IMPORTANT: JM QUICK QUOTE Response transformed to ioi quoteOptions: " + objectMapper.writeValueAsString( newQuote ) );
             log.info( "(" + trace.toString() + ") IMPORTANT: End getQuickQuoteCall" );
+            countQuickQuote( getQuickQuote.getClientId() );
             return newQuote;
         }
+    }
+
+
+    private void countQuickQuote( UUID clientId )
+    {
+        final CountForClient clientCount = CountForClient.builder().clientId( clientId ).key( JmMixpanelLabel.NUM_COMPLETED_QUOTES.label ).build();
+        final CountDto countDto = CountDto.builder().type( CounterType.INCREMENT ).key( clientCount ).build();
+        counterService.count( countDto );
     }
 
 
