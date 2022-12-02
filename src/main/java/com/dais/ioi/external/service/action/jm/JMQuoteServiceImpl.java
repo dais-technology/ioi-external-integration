@@ -56,43 +56,26 @@ public class JMQuoteServiceImpl
 
         ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( entity.getSpec(), ActionJMSQuoteSpecDto.class );
 
-        List<IntegrationEntity> authEntity = externalIntegrationRepository.getIntegrationEntityByType( IntegrationType.JM_AUTH );
-
-        if ( authEntity.size() > 1 )
-        {
-            throw new Exception( "Misconfiguration of JM AUTH entity!! Only single JM_AUTH entity allowed but found multiple" );
-        }
-
-        final JmApiSpec jmApiSpec = objectMapper.convertValue( authEntity.get( 0 ).getSpec(), JmApiSpec.class );
-
-        final JMAuthResult jmAuthResult = getAuth( jmApiSpec, jmAuthClient );
-
+        final JmApiSpec jmApiSpec = getApiSpec();
 
         TriggerResponseDto triggerResponseDto;
 
-        if ( entity.getType().equals( IntegrationType.JM_ADDQUOTE ) )
+        triggerResponseDto = jmAddQuoteHelper.processAddQuote( ap, jmApiSpec, actionJMSQuoteSpecDto );
+
+        String externalQuoteId = (String) ap.getPayload().get( "externalQuoteId" );
+
+        if ( externalQuoteId != null && !externalQuoteId.equalsIgnoreCase( "" ) )
         {
 
-            triggerResponseDto = jmAddQuoteHelper.processAddQuote( ap, jmApiSpec, actionJMSQuoteSpecDto );
-
-            String externalQuoteId = (String) ap.getPayload().get( "externalQuoteId" );
-
-            if ( externalQuoteId != null && !externalQuoteId.equalsIgnoreCase( "" ) )
-            {
-
-                return triggerResponseDto;
-            }
-
-            if ( getValue( () -> triggerResponseDto.getMetadata().get( "isCoverageAvailable" ).toString(), "true" ).equalsIgnoreCase( "false" ) )
-            {
-
-                return triggerResponseDto;
-            }
+            return triggerResponseDto;
         }
-        else
+
+        if ( getValue( () -> triggerResponseDto.getMetadata().get( "isCoverageAvailable" ).toString(), "true" ).equalsIgnoreCase( "false" ) )
         {
-            triggerResponseDto = jmQuickQuoteHelper.processQuickQuote( ap, jmAuthResult, actionJMSQuoteSpecDto );
+
+            return triggerResponseDto;
         }
+
         return triggerResponseDto;
     }
 
@@ -112,8 +95,22 @@ public class JMQuoteServiceImpl
     {
         IntegrationEntity entity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( ap.getLineId(), IntegrationType.JM_QUICKQUOTE );
         ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( entity.getSpec(), ActionJMSQuoteSpecDto.class );
-        final JMAuthResult jmAuthResult = getAuth( actionJMSQuoteSpecDto, jmAuthClient );
 
-        return jmQuickQuoteHelper.getQuickQuote( ap, jmAuthResult, actionJMSQuoteSpecDto );
+        final JmApiSpec jmApiSpec = getApiSpec();
+
+        return jmQuickQuoteHelper.getQuickQuote( ap, jmApiSpec, actionJMSQuoteSpecDto );
+    }
+
+    public JmApiSpec getApiSpec()
+          throws Exception
+    {
+        List<IntegrationEntity> authEntity = externalIntegrationRepository.getIntegrationEntityByType( IntegrationType.JM_AUTH );
+
+        if ( authEntity.size() > 1 )
+        {
+            throw new Exception( "Misconfiguration of JM AUTH entity!! Only single JM_AUTH entity allowed but found multiple" );
+        }
+
+        return objectMapper.convertValue( authEntity.get( 0 ).getSpec(), JmApiSpec.class );
     }
 }

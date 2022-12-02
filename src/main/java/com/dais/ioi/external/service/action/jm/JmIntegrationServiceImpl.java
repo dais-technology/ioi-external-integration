@@ -8,7 +8,11 @@ import com.dais.ioi.client.domain.dto.client.ClientDto;
 import com.dais.ioi.external.config.client.JMApplicationClient;
 import com.dais.ioi.external.config.client.JMAuthClient;
 import com.dais.ioi.external.domain.dto.ExternalQuoteDataDto;
+import com.dais.ioi.external.domain.dto.count.CountDto;
+import com.dais.ioi.external.domain.dto.count.CountForClient;
+import com.dais.ioi.external.domain.dto.internal.enums.CounterType;
 import com.dais.ioi.external.domain.dto.internal.enums.IntegrationType;
+import com.dais.ioi.external.domain.dto.internal.enums.JmMixpanelLabel;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
@@ -23,7 +27,9 @@ import com.dais.ioi.external.domain.dto.spec.JmApiSpec;
 import com.dais.ioi.external.domain.exception.ExternalApiException;
 import com.dais.ioi.external.entity.IntegrationEntity;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
+import com.dais.ioi.external.service.CounterService;
 import com.dais.ioi.external.service.ExternalQuoteDataService;
+import com.dais.ioi.external.service.jm.JmQuoteOptionsService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
@@ -40,6 +46,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import java.net.URI;
@@ -59,7 +66,7 @@ import static com.dais.ioi.external.service.action.jm.JMUtils.getValue;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class JmIntegrationService
+public class JmIntegrationServiceImpl
 {
     private static Pattern PASSWORD_VALIDATION_REGEX = Pattern.compile( "^(?=.*[a-z])(?=.*[A-Z])(?=.*[\\d@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$" );
 
@@ -77,6 +84,12 @@ public class JmIntegrationService
 
     @Autowired
     private ExternalQuoteDataService externalQuoteDataService;
+
+    @Autowired
+    private CounterService counterService;
+
+    @Autowired
+    private JmQuoteOptionsService jmQuoteOptionsService;
 
     @Autowired
     private CmsFiles cmsFiles;
@@ -124,6 +137,7 @@ public class JmIntegrationService
         final SubmitApplicationResponse response = getSubmitApplicationResponse( submitApplicationRequest, jmApiSpec, jmAuthResult, uri );
         log.info( "(" + trace + ") IMPORTANT: JM submitApplication response: " + objectMapper.writeValueAsString( response ) );
         persistExternalQuoteData( response, submitApplicationRequest.getQuoteId() );
+        countSubmitApplication( submitApplicationRequest.getQuoteId() );
         log.info( "(" + trace + ") IMPORTANT: End JM submitApplication" );
 
         return response;
@@ -246,8 +260,8 @@ public class JmIntegrationService
 
 
     @SneakyThrows
-    public RegisterUserResponse registerPortalUser( RegisterUserRequest registerUserRequest,
-                                                    UUID lineId )
+    public RegisterUserResponse registerPortalUser( final RegisterUserRequest registerUserRequest,
+                                                    final UUID lineId )
     {
         UUID trace = UUID.randomUUID();
         log.info( "(" + trace + ") IMPORTANT: Begin JM RegisterPortalUser" );
@@ -276,6 +290,36 @@ public class JmIntegrationService
         log.info( "(" + trace + ") IMPORTANT: JM RegisterPortalUser call Successful." );
         log.info( "(" + trace + ") IMPORTANT: End JM RegisterPortalUser" );
         return registerPortalUserResponse;
+    }
+
+
+    public Map<String, Object> getMixpanelValues( final UUID clientId )
+    {
+        Map<String, Object> mixPanelValues = new HashMap<>();
+        Map<String, Integer> mixpanelCounts = getMixpanelCounts( clientId );
+        mixPanelValues.putAll( mixpanelCounts );
+        jmQuoteOptionsService.getFirstCompletedQuote( clientId )
+                             .ifPresent( jmQuoteOptionEntity ->
+                                               mixPanelValues.put( JmMixpanelLabel.FIRST_COMPLETED_QUOTE_DATE.label, jmQuoteOptionEntity.getCreatedTimestamp() ) );
+        jmQuoteOptionsService.getMostRecentCompletedQuote( clientId )
+                             .ifPresent( jmQuoteOptionEntity ->
+                                               mixPanelValues.put( JmMixpanelLabel.LAST_COMPLETED_QUOTE_DATE.label, jmQuoteOptionEntity.getUpdatedTimestamp() ) );
+        return mixPanelValues;
+    }
+
+
+    private Map<String, Integer> getMixpanelCounts( final UUID clientId )
+    {
+        final UUID trace = UUID.randomUUID();
+        log.info( "(" + trace + ") Important: Begin Mixpanel values call." );
+        final List<Map<String, ?>> countKeys = counterService.getByKeyValue( "clientId", clientId.toString() );
+        final Map<String, Integer> countValues = new HashMap<>();
+        countKeys.forEach( countKey -> {
+            int count = counterService.getCount( countKey );
+            CountForClient countForClient = objectMapper.convertValue( countKey, CountForClient.class );
+            countValues.put( countForClient.getKey(), count );
+        } );
+        return countValues;
     }
 
 
@@ -413,6 +457,32 @@ public class JmIntegrationService
 
         log.info( "IMPORTATN: Persisting external quote data: " + objectMapper.writeValueAsString( externalQuoteData ) );
         externalQuoteDataService.saveOrUpdate( externalQuoteData );
+    }
+
+
+    private void countSubmitApplication( final UUID externalQuoteId )
+    {
+        log.info( "IMPORTANT: Counting Submit Application for externalQuoteId" + externalQuoteId );
+        try
+        {
+            final ExternalQuoteDataDto externalQuoteData = externalQuoteDataService.getByExternalQuoteId( externalQuoteId.toString() );
+            final UUID clientId = externalQuoteData.getClientId();
+            if ( clientId != null )
+            {
+                final CountForClient submitApplicationCount = CountForClient.builder().clientId( clientId ).key( JmMixpanelLabel.NUM_SUBMITTED_APPLICATIONS.label ).build();
+                CountDto incrementSubmitApplication = CountDto.builder().type( CounterType.INCREMENT ).key( submitApplicationCount ).build();
+                counterService.count( incrementSubmitApplication );
+                log.info( "IMPORTANT: count incremented for Submitted Applications for clientId: " + clientId );
+            }
+            else
+            {
+                log.info( "IMPORTANT: No clientId assigned for externalQuoteId: " + externalQuoteId );
+            }
+        }
+        catch ( ResponseStatusException e )
+        {
+            log.info( "IMPORTANT: Counting Submit Application failed.  Could not get the external quote data for " + externalQuoteId );
+        }
     }
 
 

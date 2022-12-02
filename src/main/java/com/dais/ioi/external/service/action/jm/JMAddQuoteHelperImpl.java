@@ -9,6 +9,10 @@ import com.dais.ioi.external.config.client.JMAuthClient;
 import com.dais.ioi.external.config.client.JMQuoteClient;
 import com.dais.ioi.external.domain.dto.AgentInfoDto;
 import com.dais.ioi.external.domain.dto.ExternalQuoteDataDto;
+import com.dais.ioi.external.domain.dto.count.CountDto;
+import com.dais.ioi.external.domain.dto.count.CountForClient;
+import com.dais.ioi.external.domain.dto.internal.enums.CounterType;
+import com.dais.ioi.external.domain.dto.internal.enums.JmMixpanelLabel;
 import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
 import com.dais.ioi.external.domain.dto.jm.AddQuoteRequest;
 import com.dais.ioi.external.domain.dto.jm.AddQuoteResult;
@@ -18,6 +22,7 @@ import com.dais.ioi.external.domain.dto.jm.JmQuoteOptionDto;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
 import com.dais.ioi.external.domain.dto.spec.JmApiSpec;
 import com.dais.ioi.external.domain.exception.ExternalApiException;
+import com.dais.ioi.external.service.CounterService;
 import com.dais.ioi.external.service.ExternalQuoteDataService;
 import com.dais.ioi.external.service.jm.JmQuoteOptionsService;
 import com.dais.ioi.external.util.NormalizedPremium;
@@ -88,18 +93,24 @@ public class JMAddQuoteHelperImpl
 
     private final JMAuthClient jmAuthClient;
 
+    private CounterService counterService;
+
+    ;
+
 
     public JMAddQuoteHelperImpl( @Autowired final JMQuoteClient jmQuoteClient,
                                  @Autowired final ObjectMapper objectMapper,
                                  @Autowired final ExternalQuoteDataService externalQuoteDataService,
                                  @Autowired final JmQuoteOptionsService jmQuoteOptionsService,
-                                 @Autowired final JMAuthClient jmAuthClient )
+                                 @Autowired final JMAuthClient jmAuthClient,
+                                 @Autowired final CounterService counterService )
     {
         this.jmQuoteClient = jmQuoteClient;
         this.objectMapper = objectMapper;
         this.externalQuoteDataService = externalQuoteDataService;
         this.jmQuoteOptionsService = jmQuoteOptionsService;
         this.jmAuthClient = jmAuthClient;
+        this.counterService = counterService;
     }
 
 
@@ -144,7 +155,7 @@ public class JMAddQuoteHelperImpl
             {
                 log.info( "(" + requestId.toString() + ") IMPORTANT: Entering Depricated updateQuoteCall" );
 
-                URI determinedBasePathUri = URI.create( jmApiSpec.getBaseUrl() );
+                URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl() );
 
                 addQuoteRequest.setQuoteId( externalQuoteId );
 
@@ -240,7 +251,7 @@ public class JMAddQuoteHelperImpl
 
             addQuoteRequest.setQuoteId( externalQuoteId );
 
-            determinedBasePathUri = URI.create( jmApiSpec.getBaseUrl() );
+            determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl() );
 
             log.info( "(" + requestId.toString() + ") IMPORTANT: JM UPDATEQUOTE request uri: " + determinedBasePathUri.toString() );
             log.info( "(" + requestId.toString() + ") IMPORTANT: JM UPDATEQUOTE request body: " + objectMapper.writeValueAsString( addQuoteRequest ) );
@@ -300,6 +311,7 @@ public class JMAddQuoteHelperImpl
             log.info( "(" + requestId.toString() + ") IMPORTANT: Saving JM Add Quote Options to database: " + objectMapper.writeValueAsString( quoteOptions ) );
             log.info( "(" + requestId.toString() + ") IMPORTANT: Returning JM Add Quote TriggerResponseDto: " + objectMapper.writeValueAsString( triggerResponseDto ) );
             log.info( "(" + requestId.toString() + ") IMPORTANT: End getAddQuote call" );
+            countAddQuote( quoteOptions.getClientId() );
             return triggerResponseDto;
         }
         catch ( Exception e )
@@ -310,6 +322,14 @@ public class JMAddQuoteHelperImpl
             triggerResponseDto.setTriggerRequestId( requestId );
             return triggerResponseDto;
         }
+    }
+
+
+    private void countAddQuote( final UUID clientId )
+    {
+        final CountForClient clientCount = CountForClient.builder().clientId( clientId ).key( JmMixpanelLabel.NUM_COMPLETED_QUOTES.label ).build();
+        final CountDto countDto = CountDto.builder().type( CounterType.INCREMENT ).key( clientCount ).build();
+        counterService.count( countDto );
     }
 
 
@@ -324,7 +344,8 @@ public class JMAddQuoteHelperImpl
     {
         UUID trace = UUID.randomUUID();
         log.info( "(" + trace.toString() + ") IMPORTANT: Begin addPaymentPlan JM UPDATEQUOTE" );
-        log.info( "(" + trace.toString() + ") IMPORTANT: addPaymentPlan JM UPDATEQUOTE agetnInfo: " + objectMapper.writeValueAsString( agentInfoDto ) );
+        log.info( "(" + trace.toString() + ") IMPORTANT: addPaymentPlan JM UPDATEQUOTE externalQuoteId: " + externalQuoteId );
+        log.info( "(" + trace.toString() + ") IMPORTANT: addPaymentPlan JM UPDATEQUOTE agentInfo: " + objectMapper.writeValueAsString( agentInfoDto ) );
         log.info( "(" + trace.toString() + ") IMPORTANT: addPaymentPlan JM UPDATEQUOTE intake: " + objectMapper.writeValueAsString( intake ) );
         log.info( "(" + trace.toString() + ") IMPORTANT: addPaymentPlan JM UPDATEQUOTE selectedPaymentPlan: " + objectMapper.writeValueAsString( selectedPaymentPlan ) );
         HashMap<String, String> pluginFields = new HashMap<>();

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -103,6 +106,24 @@ public class JmQuoteOptionsServiceImpl
     public void deleteByClientIdLineId( final UUID clientId,
                                         final UUID lineId )
     {
+        throw new NotImplementedException();
+    }
 
+
+    @Override
+    public Optional<JmQuoteOptionEntity> getFirstCompletedQuote( final UUID clientId )
+    {
+        List<JmQuoteOptionEntity> quoteOptions = jmQuoteOptionsRepository.getJmQuoteOptionEntitiesByClientId( clientId );
+        Optional<JmQuoteOptionEntity> min = quoteOptions.stream().min( Comparator.comparing( JmQuoteOptionEntity::getCreatedTimestamp ) );
+        return min;
+    }
+
+
+    @Override
+    public Optional<JmQuoteOptionEntity> getMostRecentCompletedQuote( final UUID clientId )
+    {
+        List<JmQuoteOptionEntity> quoteOptions = jmQuoteOptionsRepository.getJmQuoteOptionEntitiesByClientId( clientId );
+        Optional<JmQuoteOptionEntity> max = quoteOptions.stream().max( Comparator.comparing( JmQuoteOptionEntity::getUpdatedTimestamp ) );
+        return max;
     }
 }

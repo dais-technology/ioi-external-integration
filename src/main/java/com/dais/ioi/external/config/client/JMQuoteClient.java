@@ -26,6 +26,7 @@ import java.net.URI;
 public interface JMQuoteClient
 {
     @RequestMapping(
+                     value = "/quickquote",
                      method = RequestMethod.POST,
                      headers = { "Content-Type=application/json" } )
     @ResponseStatus( HttpStatus.OK )
@@ -45,7 +46,6 @@ public interface JMQuoteClient
           @RequestBody final AddQuoteRequest quickQuoteRequest );
 
     @RequestMapping(
-          value = "/quote/update",
           method = RequestMethod.POST,
           headers = { "Content-Type=application/json" } )
     @ResponseStatus( HttpStatus.OK )

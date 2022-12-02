@@ -21,7 +21,7 @@ import com.dais.ioi.external.domain.exception.ExternalApiException;
 import com.dais.ioi.external.entity.IntegrationEntity;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
 import com.dais.ioi.external.service.action.jm.JMQuoteServiceImpl;
-import com.dais.ioi.external.service.action.jm.JmIntegrationService;
+import com.dais.ioi.external.service.action.jm.JmIntegrationServiceImpl;
 import com.dais.ioi.external.service.jm.JmQuoteOptionsService;
 import com.dais.ioi.external.util.CompareJsonUtil;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
@@ -60,7 +60,7 @@ public class ExternalIntegrationServiceImpl
     private JMQuoteServiceImpl jmQuoteService;
 
     @Autowired
-    private JmIntegrationService jmIntegrationService;
+    private JmIntegrationServiceImpl jmIntegrationService;
 
     @Autowired
     private JmQuoteOptionsService jmQuoteOptionsService;

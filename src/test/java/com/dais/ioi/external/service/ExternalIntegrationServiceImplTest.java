@@ -4,7 +4,7 @@ import com.dais.ioi.external.domain.dto.GetQuoteDto;
 import com.dais.ioi.external.domain.dto.jm.JmQuoteOptionDto;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
 import com.dais.ioi.external.service.action.jm.JMQuoteServiceImpl;
-import com.dais.ioi.external.service.action.jm.JmIntegrationService;
+import com.dais.ioi.external.service.action.jm.JmIntegrationServiceImpl;
 import com.dais.ioi.external.service.jm.JmQuoteOptionsService;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
 import com.dais.utils.test.JsonFileUtils;
@@ -39,7 +39,7 @@ public class ExternalIntegrationServiceImplTest
     private JMQuoteServiceImpl jmQuoteService;
 
     @Mock
-    private JmIntegrationService jmIntegrationService;
+    private JmIntegrationServiceImpl jmIntegrationService;
 
     @Mock
     private JmQuoteOptionsService jmQuoteOptionsService;
