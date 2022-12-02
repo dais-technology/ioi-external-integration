@@ -46,6 +46,7 @@ public interface JMQuoteClient
           @RequestBody final AddQuoteRequest quickQuoteRequest );
 
     @RequestMapping(
+          value = "/quote/update",
           method = RequestMethod.POST,
           headers = { "Content-Type=application/json" } )
     @ResponseStatus( HttpStatus.OK )

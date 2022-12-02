@@ -155,7 +155,7 @@ public class JMAddQuoteHelperImpl
             {
                 log.info( "(" + requestId.toString() + ") IMPORTANT: Entering Depricated updateQuoteCall" );
 
-                URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl() );
+                URI determinedBasePathUri = URI.create( jmApiSpec.getBaseUrl() );
 
                 addQuoteRequest.setQuoteId( externalQuoteId );
 
@@ -251,7 +251,7 @@ public class JMAddQuoteHelperImpl
 
             addQuoteRequest.setQuoteId( externalQuoteId );
 
-            determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl() );
+            determinedBasePathUri = URI.create( jmApiSpec.getBaseUrl() );
 
             log.info( "(" + requestId.toString() + ") IMPORTANT: JM UPDATEQUOTE request uri: " + determinedBasePathUri.toString() );
             log.info( "(" + requestId.toString() + ") IMPORTANT: JM UPDATEQUOTE request body: " + objectMapper.writeValueAsString( addQuoteRequest ) );
@@ -338,7 +338,7 @@ public class JMAddQuoteHelperImpl
                                                      final AgentInfoDto agentInfoDto,
                                                      final Map<String, ClientAnswerDto> intake,
                                                      final Map<String, Object> selectedPaymentPlan,
-                                                     final JMAuthResult jmAuthResult,
+                                                     final JmApiSpec jmApiSpec,
                                                      final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
           throws Exception
     {
@@ -356,7 +356,7 @@ public class JMAddQuoteHelperImpl
         addQuoteRequest.setEffectiveDate( formattedEffectiveDateForJmRequest );
         addUserInfo( addQuoteRequest, objectMapper.convertValue( agentInfoDto, Map.class ) );
 
-        URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl() );
+        URI determinedBasePathUri = URI.create( jmApiSpec.getBaseUrl() );
         addQuoteRequest.setQuoteId( externalQuoteId );
 
         if ( !selectedPaymentPlan.isEmpty() )
@@ -368,6 +368,8 @@ public class JMAddQuoteHelperImpl
 
         log.info( "(" + trace.toString() + ") IMPORTANT: Update Quote URI for add Payment Plan: " + determinedBasePathUri.toString() );
         log.info( "(" + trace.toString() + ") IMPORTANT: Update Quote Request going to JM for add Payment Plan: " + objectMapper.writeValueAsString( addQuoteRequest ) );
+
+        final JMAuthResult jmAuthResult = getAuth( actionJMSQuoteSpecDto, jmAuthClient );
 
         AddQuoteResult updQuoteResult = getUpdateQuoteResponse( jmAuthResult, actionJMSQuoteSpecDto, addQuoteRequest, determinedBasePathUri );
         log.info( "(" + trace.toString() + ") IMPORTANT: Update Quote Response from JM for add Payment Plan: " + objectMapper.writeValueAsString( updQuoteResult ) );
