@@ -110,6 +110,7 @@ public class JMAddQuoteHelperImpl
         this.externalQuoteDataService = externalQuoteDataService;
         this.jmQuoteOptionsService = jmQuoteOptionsService;
         this.jmAuthClient = jmAuthClient;
+        this.counterService = counterService;
     }
 
 
