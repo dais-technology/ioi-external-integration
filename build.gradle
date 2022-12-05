@@ -84,7 +84,7 @@ dependencies {
 
     implementation( "com.dais:commons-spring-security-jwt-autoconfiguration:2.1.5" )
     implementation( "com.dais:dais-commons:7.1.1" )
-    implementation( "com.dais:ioi-action-service-domain:0.0.795" )
+    implementation( "com.dais:ioi-action-service-domain:0.0.841" )
     implementation( "com.dais:ioi-report-service-domain:0.0.31" )
     implementation( "com.dais:user-management-domain:1.0.60" )
 
@@ -115,7 +115,7 @@ dependencies {
     implementation( 'com.dais:ioi-quote-service-domain:0.0.113' )
     compile( 'com.dais:dais-commons:7.1.+' )
     compile( 'com.dais:dais-commons:7.1.+' )
-    compile( 'com.dais:commons-ioi:0.0.49' )
+    compile( 'com.dais:commons-ioi:0.0.54' )
     compile( 'com.dais:commons-jwt-utils:2.1.4' )
     compile( 'com.dais:commons-microservice-logging:1.0.3' )
     compile( 'com.dais:commons-microservice-rest-clients:1.0.3' )
