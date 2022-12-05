@@ -20,6 +20,4 @@ public class JmApiSpec
 
     private String baseUrl;
 
-    //document upload
-    private String fileQuestion;
 }

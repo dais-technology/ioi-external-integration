@@ -25,6 +25,7 @@ import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import com.dais.ioi.external.domain.dto.jm.UploadAppraisalResponse;
 import com.dais.ioi.external.domain.dto.spec.JmApiSpec;
+import com.dais.ioi.external.domain.dto.spec.JmUploadAppraisalSpec;
 import com.dais.ioi.external.domain.exception.ExternalApiException;
 import com.dais.ioi.external.entity.IntegrationEntity;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
@@ -206,7 +207,9 @@ public class JmIntegrationServiceImpl
 
         final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( lineId, IntegrationType.JM_UPLOAD_APPRAISAL );
 
-        final JmApiSpec jmApiSpec = objectMapper.convertValue( integrationEntity.getSpec(), JmApiSpec.class );
+        final JmUploadAppraisalSpec jmUploadAppraisalSpec = objectMapper.convertValue( integrationEntity.getSpec(), JmUploadAppraisalSpec.class );
+
+        final JmApiSpec jmApiSpec = getApiSpec();
 
         final JMAuthResult jmAuthResult = getAuth( jmApiSpec, jmAuthClient );
 
@@ -217,7 +220,7 @@ public class JmIntegrationServiceImpl
 
         final ClientDto clientDto = objectMapper.convertValue( firedTriggerDto.getPayload(), ClientDto.class );
 
-        final List<FileReferenceDto> fileReferences = clientDto.getClientIntake().getClientAnswers().get( jmApiSpec.getFileQuestion() ).getFiles();
+        final List<FileReferenceDto> fileReferences = clientDto.getClientIntake().getClientAnswers().get( jmUploadAppraisalSpec.getFileQuestion() ).getFiles();
 
         final List<UploadAppraisalResponse> responses = new ArrayList<>();
 
@@ -531,5 +534,19 @@ public class JmIntegrationServiceImpl
             log.error( "IMPORTANT: An exception occurred when attempting to get a submitApplication response from JM: " + e.getMessage(), e );
             throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
         }
+    }
+
+
+    public JmApiSpec getApiSpec()
+          throws Exception
+    {
+        List<IntegrationEntity> authEntity = externalIntegrationRepository.getIntegrationEntityByType( IntegrationType.JM_AUTH );
+
+        if ( authEntity.size() > 1 )
+        {
+            throw new Exception( "Misconfiguration of JM AUTH entity!! Only single JM_AUTH entity allowed but found multiple" );
+        }
+
+        return objectMapper.convertValue( authEntity.get( 0 ).getSpec(), JmApiSpec.class );
     }
 }

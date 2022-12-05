@@ -16,7 +16,6 @@ import com.dais.ioi.external.domain.dto.jm.RegisterUserRequest;
 import com.dais.ioi.external.domain.dto.jm.RegisterUserResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
-import com.dais.ioi.external.domain.dto.jm.UploadAppraisalResponse;
 import com.dais.ioi.external.domain.exception.ExternalApiException;
 import com.dais.ioi.external.entity.IntegrationEntity;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
@@ -41,7 +40,6 @@ import javax.persistence.EntityNotFoundException;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -304,17 +302,6 @@ public class ExternalIntegrationServiceImpl
     {
         log.info( String.format( "getPolicyNumber: %s -> %s", lineId.toString(), accountNumber ) );
         return jmIntegrationService.getPolicyNumber( accountNumber, lineId );
-    }
-
-
-    @SneakyThrows
-    @Override
-    public List<UploadAppraisalResponse> uploadAppraisal( final String accountNumber,
-                                                          final FiredTriggerDto firedTriggerDto,
-                                                          final UUID lineId )
-    {
-        log.info( String.format( "uploadAppraisal: %s -> accountNumber: %s", lineId.toString(), accountNumber ) );
-        return jmIntegrationService.uploadAppraisal( accountNumber, firedTriggerDto, lineId );
     }
 
 
