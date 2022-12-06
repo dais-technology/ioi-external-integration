@@ -311,7 +311,6 @@ public class JMAddQuoteHelperImpl
             log.info( "(" + requestId.toString() + ") IMPORTANT: Saving JM Add Quote Options to database: " + objectMapper.writeValueAsString( quoteOptions ) );
             log.info( "(" + requestId.toString() + ") IMPORTANT: Returning JM Add Quote TriggerResponseDto: " + objectMapper.writeValueAsString( triggerResponseDto ) );
             log.info( "(" + requestId.toString() + ") IMPORTANT: End getAddQuote call" );
-            countAddQuote( quoteOptions.getClientId() );
             return triggerResponseDto;
         }
         catch ( Exception e )
@@ -323,16 +322,6 @@ public class JMAddQuoteHelperImpl
             return triggerResponseDto;
         }
     }
-
-
-    private void countAddQuote( final UUID clientId )
-    {
-        final CountForClient clientCount = CountForClient.builder().clientId( clientId ).key( JmMixpanelLabel.NUM_COMPLETED_QUOTES.label ).build();
-        final CountDto countDto = CountDto.builder().type( CounterType.INCREMENT ).key( clientCount ).build();
-        counterService.count( countDto );
-    }
-
-
 
     public AddPaymentPlanResponseDto addPaymentPlan( final String externalQuoteId,
                                                      final AgentInfoDto agentInfoDto,

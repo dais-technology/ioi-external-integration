@@ -9,9 +9,7 @@ import com.dais.ioi.client.domain.dto.client.ClientDto;
 import com.dais.ioi.external.config.client.JMApplicationClient;
 import com.dais.ioi.external.config.client.JMAuthClient;
 import com.dais.ioi.external.domain.dto.ExternalQuoteDataDto;
-import com.dais.ioi.external.domain.dto.count.CountDto;
 import com.dais.ioi.external.domain.dto.count.CountForClient;
-import com.dais.ioi.external.domain.dto.internal.enums.CounterType;
 import com.dais.ioi.external.domain.dto.internal.enums.IntegrationType;
 import com.dais.ioi.external.domain.dto.internal.enums.JmMixpanelLabel;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
@@ -48,7 +46,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -136,7 +133,6 @@ public class JmIntegrationServiceImpl
         final SubmitApplicationResponse response = getSubmitApplicationResponse( submitApplicationRequest, jmApiSpec, jmAuthResult, uri );
         log.info( "(" + trace + ") IMPORTANT: JM submitApplication response: " + objectMapper.writeValueAsString( response ) );
         persistExternalQuoteData( response, submitApplicationRequest.getQuoteId() );
-        countSubmitApplication( submitApplicationRequest.getQuoteId() );
         log.info( "(" + trace + ") IMPORTANT: End JM submitApplication" );
 
         return response;
@@ -456,32 +452,6 @@ public class JmIntegrationServiceImpl
 
         log.info( "IMPORTATN: Persisting external quote data: " + objectMapper.writeValueAsString( externalQuoteData ) );
         externalQuoteDataService.saveOrUpdate( externalQuoteData );
-    }
-
-
-    private void countSubmitApplication( final UUID externalQuoteId )
-    {
-        log.info( "IMPORTANT: Counting Submit Application for externalQuoteId" + externalQuoteId );
-        try
-        {
-            final ExternalQuoteDataDto externalQuoteData = externalQuoteDataService.getByExternalQuoteId( externalQuoteId.toString() );
-            final UUID clientId = externalQuoteData.getClientId();
-            if ( clientId != null )
-            {
-                final CountForClient submitApplicationCount = CountForClient.builder().clientId( clientId ).key( JmMixpanelLabel.NUM_SUBMITTED_APPLICATIONS.label ).build();
-                CountDto incrementSubmitApplication = CountDto.builder().type( CounterType.INCREMENT ).key( submitApplicationCount ).build();
-                counterService.count( incrementSubmitApplication );
-                log.info( "IMPORTANT: count incremented for Submitted Applications for clientId: " + clientId );
-            }
-            else
-            {
-                log.info( "IMPORTANT: No clientId assigned for externalQuoteId: " + externalQuoteId );
-            }
-        }
-        catch ( ResponseStatusException e )
-        {
-            log.info( "IMPORTANT: Counting Submit Application failed.  Could not get the external quote data for " + externalQuoteId );
-        }
     }
 
 
