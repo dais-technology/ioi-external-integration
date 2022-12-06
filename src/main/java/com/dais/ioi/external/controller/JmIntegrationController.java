@@ -27,10 +27,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -199,12 +199,10 @@ public class JmIntegrationController
 
 
     @Override
-    public UploadAppraisalResponse uploadAppraisal( final String accountNumber,
-                                                    final String policyNumber,
-                                                    final MultipartFile appraisalDocument,
-                                                    final UUID lineId )
+    public List<UploadAppraisalResponse> uploadAppraisal( final String accountNumber,
+                                                          final FiredTriggerDto firedTriggerDto )
     {
-        return externalIntegrationService.uploadAppraisal( accountNumber, policyNumber, appraisalDocument, lineId );
+        return jmIntegrationService.uploadAppraisal( accountNumber, firedTriggerDto, firedTriggerDto.getLineId() );
     }
 
 

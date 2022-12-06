@@ -9,16 +9,14 @@ import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
+import com.dais.ioi.external.domain.dto.jm.GetPolicyNumberResponse;
 import com.dais.ioi.external.domain.dto.jm.RegisterUserRequest;
 import com.dais.ioi.external.domain.dto.jm.RegisterUserResponse;
-import com.dais.ioi.external.domain.dto.jm.GetPolicyNumberResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
-import com.dais.ioi.external.domain.dto.jm.UploadAppraisalResponse;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -58,11 +56,6 @@ public interface ExternalIntegrationService
                                                   final UUID lineId );
 
     GetPolicyNumberResponse getPolicyNumber( final String accountNumber,
-                                             final UUID lineId );
-
-    UploadAppraisalResponse uploadAppraisal( final String accountNumber,
-                                             final String policyNumber,
-                                             final MultipartFile appraisalDocument,
                                              final UUID lineId );
 
     RegisterUserResponse registerPortalUser( final RegisterUserRequest registerUserRequest,

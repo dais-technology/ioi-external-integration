@@ -16,7 +16,6 @@ import com.dais.ioi.external.domain.dto.jm.RegisterUserRequest;
 import com.dais.ioi.external.domain.dto.jm.RegisterUserResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
-import com.dais.ioi.external.domain.dto.jm.UploadAppraisalResponse;
 import com.dais.ioi.external.domain.exception.ExternalApiException;
 import com.dais.ioi.external.entity.IntegrationEntity;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
@@ -35,7 +34,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.EntityNotFoundException;
@@ -304,18 +302,6 @@ public class ExternalIntegrationServiceImpl
     {
         log.info( String.format( "getPolicyNumber: %s -> %s", lineId.toString(), accountNumber ) );
         return jmIntegrationService.getPolicyNumber( accountNumber, lineId );
-    }
-
-
-    @SneakyThrows
-    @Override
-    public UploadAppraisalResponse uploadAppraisal( final String accountNumber,
-                                                    final String policyNumber,
-                                                    final MultipartFile appraisalDocument,
-                                                    final UUID lineId )
-    {
-        log.info( String.format( "uploadAppraisal: %s -> accountNumber: %s, policyNumber: %s", lineId.toString(), accountNumber, policyNumber) );
-        return jmIntegrationService.uploadAppraisal( accountNumber, policyNumber, appraisalDocument, lineId );
     }
 
 
