@@ -218,4 +218,8 @@ public class ActionJMSQuoteSpecDto
     private String amountOfLoss;
 
     private String dateOfLoss;
+
+    private String appraisalForm;
+
+    private String appraisalDocUpload;
 }
