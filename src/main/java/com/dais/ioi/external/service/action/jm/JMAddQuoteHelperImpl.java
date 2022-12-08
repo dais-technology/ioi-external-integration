@@ -9,10 +9,6 @@ import com.dais.ioi.external.config.client.JMAuthClient;
 import com.dais.ioi.external.config.client.JMQuoteClient;
 import com.dais.ioi.external.domain.dto.AgentInfoDto;
 import com.dais.ioi.external.domain.dto.ExternalQuoteDataDto;
-import com.dais.ioi.external.domain.dto.count.CountDto;
-import com.dais.ioi.external.domain.dto.count.CountForClient;
-import com.dais.ioi.external.domain.dto.internal.enums.CounterType;
-import com.dais.ioi.external.domain.dto.internal.enums.JmMixpanelLabel;
 import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
 import com.dais.ioi.external.domain.dto.jm.AddQuoteRequest;
 import com.dais.ioi.external.domain.dto.jm.AddQuoteResult;
@@ -41,6 +37,7 @@ import com.dais.ioi.quote.domain.dto.pub.PubPremiumDto;
 import com.dais.ioi.quote.domain.dto.pub.PubPremiumTaxesDto;
 import com.dais.ioi.quote.domain.dto.pub.PubQuoteDetailsDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Iterables;
 import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.ListUtils;
@@ -69,6 +66,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.dais.ioi.external.service.action.jm.JMAuth.getAuth;
+import static com.dais.ioi.external.service.action.jm.JMUtils.convertDateTimeToDate;
 import static com.dais.ioi.external.service.action.jm.JMUtils.getValue;
 
 
@@ -322,6 +320,7 @@ public class JMAddQuoteHelperImpl
             return triggerResponseDto;
         }
     }
+
 
     public AddPaymentPlanResponseDto addPaymentPlan( final String externalQuoteId,
                                                      final AgentInfoDto agentInfoDto,
@@ -639,8 +638,6 @@ public class JMAddQuoteHelperImpl
             }
         }
 
-
-
         primaryContact.setResidentialAddress( residentialAddress );
 
         addQuoteRequest.setPrimaryContact( primaryContact );
@@ -649,7 +646,9 @@ public class JMAddQuoteHelperImpl
 
         List<ClientLoopIterationDto> jewerlyWearers = intake.get( "jewelryWearers" ).getIterations();
 
-        processAddQuoteIteration( addQuoteRequest, intake.get( actionJMSQuoteSpecDto.getItemLoop() ).getIterations(), actionJMSQuoteSpecDto, jewerlyWearers, pluginFields );
+        List<ClientLoopIterationDto> appraisalIterations = getValue( () -> intake.get( actionJMSQuoteSpecDto.getAppraisalForm() ).getIterations(), Collections.emptyList() );
+
+        processAddQuoteIteration( addQuoteRequest, intake.get( actionJMSQuoteSpecDto.getItemLoop() ).getIterations(), actionJMSQuoteSpecDto, jewerlyWearers, pluginFields, appraisalIterations );
 
         setCanadianParameters( addQuoteRequest, intake, actionJMSQuoteSpecDto );
 
@@ -945,7 +944,8 @@ public class JMAddQuoteHelperImpl
                                            List<ClientLoopIterationDto> iterations,
                                            ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
                                            List<ClientLoopIterationDto> jewerlyWearers,
-                                           Map<String, String> pluginFields )
+                                           Map<String, String> pluginFields,
+                                           final List<ClientLoopIterationDto> appraisalIterations )
     {
         ArrayList<AddQuoteRequest.JeweleryItem> jeweleryItems = new ArrayList<>();
         int itemNumber = 1;
@@ -982,10 +982,6 @@ public class JMAddQuoteHelperImpl
 
             item.setSerialNumber(
                   getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getSerialNumber() ).getAnswer(), "" )
-            );
-
-            item.setLastAppraisalDate(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getLastAppraisalDate() ).getAnswer(), "" )
             );
 
             item.setGender(
@@ -1037,6 +1033,19 @@ public class JMAddQuoteHelperImpl
             deductibleOptions.add( deductibleOption );
 
             item.setPrimaryWearer( primaryWearer );
+
+            final int appraisalIterationNumber = itemNumber - 1;
+
+            item.setLastAppraisalDate(
+                  getValue( () -> convertDateTimeToDate( Iterables.get( appraisalIterations, appraisalIterationNumber, null )
+                                                                  .getAnswers().get( actionJMSQuoteSpecDto.getLastAppraisalDate() ).getAnswer() ), "" )
+            );
+
+            item.setIsItemHasAppraisal(
+                  getValue( () -> !Iterables.get( appraisalIterations, appraisalIterationNumber, null )
+                                            .getAnswers().get( actionJMSQuoteSpecDto.getAppraisalDocUpload() ).getFiles().isEmpty(), false )
+            );
+
             jeweleryItems.add( item );
 
             pluginFields.put( "ItemDamage" + itemNumber,
