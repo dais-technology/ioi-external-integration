@@ -214,7 +214,7 @@ public class JmIntegrationServiceImpl
 
         final JmApiSpec jmApiSpec = getApiSpec();
 
-        final String accountNumber = getAccountNumber( requestDto.getJmStore(), jmUploadAppraisalSpec );
+        final String accountNumber = getAccountNumber( requestDto.getJmStore() );
 
         final JMAuthResult jmAuthResult = getAuth( jmApiSpec, jmAuthClient );
 
@@ -288,8 +288,7 @@ public class JmIntegrationServiceImpl
     }
 
 
-    private String getAccountNumber( final JmStoreDto jmStore,
-                                     final JmUploadAppraisalSpec jmUploadAppraisalSpec )
+    private String getAccountNumber( final JmStoreDto jmStore )
     {
         final String externalQuoteId = jmStore.getExternalQuoteId().getAnswer();
         final ExternalQuoteDataDto externalQuoteData = externalQuoteDataService.getByExternalQuoteId( externalQuoteId );
