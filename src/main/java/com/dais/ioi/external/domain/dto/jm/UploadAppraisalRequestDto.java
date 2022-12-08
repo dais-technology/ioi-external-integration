@@ -20,7 +20,7 @@ public class UploadAppraisalRequestDto
 {
     private UUID clientId;
 
-    private Map<String, ClientAnswerDto> intake;
+    private String accountNumber;
 
-    private JmStoreDto jmStore;
+    private Map<String, ClientAnswerDto> intake;
 }
