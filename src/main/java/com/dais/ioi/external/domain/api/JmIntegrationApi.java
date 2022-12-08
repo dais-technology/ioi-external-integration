@@ -13,6 +13,7 @@ import com.dais.ioi.external.domain.dto.jm.RegisterUserRequest;
 import com.dais.ioi.external.domain.dto.jm.RegisterUserResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
+import com.dais.ioi.external.domain.dto.jm.UploadAppraisalRequestDto;
 import com.dais.ioi.external.domain.dto.jm.UploadAppraisalResponse;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
 import io.swagger.annotations.ApiOperation;
@@ -89,9 +90,7 @@ public interface JmIntegrationApi
     @RequestMapping( value = "/upload/appraisal",
                      method = RequestMethod.POST )
     @ApiOperation( value = "Upload Appraisal Doc" )
-    List<UploadAppraisalResponse> uploadAppraisal( @RequestParam( value = "accountNumber",
-                                                                  required = false ) String accountNumber,
-                                                   @RequestBody final FiredTriggerDto firedTriggerDto );
+    List<UploadAppraisalResponse> uploadAppraisal( @RequestBody final UploadAppraisalRequestDto request );
 
     @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/register/user/{lineId}",

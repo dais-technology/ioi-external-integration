@@ -1,11 +1,10 @@
 package com.dais.ioi.external.service.action.jm;
 
 import com.dais.authorization.ForwardingAuthorization;
+import com.dais.common.ioi.dto.answer.ClientAnswerDto;
 import com.dais.common.ioi.dto.answer.FileReferenceDto;
 import com.dais.file.storage.FileReference;
 import com.dais.file.storage.cms.CmsFiles;
-import com.dais.ioi.action.domain.dto.FiredTriggerDto;
-import com.dais.ioi.client.domain.dto.client.ClientDto;
 import com.dais.ioi.external.config.client.JMApplicationClient;
 import com.dais.ioi.external.config.client.JMAuthClient;
 import com.dais.ioi.external.domain.dto.ExternalQuoteDataDto;
@@ -17,10 +16,12 @@ import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.GetPolicyNumberResponse;
 import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
+import com.dais.ioi.external.domain.dto.jm.JmStoreDto;
 import com.dais.ioi.external.domain.dto.jm.RegisterUserRequest;
 import com.dais.ioi.external.domain.dto.jm.RegisterUserResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
+import com.dais.ioi.external.domain.dto.jm.UploadAppraisalRequestDto;
 import com.dais.ioi.external.domain.dto.jm.UploadAppraisalResponse;
 import com.dais.ioi.external.domain.dto.spec.JmApiSpec;
 import com.dais.ioi.external.domain.dto.spec.JmUploadAppraisalSpec;
@@ -30,6 +31,7 @@ import com.dais.ioi.external.repository.ExternalIntegrationRepository;
 import com.dais.ioi.external.service.CounterService;
 import com.dais.ioi.external.service.ExternalQuoteDataService;
 import com.dais.ioi.external.service.jm.JmQuoteOptionsService;
+import com.dais.ioi.external.util.JsonPathPropertiesMapperUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
@@ -47,14 +49,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
+import java.io.IOException;
 import java.net.URI;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.dais.ioi.external.service.action.jm.JMAuth.getAuth;
 
@@ -65,6 +72,8 @@ import static com.dais.ioi.external.service.action.jm.JMAuth.getAuth;
 public class JmIntegrationServiceImpl
 {
     private static Pattern PASSWORD_VALIDATION_REGEX = Pattern.compile( "^(?=.*[a-z])(?=.*[A-Z])(?=.*[\\d@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$" );
+
+    private static final String ACCOUNT_NUMBER = "accountNumber";
 
     @Autowired
     JMAuthClient jmAuthClient;
@@ -89,6 +98,8 @@ public class JmIntegrationServiceImpl
 
     @Autowired
     private CmsFiles cmsFiles;
+
+    private JsonPathPropertiesMapperUtil jsonPathMapper = new JsonPathPropertiesMapperUtil();
 
 
     @SneakyThrows
@@ -193,19 +204,17 @@ public class JmIntegrationServiceImpl
 
 
     @SneakyThrows
-    public List<UploadAppraisalResponse> uploadAppraisal( final String accountNumber,
-                                                          final FiredTriggerDto firedTriggerDto,
-                                                          final UUID lineId )
+    public List<UploadAppraisalResponse> uploadAppraisal( final UploadAppraisalRequestDto requestDto )
     {
         UUID trace = UUID.randomUUID();
 
         log.info( "(" + trace + ") IMPORTANT: Begin JM UploadAppraisal" );
 
-        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( lineId, IntegrationType.JM_UPLOAD_APPRAISAL );
-
-        final JmUploadAppraisalSpec jmUploadAppraisalSpec = objectMapper.convertValue( integrationEntity.getSpec(), JmUploadAppraisalSpec.class );
+        final JmUploadAppraisalSpec jmUploadAppraisalSpec = getJmUploadAppraisalSpec();
 
         final JmApiSpec jmApiSpec = getApiSpec();
+
+        final String accountNumber = getAccountNumber( requestDto.getJmStore(), jmUploadAppraisalSpec );
 
         final JMAuthResult jmAuthResult = getAuth( jmApiSpec, jmAuthClient );
 
@@ -214,9 +223,7 @@ public class JmIntegrationServiceImpl
 
         final ForwardingAuthorization cmsAuthorization = new ForwardingAuthorization();
 
-        final ClientDto clientDto = objectMapper.convertValue( firedTriggerDto.getPayload(), ClientDto.class );
-
-        final List<FileReferenceDto> fileReferences = clientDto.getClientIntake().getClientAnswers().get( jmUploadAppraisalSpec.getFileQuestion() ).getFiles();
+        final List<FileReferenceDto> fileReferences = getFileReferences( requestDto.getIntake(), jmUploadAppraisalSpec );
 
         final List<UploadAppraisalResponse> responses = new ArrayList<>();
 
@@ -251,6 +258,63 @@ public class JmIntegrationServiceImpl
         log.info( "(" + trace + ") IMPORTANT: End JM UploadAppraisal" );
 
         return responses;
+    }
+
+
+    private List<FileReferenceDto> getFileReferences( final Map<String, ClientAnswerDto> intake,
+                                                      final JmUploadAppraisalSpec jmUploadAppraisalSpec )
+          throws IOException
+    {
+        final String intakeString = objectMapper.writeValueAsString( intake );
+        final Map intakeMap = objectMapper.readValue( intakeString, Map.class );
+        final Optional<Object> fileAnswers = jsonPathMapper.queryJson( intakeMap, jmUploadAppraisalSpec.getFileQuestion() );
+        if ( fileAnswers.isPresent() )
+        {
+            if ( fileAnswers.get() instanceof Collection )
+            {
+                List<Map> answers = new ArrayList();
+                final Collection answerLists = (Collection) fileAnswers.get();
+                answerLists.forEach( answerIteration -> {
+                    answers.addAll( (Collection) answerIteration );
+                } );
+                return answers.stream().map( fileRefMap -> {
+                                  FileReferenceDto fileReferenceDto = objectMapper.convertValue( fileRefMap, FileReferenceDto.class );
+                                  return fileReferenceDto;
+                              } )
+                              .collect( Collectors.toList() );
+            }
+        }
+        return Collections.EMPTY_LIST;
+    }
+
+
+    private String getAccountNumber( final JmStoreDto jmStore,
+                                     final JmUploadAppraisalSpec jmUploadAppraisalSpec )
+    {
+        final String externalQuoteId = jmStore.getExternalQuoteId().getAnswer();
+        final ExternalQuoteDataDto externalQuoteData = externalQuoteDataService.getByExternalQuoteId( externalQuoteId );
+        final Map<String, ?> quoteData = externalQuoteData.getQuoteData();
+        if ( quoteData.containsKey( ACCOUNT_NUMBER ) )
+        {
+            return (String) externalQuoteData.getQuoteData().get( ACCOUNT_NUMBER );
+        }
+        else
+        {
+            log.error( "Important: No Account Number found for externalQuoteId " + externalQuoteId );
+            throw new InvalidParameterException( "No Account Number found for externalQuoteId " + externalQuoteId );
+        }
+    }
+
+
+    private JmUploadAppraisalSpec getJmUploadAppraisalSpec()
+    {
+        List<IntegrationEntity> integrationEntities = externalIntegrationRepository.getIntegrationEntityByType( IntegrationType.JM_UPLOAD_APPRAISAL );
+        if ( integrationEntities.size() > 1 )
+        {
+            throw new InvalidParameterException( "Important: More than one JM_UPLOAD_APPRAISAL found.  Only one expected." );
+        }
+        IntegrationEntity integrationEntity = integrationEntities.get( 0 );
+        return objectMapper.convertValue( integrationEntity.getSpec(), JmUploadAppraisalSpec.class );
     }
 
 

@@ -77,8 +77,8 @@ public class JsonPathPropertiesMapperUtil
     }
 
 
-    private Optional<Object> queryJson( Map source,
-                                        String jsonPath )
+    public Optional<Object> queryJson( Map source,
+                                       String jsonPath )
     {
         try
         {
