@@ -14,6 +14,7 @@ import com.dais.ioi.external.domain.dto.jm.RegisterUserRequest;
 import com.dais.ioi.external.domain.dto.jm.RegisterUserResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
+import com.dais.ioi.external.domain.dto.jm.UploadAppraisalRequestDto;
 import com.dais.ioi.external.domain.dto.jm.UploadAppraisalResponse;
 import com.dais.ioi.external.service.ExternalIntegrationService;
 import com.dais.ioi.external.service.action.jm.JmIntegrationServiceImpl;
@@ -199,10 +200,9 @@ public class JmIntegrationController
 
 
     @Override
-    public List<UploadAppraisalResponse> uploadAppraisal( final String accountNumber,
-                                                          final FiredTriggerDto firedTriggerDto )
+    public List<UploadAppraisalResponse> uploadAppraisal( final UploadAppraisalRequestDto request )
     {
-        return jmIntegrationService.uploadAppraisal( accountNumber, firedTriggerDto, firedTriggerDto.getLineId() );
+        return jmIntegrationService.uploadAppraisal( request );
     }
 
 
