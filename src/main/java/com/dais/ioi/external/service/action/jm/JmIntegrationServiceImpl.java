@@ -42,6 +42,7 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -382,11 +383,8 @@ public class JmIntegrationServiceImpl
         {
             if ( e.status() == 404 && e.contentUTF8().contains( "Unable to find any document for the given account number" ) )
             {
-                log.info( "IMPORTANT: JM returned 404 with message: {} , so we are returning 200 to the FE", e.contentUTF8() );
-                return  ResponseEntity.ok()
-                                      .contentLength( e.content().length )
-                                      .contentType( MediaType.APPLICATION_OCTET_STREAM )
-                                      .body( new ByteArrayResource( e.content()) );
+                log.info( "IMPORTANT: JM returned 404 with message: {} , so we are returning 204 to the FE", e.contentUTF8() );
+                return ResponseEntity.status( HttpStatus.NO_CONTENT ).body( new ByteArrayResource( e.content() ) );
             }
             log.error( "IMPORTANT: An exception occurred when attempting to get a downloadApplication response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
             throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
