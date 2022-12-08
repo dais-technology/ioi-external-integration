@@ -42,6 +42,7 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -165,15 +166,12 @@ public class JmIntegrationServiceImpl
         log.info( "(" + trace + ") IMPORTANT: Base URI: {}", uri );
         log.info( "(" + trace + ") IMPORTANT: JM DownloadApplication REQUEST: {}.", objectMapper.writeValueAsString( downloadApplicationRequest ) );
 
-        final ByteArrayResource byteArrayResource = downloadApplication( downloadApplicationRequest, jmApiSpec, jmAuthResult, uri );
+        final ResponseEntity<Resource> response = downloadApplication( downloadApplicationRequest, jmApiSpec, jmAuthResult, uri );
 
-        log.info( "(" + trace + ") IMPORTANT: JM DownloadApplication RESPONSE file name: {}.", byteArrayResource.getFilename() );
-        ResponseEntity<Resource> response = ResponseEntity.ok()
-                                                          .contentLength( byteArrayResource.contentLength() )
-                                                          .contentType( MediaType.APPLICATION_OCTET_STREAM )
-                                                          .body( byteArrayResource );
+        log.info( "(" + trace + ") IMPORTANT: JM DownloadApplication RESPONSE file name: {}.", response.getBody().getFilename() );
         log.info( "(" + trace + ") IMPORTANT: JM DownloadApplication call Successful." );
         log.info( "(" + trace + ") IMPORTANT: End JM DownloadApplication" );
+
         return response;
     }
 
@@ -365,10 +363,10 @@ public class JmIntegrationServiceImpl
     }
 
 
-    private ByteArrayResource downloadApplication( final DownloadApplicationRequest downloadApplicationRequest,
-                                                   final JmApiSpec jmApiSpec,
-                                                   final JMAuthResult jmAuthResult,
-                                                   final URI uri )
+    private ResponseEntity<Resource> downloadApplication( final DownloadApplicationRequest downloadApplicationRequest,
+                                                          final JmApiSpec jmApiSpec,
+                                                          final JMAuthResult jmAuthResult,
+                                                          final URI uri )
     {
         try
         {
@@ -376,10 +374,18 @@ public class JmIntegrationServiceImpl
                                                                                                  "Bearer " + jmAuthResult.getAccess_token(),
                                                                                                  jmApiSpec.getApiSubscriptionkey(),
                                                                                                  downloadApplicationRequest );
-            return byteArrayResource;
+            return ResponseEntity.ok()
+                                 .contentLength( byteArrayResource.contentLength() )
+                                 .contentType( MediaType.APPLICATION_OCTET_STREAM )
+                                 .body( byteArrayResource );
         }
         catch ( FeignException e )
         {
+            if ( e.status() == 404 && e.contentUTF8().contains( "Unable to find any document for the given account number" ) )
+            {
+                log.info( "IMPORTANT: JM returned 404 with message: {} , so we are returning 204 to the FE", e.contentUTF8() );
+                return ResponseEntity.status( HttpStatus.NO_CONTENT ).body( new ByteArrayResource( e.content() ) );
+            }
             log.error( "IMPORTANT: An exception occurred when attempting to get a downloadApplication response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
             throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
         }
