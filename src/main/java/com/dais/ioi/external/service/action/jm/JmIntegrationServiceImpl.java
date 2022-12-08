@@ -16,7 +16,6 @@ import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.GetPolicyNumberResponse;
 import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
-import com.dais.ioi.external.domain.dto.jm.JmStoreDto;
 import com.dais.ioi.external.domain.dto.jm.RegisterUserRequest;
 import com.dais.ioi.external.domain.dto.jm.RegisterUserResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
@@ -208,13 +207,15 @@ public class JmIntegrationServiceImpl
     {
         UUID trace = UUID.randomUUID();
 
-        log.info( "(" + trace + ") IMPORTANT: Begin JM UploadAppraisal" );
+        log.info( "(" + trace + ") IMPORTANT: Begin JM UploadAppraisal for ClientId: " + requestDto.getClientId() );
+
+        log.info( "(" + trace + ") IMPORTANT: JM UploadAppraisal request body: " + objectMapper.writeValueAsString( requestDto ) );
 
         final JmUploadAppraisalSpec jmUploadAppraisalSpec = getJmUploadAppraisalSpec();
 
         final JmApiSpec jmApiSpec = getApiSpec();
 
-        final String accountNumber = getAccountNumber( requestDto.getJmStore() );
+        final String accountNumber = requestDto.getAccountNumber();
 
         final JMAuthResult jmAuthResult = getAuth( jmApiSpec, jmAuthClient );
 
@@ -285,23 +286,6 @@ public class JmIntegrationServiceImpl
             }
         }
         return Collections.EMPTY_LIST;
-    }
-
-
-    private String getAccountNumber( final JmStoreDto jmStore )
-    {
-        final String externalQuoteId = jmStore.getExternalQuoteId().getAnswer();
-        final ExternalQuoteDataDto externalQuoteData = externalQuoteDataService.getByExternalQuoteId( externalQuoteId );
-        final Map<String, ?> quoteData = externalQuoteData.getQuoteData();
-        if ( quoteData.containsKey( ACCOUNT_NUMBER ) )
-        {
-            return (String) externalQuoteData.getQuoteData().get( ACCOUNT_NUMBER );
-        }
-        else
-        {
-            log.error( "Important: No Account Number found for externalQuoteId " + externalQuoteId );
-            throw new InvalidParameterException( "No Account Number found for externalQuoteId " + externalQuoteId );
-        }
     }
 
 
