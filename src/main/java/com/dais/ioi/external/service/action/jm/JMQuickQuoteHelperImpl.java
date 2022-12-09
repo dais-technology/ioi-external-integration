@@ -84,7 +84,7 @@ public class JMQuickQuoteHelperImpl
 
             URI determinedBasePathUri = URI.create( jmApiSpec.getBaseUrl() );
 
-            final JMAuthResult jmAuthResult = getAuth( actionJMSQuoteSpecDto, jmAuthClient );
+            final JMAuthResult jmAuthResult = getAuth( jmApiSpec, jmAuthClient );
 
             log.info( "(" + trace.toString() + ") IMPORTANT: requesting JM QUICK QUOTE with body: " + objectMapper.writeValueAsString( quickQuoteRequest ) );
             QuickQuoteResult quickQuoteResult = getQuickQuoteResult( jmAuthResult, actionJMSQuoteSpecDto, quickQuoteRequest, determinedBasePathUri );
