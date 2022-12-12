@@ -100,8 +100,7 @@ public class JMAddQuoteHelperImpl
                                  @Autowired final ObjectMapper objectMapper,
                                  @Autowired final ExternalQuoteDataService externalQuoteDataService,
                                  @Autowired final JmQuoteOptionsService jmQuoteOptionsService,
-                                 @Autowired final JMAuthClient jmAuthClient,
-                                 @Autowired final CounterService counterService )
+                                 @Autowired final JMAuthClient jmAuthClient)
     {
         this.jmQuoteClient = jmQuoteClient;
         this.objectMapper = objectMapper;

@@ -8,9 +8,7 @@ import com.dais.file.storage.cms.CmsFiles;
 import com.dais.ioi.external.config.client.JMApplicationClient;
 import com.dais.ioi.external.config.client.JMAuthClient;
 import com.dais.ioi.external.domain.dto.ExternalQuoteDataDto;
-import com.dais.ioi.external.domain.dto.count.CountForClient;
 import com.dais.ioi.external.domain.dto.internal.enums.IntegrationType;
-import com.dais.ioi.external.domain.dto.internal.enums.JmMixpanelLabel;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
@@ -330,36 +328,6 @@ public class JmIntegrationServiceImpl
         log.info( "(" + trace + ") IMPORTANT: JM RegisterPortalUser call Successful." );
         log.info( "(" + trace + ") IMPORTANT: End JM RegisterPortalUser" );
         return registerPortalUserResponse;
-    }
-
-
-    public Map<String, Object> getMixpanelValues( final UUID clientId )
-    {
-        Map<String, Object> mixPanelValues = new HashMap<>();
-        Map<String, Integer> mixpanelCounts = getMixpanelCounts( clientId );
-        mixPanelValues.putAll( mixpanelCounts );
-        jmQuoteOptionsService.getFirstCompletedQuote( clientId )
-                             .ifPresent( jmQuoteOptionEntity ->
-                                               mixPanelValues.put( JmMixpanelLabel.FIRST_COMPLETED_QUOTE_DATE.label, jmQuoteOptionEntity.getCreatedTimestamp() ) );
-        jmQuoteOptionsService.getMostRecentCompletedQuote( clientId )
-                             .ifPresent( jmQuoteOptionEntity ->
-                                               mixPanelValues.put( JmMixpanelLabel.LAST_COMPLETED_QUOTE_DATE.label, jmQuoteOptionEntity.getUpdatedTimestamp() ) );
-        return mixPanelValues;
-    }
-
-
-    private Map<String, Integer> getMixpanelCounts( final UUID clientId )
-    {
-        final UUID trace = UUID.randomUUID();
-        log.info( "(" + trace + ") Important: Begin Mixpanel values call." );
-        final List<Map<String, ?>> countKeys = counterService.getByKeyValue( "clientId", clientId.toString() );
-        final Map<String, Integer> countValues = new HashMap<>();
-        countKeys.forEach( countKey -> {
-            int count = counterService.getCount( countKey );
-            CountForClient countForClient = objectMapper.convertValue( countKey, CountForClient.class );
-            countValues.put( countForClient.getKey(), count );
-        } );
-        return countValues;
     }
 
 
