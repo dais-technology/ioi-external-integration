@@ -25,7 +25,6 @@ import com.dais.ioi.external.domain.dto.spec.JmUploadAppraisalSpec;
 import com.dais.ioi.external.domain.exception.ExternalApiException;
 import com.dais.ioi.external.entity.IntegrationEntity;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
-import com.dais.ioi.external.service.CounterService;
 import com.dais.ioi.external.service.ExternalQuoteDataService;
 import com.dais.ioi.external.service.jm.JmQuoteOptionsService;
 import com.dais.ioi.external.util.JsonPathPropertiesMapperUtil;
@@ -87,9 +86,6 @@ public class JmIntegrationServiceImpl
 
     @Autowired
     private ExternalQuoteDataService externalQuoteDataService;
-
-    @Autowired
-    private CounterService counterService;
 
     @Autowired
     private JmQuoteOptionsService jmQuoteOptionsService;
