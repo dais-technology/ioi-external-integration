@@ -74,12 +74,13 @@ public class ExternalIntegrationController
 
         catch ( final FeignException e )
         {
+            log.error( e.getMessage(), e );
             throw new ResponseStatusException( HttpStatus.BAD_REQUEST, new String( e.content() ) );
         }
 
         catch ( final Exception e )
         {
-            e.printStackTrace();
+            log.error( e.getMessage(), e );
             throw new ResponseStatusException( HttpStatus.BAD_REQUEST, e.getMessage() );
         }
 
