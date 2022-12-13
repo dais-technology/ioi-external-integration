@@ -13,6 +13,7 @@ import com.dais.ioi.external.domain.dto.jm.RegisterUserRequest;
 import com.dais.ioi.external.domain.dto.jm.RegisterUserResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
+import com.dais.ioi.external.domain.dto.jm.UploadAppraisalRequestDto;
 import com.dais.ioi.external.domain.dto.jm.UploadAppraisalResponse;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
 import io.swagger.annotations.ApiOperation;
@@ -24,11 +25,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 
@@ -86,15 +87,10 @@ public interface JmIntegrationApi
 
 
     @ResponseStatus( HttpStatus.OK )
-    @RequestMapping( value = "/upload/appraisal/{lineId}",
+    @RequestMapping( value = "/upload/appraisal",
                      method = RequestMethod.POST )
     @ApiOperation( value = "Upload Appraisal Doc" )
-    UploadAppraisalResponse uploadAppraisal( @RequestParam( value = "accountNumber",
-                                                            required = false ) String accountNumber,
-                                             @RequestParam( value = "policyNumber",
-                                                            required = false ) String policyNumber,
-                                             @RequestPart( value = "file" ) final MultipartFile appraisalDocument,
-                                             @PathVariable final UUID lineId );
+    List<UploadAppraisalResponse> uploadAppraisal( @RequestBody final UploadAppraisalRequestDto request );
 
     @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/register/user/{lineId}",
@@ -102,4 +98,10 @@ public interface JmIntegrationApi
     @ApiOperation( value = "Register Portal User" )
     RegisterUserResponse registerPortalUser( @RequestBody @Valid final RegisterUserRequest registerUserRequest,
                                              @PathVariable final UUID lineId );
+
+    @ResponseStatus( HttpStatus.OK )
+    @RequestMapping( value = "/mixpanel/{clientId}",
+                     method = RequestMethod.GET )
+    @ApiOperation( value = "Get Mixpanel data for clientId" )
+    Map<String, Object> getMixpanelValues( @PathVariable final UUID clientId );
 }

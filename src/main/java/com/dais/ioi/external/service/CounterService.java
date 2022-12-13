@@ -1,7 +1,6 @@
 package com.dais.ioi.external.service;
 
 import com.dais.ioi.external.domain.dto.count.CountDto;
-import com.dais.ioi.external.domain.dto.count.CountForClient;
 
 import javax.transaction.Transactional;
 import java.util.List;
@@ -12,7 +11,7 @@ public interface CounterService
 {
     void count( CountDto count );
 
-    int getCount( CountForClient key );
+    int getCount( Map<String, ?> key );
 
     @Transactional
     void aggregate();

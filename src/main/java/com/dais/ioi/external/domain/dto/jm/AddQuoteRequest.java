@@ -91,6 +91,9 @@ public class AddQuoteRequest
 
         @JsonProperty( "PrimaryWearer" )
         public PrimaryWearer primaryWearer;
+
+        @JsonProperty( "isItemHasAppraisal" )
+        public Boolean isItemHasAppraisal;
     }
 
     @Data

@@ -14,6 +14,7 @@ import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
 import com.dais.ioi.external.domain.dto.spec.JmApiSpec;
 import com.dais.ioi.external.domain.exception.ExternalApiException;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
+import com.dais.ioi.external.service.CounterService;
 import com.dais.ioi.external.util.NormalizedPremium;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
 import com.dais.ioi.quote.domain.dto.enums.AmountType;
@@ -66,6 +67,10 @@ public class JMQuickQuoteHelperImpl
     @Autowired
     private JMAuthClient jmAuthClient;
 
+    @Autowired
+    private CounterService counterService;
+
+
     public QuoteDto getQuickQuote( GetQuoteDto getQuickQuote,
                                    JmApiSpec jmApiSpec,
                                    ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
@@ -79,7 +84,7 @@ public class JMQuickQuoteHelperImpl
 
             URI determinedBasePathUri = URI.create( jmApiSpec.getBaseUrl() );
 
-            final JMAuthResult jmAuthResult = getAuth( actionJMSQuoteSpecDto, jmAuthClient );
+            final JMAuthResult jmAuthResult = getAuth( jmApiSpec, jmAuthClient );
 
             log.info( "(" + trace.toString() + ") IMPORTANT: requesting JM QUICK QUOTE with body: " + objectMapper.writeValueAsString( quickQuoteRequest ) );
             QuickQuoteResult quickQuoteResult = getQuickQuoteResult( jmAuthResult, actionJMSQuoteSpecDto, quickQuoteRequest, determinedBasePathUri );

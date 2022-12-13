@@ -19,4 +19,5 @@ public class JmApiSpec
     private String apiSubscriptionkey;
 
     private String baseUrl;
+
 }

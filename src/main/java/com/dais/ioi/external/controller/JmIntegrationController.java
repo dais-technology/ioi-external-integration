@@ -14,8 +14,10 @@ import com.dais.ioi.external.domain.dto.jm.RegisterUserRequest;
 import com.dais.ioi.external.domain.dto.jm.RegisterUserResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
+import com.dais.ioi.external.domain.dto.jm.UploadAppraisalRequestDto;
 import com.dais.ioi.external.domain.dto.jm.UploadAppraisalResponse;
 import com.dais.ioi.external.service.ExternalIntegrationService;
+import com.dais.ioi.external.service.action.jm.JmIntegrationServiceImpl;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
@@ -26,10 +28,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 
@@ -41,6 +44,8 @@ public class JmIntegrationController
       implements JmIntegrationApi
 {
     private final ExternalIntegrationService externalIntegrationService;
+
+    private final JmIntegrationServiceImpl jmIntegrationService;
 
     private final ObjectMapper objectMapper;
 
@@ -180,7 +185,7 @@ public class JmIntegrationController
     {
         try
         {
-            return externalIntegrationService.getPolicyNumber( accountNumber, lineId);
+            return externalIntegrationService.getPolicyNumber( accountNumber, lineId );
         }
         catch ( FeignException e )
         {
@@ -195,12 +200,9 @@ public class JmIntegrationController
 
 
     @Override
-    public UploadAppraisalResponse uploadAppraisal( final String accountNumber,
-                                                    final String policyNumber,
-                                                    final MultipartFile appraisalDocument,
-                                                    final UUID lineId )
+    public List<UploadAppraisalResponse> uploadAppraisal( final UploadAppraisalRequestDto request )
     {
-        return externalIntegrationService.uploadAppraisal( accountNumber, policyNumber, appraisalDocument, lineId );
+        return jmIntegrationService.uploadAppraisal( request );
     }
 
 
@@ -221,5 +223,12 @@ public class JmIntegrationController
             log.error( e.getMessage(), e );
             throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage() );
         }
+    }
+
+
+    @Override
+    public Map<String, Object> getMixpanelValues( final UUID clientId )
+    {
+        return jmIntegrationService.getMixpanelValues( clientId );
     }
 }

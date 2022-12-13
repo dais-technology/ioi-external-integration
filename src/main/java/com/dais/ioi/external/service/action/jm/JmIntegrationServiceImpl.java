@@ -1,9 +1,16 @@
 package com.dais.ioi.external.service.action.jm;
 
+import com.dais.authorization.ForwardingAuthorization;
+import com.dais.common.ioi.dto.answer.ClientAnswerDto;
+import com.dais.common.ioi.dto.answer.FileReferenceDto;
+import com.dais.file.storage.FileReference;
+import com.dais.file.storage.cms.CmsFiles;
 import com.dais.ioi.external.config.client.JMApplicationClient;
 import com.dais.ioi.external.config.client.JMAuthClient;
 import com.dais.ioi.external.domain.dto.ExternalQuoteDataDto;
+import com.dais.ioi.external.domain.dto.count.CountForClient;
 import com.dais.ioi.external.domain.dto.internal.enums.IntegrationType;
+import com.dais.ioi.external.domain.dto.internal.enums.JmMixpanelLabel;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
@@ -13,30 +20,48 @@ import com.dais.ioi.external.domain.dto.jm.RegisterUserRequest;
 import com.dais.ioi.external.domain.dto.jm.RegisterUserResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
+import com.dais.ioi.external.domain.dto.jm.UploadAppraisalRequestDto;
 import com.dais.ioi.external.domain.dto.jm.UploadAppraisalResponse;
 import com.dais.ioi.external.domain.dto.spec.JmApiSpec;
+import com.dais.ioi.external.domain.dto.spec.JmUploadAppraisalSpec;
 import com.dais.ioi.external.domain.exception.ExternalApiException;
 import com.dais.ioi.external.entity.IntegrationEntity;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
+import com.dais.ioi.external.service.CounterService;
 import com.dais.ioi.external.service.ExternalQuoteDataService;
+import com.dais.ioi.external.service.jm.JmQuoteOptionsService;
+import com.dais.ioi.external.util.JsonPathPropertiesMapperUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItem;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
+import java.io.IOException;
 import java.net.URI;
+import java.security.InvalidParameterException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.dais.ioi.external.service.action.jm.JMAuth.getAuth;
 
@@ -44,9 +69,11 @@ import static com.dais.ioi.external.service.action.jm.JMAuth.getAuth;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class JmIntegrationService
+public class JmIntegrationServiceImpl
 {
     private static Pattern PASSWORD_VALIDATION_REGEX = Pattern.compile( "^(?=.*[a-z])(?=.*[A-Z])(?=.*[\\d@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$" );
+
+    private static final String ACCOUNT_NUMBER = "accountNumber";
 
     @Autowired
     JMAuthClient jmAuthClient;
@@ -62,6 +89,17 @@ public class JmIntegrationService
 
     @Autowired
     private ExternalQuoteDataService externalQuoteDataService;
+
+    @Autowired
+    private CounterService counterService;
+
+    @Autowired
+    private JmQuoteOptionsService jmQuoteOptionsService;
+
+    @Autowired
+    private CmsFiles cmsFiles;
+
+    private JsonPathPropertiesMapperUtil jsonPathMapper = new JsonPathPropertiesMapperUtil();
 
 
     @SneakyThrows
@@ -128,15 +166,12 @@ public class JmIntegrationService
         log.info( "(" + trace + ") IMPORTANT: Base URI: {}", uri );
         log.info( "(" + trace + ") IMPORTANT: JM DownloadApplication REQUEST: {}.", objectMapper.writeValueAsString( downloadApplicationRequest ) );
 
-        final ByteArrayResource byteArrayResource = downloadApplication( downloadApplicationRequest, jmApiSpec, jmAuthResult, uri );
+        final ResponseEntity<Resource> response = downloadApplication( downloadApplicationRequest, jmApiSpec, jmAuthResult, uri );
 
-        log.info( "(" + trace + ") IMPORTANT: JM DownloadApplication RESPONSE file name: {}.", byteArrayResource.getFilename() );
-        ResponseEntity<Resource> response = ResponseEntity.ok()
-                                                          .contentLength( byteArrayResource.contentLength() )
-                                                          .contentType( MediaType.APPLICATION_OCTET_STREAM )
-                                                          .body( byteArrayResource );
+        log.info( "(" + trace + ") IMPORTANT: JM DownloadApplication RESPONSE file name: {}.", response.getBody().getFilename() );
         log.info( "(" + trace + ") IMPORTANT: JM DownloadApplication call Successful." );
         log.info( "(" + trace + ") IMPORTANT: End JM DownloadApplication" );
+
         return response;
     }
 
@@ -166,34 +201,107 @@ public class JmIntegrationService
 
 
     @SneakyThrows
-    public UploadAppraisalResponse uploadAppraisal( final String accountNumber,
-                                                    final String policyNumber,
-                                                    final MultipartFile appraisalDocument,
-                                                    final UUID lineId )
+    public List<UploadAppraisalResponse> uploadAppraisal( final UploadAppraisalRequestDto requestDto )
     {
         UUID trace = UUID.randomUUID();
-        log.info( "(" + trace + ") IMPORTANT: Begin JM UploadAppraisal" );
-        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( lineId, IntegrationType.JM_UPLOAD_APPRAISAL );
 
-        final JmApiSpec jmApiSpec = objectMapper.convertValue( integrationEntity.getSpec(), JmApiSpec.class );
+        log.info( "(" + trace + ") IMPORTANT: Begin JM UploadAppraisal for ClientId: " + requestDto.getClientId() );
+
+        log.info( "(" + trace + ") IMPORTANT: JM UploadAppraisal request body: " + objectMapper.writeValueAsString( requestDto ) );
+
+        final JmUploadAppraisalSpec jmUploadAppraisalSpec = getJmUploadAppraisalSpec();
+
+        final JmApiSpec jmApiSpec = getApiSpec();
+
+        final String accountNumber = requestDto.getAccountNumber();
 
         final JMAuthResult jmAuthResult = getAuth( jmApiSpec, jmAuthClient );
 
         final URI uri = URI.create( jmApiSpec.getBaseUrl() );
-        log.info( "(" + trace + ") IMPORTANT: Base URI: {}, accountNumber: {}, policyNumber: {}", uri, accountNumber, policyNumber );
+        log.info( "(" + trace + ") IMPORTANT: Base URI: {}, accountNumber: {}", uri, accountNumber );
 
-        final UploadAppraisalResponse uploadAppraisalResponse = uploadAppraisal( accountNumber, policyNumber, appraisalDocument, jmApiSpec, jmAuthResult, uri );
+        final ForwardingAuthorization cmsAuthorization = new ForwardingAuthorization();
 
-        log.info( "(" + trace + ") IMPORTANT: JM UploadAppraisal RESPONSE: {}.", objectMapper.writeValueAsString( uploadAppraisalResponse ) );
+        final List<FileReferenceDto> fileReferences = getFileReferences( requestDto.getIntake(), jmUploadAppraisalSpec );
+
+        final List<UploadAppraisalResponse> responses = new ArrayList<>();
+
+        for ( final FileReferenceDto fileReference : fileReferences )
+        {
+            Optional<FileReference> cmsFileReference = cmsFiles.findById( fileReference.getContentId(), cmsAuthorization );
+
+            if ( cmsFileReference.isPresent() )
+            {
+                log.info( "(" + trace + ") IMPORTANT: JM UploadAppraisal: file with contentId {} is found on s3.", fileReference.getContentId() );
+
+                final FileItem fileItem = new DiskFileItem( "mainFile", fileReference.getFileType(), false,
+                                                            fileReference.getFileName(), fileReference.getFileSizeKb().intValue(), null );
+
+                IOUtils.copy( cmsFileReference.get().get(), fileItem.getOutputStream() );
+
+                final MultipartFile multipartFile = new CommonsMultipartFile( fileItem );
+
+                final UploadAppraisalResponse uploadAppraisalResponse = uploadAppraisal( accountNumber, multipartFile, jmApiSpec, jmAuthResult, uri );
+
+                responses.add( uploadAppraisalResponse );
+            }
+            else
+            {
+                throw new RuntimeException( String.format( "(" + trace + ") IMPORTANT: File with contentId: %s and fileName: %s is NOT FOUND on s3!",
+                                                           fileReference.getContentId().toString(), fileReference.getFileName() ) );
+            }
+        }
+
+        log.info( "(" + trace + ") IMPORTANT: JM UploadAppraisal RESPONSE: {}.", objectMapper.writeValueAsString( responses ) );
         log.info( "(" + trace + ") IMPORTANT: JM UploadAppraisal call Successful." );
         log.info( "(" + trace + ") IMPORTANT: End JM UploadAppraisal" );
-        return uploadAppraisalResponse;
+
+        return responses;
+    }
+
+
+    private List<FileReferenceDto> getFileReferences( final Map<String, ClientAnswerDto> intake,
+                                                      final JmUploadAppraisalSpec jmUploadAppraisalSpec )
+          throws IOException
+    {
+        final String intakeString = objectMapper.writeValueAsString( intake );
+        final Map intakeMap = objectMapper.readValue( intakeString, Map.class );
+        final Optional<Object> fileAnswers = jsonPathMapper.queryJson( intakeMap, jmUploadAppraisalSpec.getFileQuestion() );
+        if ( fileAnswers.isPresent() )
+        {
+            if ( fileAnswers.get() instanceof Collection )
+            {
+                List<Map> answers = new ArrayList();
+                final Collection answerLists = (Collection) fileAnswers.get();
+                answerLists.forEach( answerIteration -> {
+                    answers.addAll( (Collection) answerIteration );
+                } );
+                return answers.stream().map( fileRefMap -> {
+                                  FileReferenceDto fileReferenceDto = objectMapper.convertValue( fileRefMap, FileReferenceDto.class );
+                                  return fileReferenceDto;
+                              } )
+                              .collect( Collectors.toList() );
+            }
+        }
+        return Collections.EMPTY_LIST;
+    }
+
+
+    private JmUploadAppraisalSpec getJmUploadAppraisalSpec()
+    {
+        List<IntegrationEntity> integrationEntities = externalIntegrationRepository.getIntegrationEntityByType( IntegrationType.JM_UPLOAD_APPRAISAL );
+        if ( integrationEntities.size() > 1 )
+        {
+            throw new InvalidParameterException( "Important: More than one JM_UPLOAD_APPRAISAL found.  Only one expected." );
+        }
+        IntegrationEntity integrationEntity = integrationEntities.get( 0 );
+        return objectMapper.convertValue( integrationEntity.getSpec(), JmUploadAppraisalSpec.class );
     }
 
 
     @SneakyThrows
-    public RegisterUserResponse registerPortalUser( RegisterUserRequest registerUserRequest,
-                                                    UUID lineId )
+    public RegisterUserResponse registerPortalUser( final RegisterUserRequest registerUserRequest,
+                                                    final UUID lineId )
     {
         UUID trace = UUID.randomUUID();
         log.info( "(" + trace + ") IMPORTANT: Begin JM RegisterPortalUser" );
@@ -225,10 +333,40 @@ public class JmIntegrationService
     }
 
 
-    private ByteArrayResource downloadApplication( final DownloadApplicationRequest downloadApplicationRequest,
-                                                   final JmApiSpec jmApiSpec,
-                                                   final JMAuthResult jmAuthResult,
-                                                   final URI uri )
+    public Map<String, Object> getMixpanelValues( final UUID clientId )
+    {
+        Map<String, Object> mixPanelValues = new HashMap<>();
+        Map<String, Integer> mixpanelCounts = getMixpanelCounts( clientId );
+        mixPanelValues.putAll( mixpanelCounts );
+        jmQuoteOptionsService.getFirstCompletedQuote( clientId )
+                             .ifPresent( jmQuoteOptionEntity ->
+                                               mixPanelValues.put( JmMixpanelLabel.FIRST_COMPLETED_QUOTE_DATE.label, jmQuoteOptionEntity.getCreatedTimestamp() ) );
+        jmQuoteOptionsService.getMostRecentCompletedQuote( clientId )
+                             .ifPresent( jmQuoteOptionEntity ->
+                                               mixPanelValues.put( JmMixpanelLabel.LAST_COMPLETED_QUOTE_DATE.label, jmQuoteOptionEntity.getUpdatedTimestamp() ) );
+        return mixPanelValues;
+    }
+
+
+    private Map<String, Integer> getMixpanelCounts( final UUID clientId )
+    {
+        final UUID trace = UUID.randomUUID();
+        log.info( "(" + trace + ") Important: Begin Mixpanel values call." );
+        final List<Map<String, ?>> countKeys = counterService.getByKeyValue( "clientId", clientId.toString() );
+        final Map<String, Integer> countValues = new HashMap<>();
+        countKeys.forEach( countKey -> {
+            int count = counterService.getCount( countKey );
+            CountForClient countForClient = objectMapper.convertValue( countKey, CountForClient.class );
+            countValues.put( countForClient.getKey(), count );
+        } );
+        return countValues;
+    }
+
+
+    private ResponseEntity<Resource> downloadApplication( final DownloadApplicationRequest downloadApplicationRequest,
+                                                          final JmApiSpec jmApiSpec,
+                                                          final JMAuthResult jmAuthResult,
+                                                          final URI uri )
     {
         try
         {
@@ -236,10 +374,18 @@ public class JmIntegrationService
                                                                                                  "Bearer " + jmAuthResult.getAccess_token(),
                                                                                                  jmApiSpec.getApiSubscriptionkey(),
                                                                                                  downloadApplicationRequest );
-            return byteArrayResource;
+            return ResponseEntity.ok()
+                                 .contentLength( byteArrayResource.contentLength() )
+                                 .contentType( MediaType.APPLICATION_OCTET_STREAM )
+                                 .body( byteArrayResource );
         }
         catch ( FeignException e )
         {
+            if ( e.status() == 404 && e.contentUTF8().contains( "Unable to find any document for the given account number" ) )
+            {
+                log.info( "IMPORTANT: JM returned 404 with message: {} , so we are returning 204 to the FE", e.contentUTF8() );
+                return ResponseEntity.status( HttpStatus.NO_CONTENT ).body( new ByteArrayResource( e.content() ) );
+            }
             log.error( "IMPORTANT: An exception occurred when attempting to get a downloadApplication response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
             throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
         }
@@ -279,7 +425,6 @@ public class JmIntegrationService
 
 
     private UploadAppraisalResponse uploadAppraisal( final String accountNumber,
-                                                     final String policyNumber,
                                                      final MultipartFile appraisalDocument,
                                                      final JmApiSpec jmApiSpec,
                                                      final JMAuthResult jmAuthResult,
@@ -291,7 +436,6 @@ public class JmIntegrationService
                                                                                                          "Bearer " + jmAuthResult.getAccess_token(),
                                                                                                          jmApiSpec.getApiSubscriptionkey(),
                                                                                                          accountNumber,
-                                                                                                         policyNumber,
                                                                                                          appraisalDocument );
             return uploadAppraisalResponse;
         }
@@ -413,5 +557,19 @@ public class JmIntegrationService
             log.error( "IMPORTANT: An exception occurred when attempting to get a submitApplication response from JM: " + e.getMessage(), e );
             throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
         }
+    }
+
+
+    public JmApiSpec getApiSpec()
+          throws Exception
+    {
+        List<IntegrationEntity> authEntity = externalIntegrationRepository.getIntegrationEntityByType( IntegrationType.JM_AUTH );
+
+        if ( authEntity.size() > 1 )
+        {
+            throw new Exception( "Misconfiguration of JM AUTH entity!! Only single JM_AUTH entity allowed but found multiple" );
+        }
+
+        return objectMapper.convertValue( authEntity.get( 0 ).getSpec(), JmApiSpec.class );
     }
 }

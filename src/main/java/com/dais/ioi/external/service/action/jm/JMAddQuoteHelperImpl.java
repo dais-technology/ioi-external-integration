@@ -18,6 +18,7 @@ import com.dais.ioi.external.domain.dto.jm.JmQuoteOptionDto;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
 import com.dais.ioi.external.domain.dto.spec.JmApiSpec;
 import com.dais.ioi.external.domain.exception.ExternalApiException;
+import com.dais.ioi.external.service.CounterService;
 import com.dais.ioi.external.service.ExternalQuoteDataService;
 import com.dais.ioi.external.service.jm.JmQuoteOptionsService;
 import com.dais.ioi.external.util.NormalizedPremium;
@@ -36,6 +37,7 @@ import com.dais.ioi.quote.domain.dto.pub.PubPremiumDto;
 import com.dais.ioi.quote.domain.dto.pub.PubPremiumTaxesDto;
 import com.dais.ioi.quote.domain.dto.pub.PubQuoteDetailsDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Iterables;
 import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.ListUtils;
@@ -64,6 +66,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.dais.ioi.external.service.action.jm.JMAuth.getAuth;
+import static com.dais.ioi.external.service.action.jm.JMUtils.convertDateTimeToDate;
 import static com.dais.ioi.external.service.action.jm.JMUtils.getValue;
 
 
@@ -88,18 +91,24 @@ public class JMAddQuoteHelperImpl
 
     private final JMAuthClient jmAuthClient;
 
+    private CounterService counterService;
+
+    ;
+
 
     public JMAddQuoteHelperImpl( @Autowired final JMQuoteClient jmQuoteClient,
                                  @Autowired final ObjectMapper objectMapper,
                                  @Autowired final ExternalQuoteDataService externalQuoteDataService,
                                  @Autowired final JmQuoteOptionsService jmQuoteOptionsService,
-                                 @Autowired final JMAuthClient jmAuthClient )
+                                 @Autowired final JMAuthClient jmAuthClient,
+                                 @Autowired final CounterService counterService )
     {
         this.jmQuoteClient = jmQuoteClient;
         this.objectMapper = objectMapper;
         this.externalQuoteDataService = externalQuoteDataService;
         this.jmQuoteOptionsService = jmQuoteOptionsService;
         this.jmAuthClient = jmAuthClient;
+        this.counterService = counterService;
     }
 
 
@@ -144,7 +153,7 @@ public class JMAddQuoteHelperImpl
             {
                 log.info( "(" + requestId.toString() + ") IMPORTANT: Entering Depricated updateQuoteCall" );
 
-                URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl() );
+                URI determinedBasePathUri = URI.create( jmApiSpec.getBaseUrl() );
 
                 addQuoteRequest.setQuoteId( externalQuoteId );
 
@@ -240,7 +249,7 @@ public class JMAddQuoteHelperImpl
 
             addQuoteRequest.setQuoteId( externalQuoteId );
 
-            determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl() );
+            determinedBasePathUri = URI.create( jmApiSpec.getBaseUrl() );
 
             log.info( "(" + requestId.toString() + ") IMPORTANT: JM UPDATEQUOTE request uri: " + determinedBasePathUri.toString() );
             log.info( "(" + requestId.toString() + ") IMPORTANT: JM UPDATEQUOTE request body: " + objectMapper.writeValueAsString( addQuoteRequest ) );
@@ -313,12 +322,11 @@ public class JMAddQuoteHelperImpl
     }
 
 
-
     public AddPaymentPlanResponseDto addPaymentPlan( final String externalQuoteId,
                                                      final AgentInfoDto agentInfoDto,
                                                      final Map<String, ClientAnswerDto> intake,
                                                      final Map<String, Object> selectedPaymentPlan,
-                                                     final JMAuthResult jmAuthResult,
+                                                     final JmApiSpec jmApiSpec,
                                                      final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
           throws Exception
     {
@@ -336,7 +344,7 @@ public class JMAddQuoteHelperImpl
         addQuoteRequest.setEffectiveDate( formattedEffectiveDateForJmRequest );
         addUserInfo( addQuoteRequest, objectMapper.convertValue( agentInfoDto, Map.class ) );
 
-        URI determinedBasePathUri = URI.create( actionJMSQuoteSpecDto.getUpdateQuoteUrl() );
+        URI determinedBasePathUri = URI.create( jmApiSpec.getBaseUrl() );
         addQuoteRequest.setQuoteId( externalQuoteId );
 
         if ( !selectedPaymentPlan.isEmpty() )
@@ -348,6 +356,8 @@ public class JMAddQuoteHelperImpl
 
         log.info( "(" + trace.toString() + ") IMPORTANT: Update Quote URI for add Payment Plan: " + determinedBasePathUri.toString() );
         log.info( "(" + trace.toString() + ") IMPORTANT: Update Quote Request going to JM for add Payment Plan: " + objectMapper.writeValueAsString( addQuoteRequest ) );
+
+        final JMAuthResult jmAuthResult = getAuth( actionJMSQuoteSpecDto, jmAuthClient );
 
         AddQuoteResult updQuoteResult = getUpdateQuoteResponse( jmAuthResult, actionJMSQuoteSpecDto, addQuoteRequest, determinedBasePathUri );
         log.info( "(" + trace.toString() + ") IMPORTANT: Update Quote Response from JM for add Payment Plan: " + objectMapper.writeValueAsString( updQuoteResult ) );
@@ -628,8 +638,6 @@ public class JMAddQuoteHelperImpl
             }
         }
 
-
-
         primaryContact.setResidentialAddress( residentialAddress );
 
         addQuoteRequest.setPrimaryContact( primaryContact );
@@ -638,7 +646,9 @@ public class JMAddQuoteHelperImpl
 
         List<ClientLoopIterationDto> jewerlyWearers = intake.get( "jewelryWearers" ).getIterations();
 
-        processAddQuoteIteration( addQuoteRequest, intake.get( actionJMSQuoteSpecDto.getItemLoop() ).getIterations(), actionJMSQuoteSpecDto, jewerlyWearers, pluginFields );
+        List<ClientLoopIterationDto> appraisalIterations = getValue( () -> intake.get( actionJMSQuoteSpecDto.getAppraisalForm() ).getIterations(), Collections.emptyList() );
+
+        processAddQuoteIteration( addQuoteRequest, intake.get( actionJMSQuoteSpecDto.getItemLoop() ).getIterations(), actionJMSQuoteSpecDto, jewerlyWearers, pluginFields, appraisalIterations );
 
         setCanadianParameters( addQuoteRequest, intake, actionJMSQuoteSpecDto );
 
@@ -934,7 +944,8 @@ public class JMAddQuoteHelperImpl
                                            List<ClientLoopIterationDto> iterations,
                                            ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
                                            List<ClientLoopIterationDto> jewerlyWearers,
-                                           Map<String, String> pluginFields )
+                                           Map<String, String> pluginFields,
+                                           final List<ClientLoopIterationDto> appraisalIterations )
     {
         ArrayList<AddQuoteRequest.JeweleryItem> jeweleryItems = new ArrayList<>();
         int itemNumber = 1;
@@ -971,10 +982,6 @@ public class JMAddQuoteHelperImpl
 
             item.setSerialNumber(
                   getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getSerialNumber() ).getAnswer(), "" )
-            );
-
-            item.setLastAppraisalDate(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getLastAppraisalDate() ).getAnswer(), "" )
             );
 
             item.setGender(
@@ -1026,6 +1033,19 @@ public class JMAddQuoteHelperImpl
             deductibleOptions.add( deductibleOption );
 
             item.setPrimaryWearer( primaryWearer );
+
+            final int appraisalIterationNumber = itemNumber - 1;
+
+            item.setLastAppraisalDate(
+                  getValue( () -> convertDateTimeToDate( Iterables.get( appraisalIterations, appraisalIterationNumber, null )
+                                                                  .getAnswers().get( actionJMSQuoteSpecDto.getLastAppraisalDate() ).getAnswer() ), "" )
+            );
+
+            item.setIsItemHasAppraisal(
+                  getValue( () -> !Iterables.get( appraisalIterations, appraisalIterationNumber, null )
+                                            .getAnswers().get( actionJMSQuoteSpecDto.getAppraisalDocUpload() ).getFiles().isEmpty(), false )
+            );
+
             jeweleryItems.add( item );
 
             pluginFields.put( "ItemDamage" + itemNumber,

@@ -7,6 +7,7 @@ import org.quartz.JobDetail;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,6 +19,9 @@ public class CounterConfig
 {
 
     @Bean
+    @ConditionalOnProperty( prefix = "dais.count.aggregation.cron",
+                            name = "enabled",
+                            havingValue = "true" )
     public JobDetail aggregateCountsJobDetail()
     {
         return JobBuilder
@@ -31,6 +35,9 @@ public class CounterConfig
 
 
     @Bean
+    @ConditionalOnProperty( prefix = "dais.count.aggregation.cron",
+                            name = "enabled",
+                            havingValue = "true" )
     public Trigger expiredContentRemovalJobDetailTrigger( final JobDetail aggregateCountsJobDetail,
                                                           @Value( "${dais.count.aggregation.cron}" ) final String cron )
     {

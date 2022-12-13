@@ -65,7 +65,7 @@ public class ExternalQuoteDataServiceImpl
     @Override
     public ExternalQuoteDataDto getByExternalQuoteId( String externalQuoteId )
     {
-        final ExternalQuoteDataEntity entity = externalQuoteDataRepository.getExternalQuoteDataEntityByExternalQuoteId( externalQuoteId ).orElseThrow( () -> new ResponseStatusException( HttpStatus.NOT_FOUND ) );
+        final ExternalQuoteDataEntity entity = externalQuoteDataRepository.getExternalQuoteDataEntityByExternalQuoteId( externalQuoteId ).orElseThrow( () -> new ResponseStatusException( HttpStatus.NOT_FOUND, "ExternalQuoteId not Found: " + externalQuoteId ) );
         return mapperFacade.map( entity, ExternalQuoteDataDto.class );
     }
 }
