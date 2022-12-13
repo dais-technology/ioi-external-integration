@@ -1,5 +1,6 @@
 package com.dais.ioi.external.domain.dto.hubspot;
 
+import com.dais.ioi.external.domain.dto.BaseSourceDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,6 +15,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class HubspotTrackRequest
+      extends BaseSourceDto
 {
     private UUID lineId;
 
