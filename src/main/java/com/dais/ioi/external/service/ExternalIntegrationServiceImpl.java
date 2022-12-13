@@ -9,11 +9,7 @@ import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanRequestDto;
 import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
-import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
-import com.dais.ioi.external.domain.dto.jm.GetPolicyNumberResponse;
 import com.dais.ioi.external.domain.dto.jm.JmQuoteOptionDto;
-import com.dais.ioi.external.domain.dto.jm.RegisterUserRequest;
-import com.dais.ioi.external.domain.dto.jm.RegisterUserResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import com.dais.ioi.external.domain.exception.ExternalApiException;
@@ -26,13 +22,10 @@ import com.dais.ioi.external.util.CompareJsonUtil;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -133,7 +126,6 @@ public class ExternalIntegrationServiceImpl
     {
         return jmQuoteService.addPaymentPlan( paymentPlan );
     }
-
 
 
     @Override
@@ -249,7 +241,7 @@ public class ExternalIntegrationServiceImpl
         {
             final UUID jmQuoteId = UUID.fromString( (String) firedTriggerDto.getPayload().get( "jmQuoteId" ) );
             final CreateAccountRequest createAccountRequest = new CreateAccountRequest( jmQuoteId );
-            final CreateAccountResponse createAccountResponse = jmIntegrationService.createAccount( createAccountRequest, firedTriggerDto.getLineId() );
+            final CreateAccountResponse createAccountResponse = jmIntegrationService.createAccount( createAccountRequest );
             triggerResponseDto.setMetadata( new ObjectMapper().convertValue( createAccountResponse, Map.class ) );
         }
         else if ( integrationType == IntegrationType.JM_SUBMIT_APPLICATION )
@@ -257,60 +249,10 @@ public class ExternalIntegrationServiceImpl
             final UUID jmQuoteId = UUID.fromString( (String) firedTriggerDto.getPayload().get( "jmQuoteId" ) );
             final BigDecimal totalAmount = BigDecimal.valueOf( (Double) firedTriggerDto.getPayload().get( "totalAmount" ) );
             final SubmitApplicationRequest submitApplicationRequest = new SubmitApplicationRequest( jmQuoteId, totalAmount );
-            final SubmitApplicationResponse submitApplicationResponse = jmIntegrationService.submitApplication( submitApplicationRequest, firedTriggerDto.getLineId() );
+            final SubmitApplicationResponse submitApplicationResponse = jmIntegrationService.submitApplication( submitApplicationRequest );
             triggerResponseDto.setMetadata( new ObjectMapper().convertValue( submitApplicationResponse, Map.class ) );
         }
 
         return triggerResponseDto;
-    }
-
-
-    @SneakyThrows
-    @Override
-    public SubmitApplicationResponse submitApplication( final SubmitApplicationRequest submitApplicationRequest,
-                                                        final UUID lineId )
-    {
-        log.info( String.format( "submitApplication: %s -> %s", lineId.toString(), new ObjectMapper().writeValueAsString( submitApplicationRequest ) ) );
-        return jmIntegrationService.submitApplication( submitApplicationRequest, lineId );
-    }
-
-
-    @SneakyThrows
-    @Override
-    public CreateAccountResponse createAccount( final CreateAccountRequest createAccountRequest,
-                                                final UUID lineId )
-    {
-        log.info( String.format( "createAccount: %s -> %s", lineId.toString(), new ObjectMapper().writeValueAsString( createAccountRequest ) ) );
-        return jmIntegrationService.createAccount( createAccountRequest, lineId );
-    }
-
-
-    @SneakyThrows
-    @Override
-    public ResponseEntity<Resource> downloadApplication( final DownloadApplicationRequest downloadApplicationRequest,
-                                                         final UUID lineId )
-    {
-        log.info( String.format( "downloadApplication: %s -> %s", lineId.toString(), new ObjectMapper().writeValueAsString( downloadApplicationRequest ) ) );
-        return jmIntegrationService.downloadApplication( downloadApplicationRequest, lineId );
-    }
-
-
-    @SneakyThrows
-    @Override
-    public GetPolicyNumberResponse getPolicyNumber( final String accountNumber,
-                                                    final UUID lineId )
-    {
-        log.info( String.format( "getPolicyNumber: %s -> %s", lineId.toString(), accountNumber ) );
-        return jmIntegrationService.getPolicyNumber( accountNumber, lineId );
-    }
-
-
-    @SneakyThrows
-    @Override
-    public RegisterUserResponse registerPortalUser( final RegisterUserRequest registerUserRequest,
-                                                    final UUID lineId )
-    {
-        log.info( String.format( "registerPortalUser: %s -> %s", lineId.toString(), new ObjectMapper().writeValueAsString( registerUserRequest ) ) );
-        return jmIntegrationService.registerPortalUser( registerUserRequest, lineId );
     }
 }

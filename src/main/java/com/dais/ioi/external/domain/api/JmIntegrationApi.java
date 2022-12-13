@@ -15,6 +15,7 @@ import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import com.dais.ioi.external.domain.dto.jm.UploadAppraisalRequestDto;
 import com.dais.ioi.external.domain.dto.jm.UploadAppraisalResponse;
+import com.dais.ioi.external.domain.dto.jm.enums.JmSource;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.core.io.Resource;
@@ -59,31 +60,29 @@ public interface JmIntegrationApi
     @RequestMapping( value = "/submit/application/{lineId}",
                      method = RequestMethod.POST )
     @ApiOperation( value = "Submit application" )
-    SubmitApplicationResponse submit( @RequestBody @Valid final SubmitApplicationRequest submitApplicationRequest,
-                                      @PathVariable final UUID lineId )
+    SubmitApplicationResponse submit( @RequestBody @Valid final SubmitApplicationRequest submitApplicationRequest )
           throws IllegalAccessException;
 
     @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/create/account/{lineId}",
                      method = RequestMethod.POST )
     @ApiOperation( value = "create account" )
-    CreateAccountResponse create( @RequestBody @Valid final CreateAccountRequest createAccountRequest,
-                                  @PathVariable final UUID lineId )
+    CreateAccountResponse create( @RequestBody @Valid final CreateAccountRequest createAccountRequest )
           throws IllegalAccessException;
 
     @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/download/application/{lineId}",
                      method = RequestMethod.POST )
     @ApiOperation( value = "Download Application PDF" )
-    ResponseEntity<Resource> downloadApplication( @RequestBody @Valid final DownloadApplicationRequest downloadApplicationRequest,
-                                                  @PathVariable final UUID lineId );
+    ResponseEntity<Resource> downloadApplication( @RequestBody @Valid final DownloadApplicationRequest downloadApplicationRequest );
 
     @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/getpolicynumber/{lineId}",
                      method = RequestMethod.GET )
     @ApiOperation( value = "Get Policy Number" )
     GetPolicyNumberResponse getPolicyNumber( @RequestParam( value = "accountNumber" ) final String accountNumber,
-                                             @PathVariable final UUID lineId );
+                                             @RequestParam( value = "jmSource",
+                                                            required = false ) final JmSource jmSource ); //TODO: make this field required when FE is ready
 
 
     @ResponseStatus( HttpStatus.OK )
@@ -96,12 +95,13 @@ public interface JmIntegrationApi
     @RequestMapping( value = "/register/user/{lineId}",
                      method = RequestMethod.POST )
     @ApiOperation( value = "Register Portal User" )
-    RegisterUserResponse registerPortalUser( @RequestBody @Valid final RegisterUserRequest registerUserRequest,
-                                             @PathVariable final UUID lineId );
+    RegisterUserResponse registerPortalUser( @RequestBody @Valid final RegisterUserRequest registerUserRequest );
 
     @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/mixpanel/{clientId}",
                      method = RequestMethod.GET )
     @ApiOperation( value = "Get Mixpanel data for clientId" )
-    Map<String, Object> getMixpanelValues( @PathVariable final UUID clientId );
+    Map<String, Object> getMixpanelValues( @PathVariable final UUID clientId,
+                                           @RequestParam( value = "jmSource",
+                                                          required = false ) final JmSource jmSource ); //TODO: make this field required when FE is ready
 }

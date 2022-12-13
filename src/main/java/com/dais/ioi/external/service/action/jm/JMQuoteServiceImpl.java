@@ -7,6 +7,7 @@ import com.dais.ioi.external.domain.dto.GetQuoteDto;
 import com.dais.ioi.external.domain.dto.internal.enums.IntegrationType;
 import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanRequestDto;
 import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
+import com.dais.ioi.external.domain.dto.jm.enums.JmSource;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
 import com.dais.ioi.external.domain.dto.spec.JmApiSpec;
 import com.dais.ioi.external.entity.IntegrationEntity;
@@ -104,13 +105,8 @@ public class JMQuoteServiceImpl
     public JmApiSpec getApiSpec()
           throws Exception
     {
-        List<IntegrationEntity> authEntity = externalIntegrationRepository.getIntegrationEntityByType( IntegrationType.JM_AUTH );
+        IntegrationEntity authEntity = externalIntegrationRepository.getIntegrationEntityByUsageAndType( JmSource.CUSTOMER_CARE.toString(), IntegrationType.JM_AUTH ); //NOTE: JmSource temporary hardcoded
 
-        if ( authEntity.size() > 1 )
-        {
-            throw new Exception( "Misconfiguration of JM AUTH entity!! Only single JM_AUTH entity allowed but found multiple" );
-        }
-
-        return objectMapper.convertValue( authEntity.get( 0 ).getSpec(), JmApiSpec.class );
+        return objectMapper.convertValue( authEntity.getSpec(), JmApiSpec.class );
     }
 }
