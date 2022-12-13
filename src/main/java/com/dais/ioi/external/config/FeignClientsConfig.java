@@ -86,4 +86,11 @@ public class FeignClientsConfig
             }
         };
     }
+
+
+    @Bean
+    Retryer retryer()
+    {
+        return new Retryer.Default();
+    }
 }
