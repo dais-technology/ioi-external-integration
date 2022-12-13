@@ -67,6 +67,7 @@ public class JmQuoteOptionsServiceImpl
         }
         catch ( EntityNotFoundException e )
         {
+            log.error( e.getMessage(), e );
             throw new ResponseStatusException( HttpStatus.NOT_FOUND );
         }
     }
@@ -87,6 +88,7 @@ public class JmQuoteOptionsServiceImpl
         }
         catch ( JsonProcessingException e )
         {
+            log.error( e.getMessage(), e );
             throw new RuntimeException( e );
         }
     }

@@ -60,6 +60,7 @@ public class JmIntegrationController
 
         catch ( FeignException e )
         {
+            log.error( e.getMessage(), e );
             throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, new String( e.content() ) );
         }
 
@@ -84,6 +85,7 @@ public class JmIntegrationController
         }
         catch ( FeignException e )
         {
+            log.error( e.getMessage(), e );
             throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.contentUTF8() );
         }
         catch ( Exception e )
@@ -103,6 +105,7 @@ public class JmIntegrationController
         }
         catch ( FeignException e )
         {
+            log.error( e.getMessage(), e );
             throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.contentUTF8() );
         }
         catch ( Exception e )
@@ -124,6 +127,7 @@ public class JmIntegrationController
         }
         catch ( FeignException e )
         {
+            log.error( e.getMessage(), e );
             throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.contentUTF8() );
         }
         catch ( Exception e )
@@ -144,6 +148,7 @@ public class JmIntegrationController
         }
         catch ( FeignException e )
         {
+            log.error( e.getMessage(), e );
             throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.contentUTF8() );
         }
         catch ( Exception e )
@@ -164,6 +169,7 @@ public class JmIntegrationController
         }
         catch ( FeignException e )
         {
+            log.error( e.getMessage(), e );
             throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.contentUTF8() );
         }
         catch ( Exception e )
@@ -184,6 +190,7 @@ public class JmIntegrationController
         }
         catch ( FeignException e )
         {
+            log.error( e.getMessage(), e );
             throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.contentUTF8() );
         }
         catch ( Exception e )
