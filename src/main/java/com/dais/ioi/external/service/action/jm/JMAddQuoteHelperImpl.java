@@ -18,7 +18,6 @@ import com.dais.ioi.external.domain.dto.jm.JmQuoteOptionDto;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
 import com.dais.ioi.external.domain.dto.spec.JmApiSpec;
 import com.dais.ioi.external.domain.exception.ExternalApiException;
-import com.dais.ioi.external.service.CounterService;
 import com.dais.ioi.external.service.ExternalQuoteDataService;
 import com.dais.ioi.external.service.jm.JmQuoteOptionsService;
 import com.dais.ioi.external.util.NormalizedPremium;
@@ -91,24 +90,18 @@ public class JMAddQuoteHelperImpl
 
     private final JMAuthClient jmAuthClient;
 
-    private CounterService counterService;
-
-    ;
-
 
     public JMAddQuoteHelperImpl( @Autowired final JMQuoteClient jmQuoteClient,
                                  @Autowired final ObjectMapper objectMapper,
                                  @Autowired final ExternalQuoteDataService externalQuoteDataService,
                                  @Autowired final JmQuoteOptionsService jmQuoteOptionsService,
-                                 @Autowired final JMAuthClient jmAuthClient,
-                                 @Autowired final CounterService counterService )
+                                 @Autowired final JMAuthClient jmAuthClient )
     {
         this.jmQuoteClient = jmQuoteClient;
         this.objectMapper = objectMapper;
         this.externalQuoteDataService = externalQuoteDataService;
         this.jmQuoteOptionsService = jmQuoteOptionsService;
         this.jmAuthClient = jmAuthClient;
-        this.counterService = counterService;
     }
 
 

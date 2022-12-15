@@ -2,7 +2,6 @@ package com.dais.ioi.external.service.action.jm;
 
 import com.dais.common.ioi.dto.answer.ClientAnswerDto;
 import com.dais.common.ioi.dto.answer.ClientLoopIterationDto;
-import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.config.client.JMAuthClient;
 import com.dais.ioi.external.config.client.JMQuoteClient;
 import com.dais.ioi.external.domain.dto.GetQuoteDto;
@@ -13,8 +12,6 @@ import com.dais.ioi.external.domain.dto.jm.QuickQuoteResult;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
 import com.dais.ioi.external.domain.dto.spec.JmApiSpec;
 import com.dais.ioi.external.domain.exception.ExternalApiException;
-import com.dais.ioi.external.repository.ExternalIntegrationRepository;
-import com.dais.ioi.external.service.CounterService;
 import com.dais.ioi.external.util.NormalizedPremium;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
 import com.dais.ioi.quote.domain.dto.enums.AmountType;
@@ -62,13 +59,7 @@ public class JMQuickQuoteHelperImpl
     private ObjectMapper objectMapper;
 
     @Autowired
-    private ExternalIntegrationRepository externalIntegrationRepository;
-
-    @Autowired
     private JMAuthClient jmAuthClient;
-
-    @Autowired
-    private CounterService counterService;
 
 
     public QuoteDto getQuickQuote( GetQuoteDto getQuickQuote,
@@ -99,9 +90,6 @@ public class JMQuickQuoteHelperImpl
 
             // Map to the ioi generic quote DTO
             PubQuoteDetailsDto quoteDetails = getQuoteDetails( quickQuoteResult, getQuickQuote.getIntake(), actionJMSQuoteSpecDto );
-
-            TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
-
 
             HashMap<String, Object> metaDatamap = new HashMap<>();
             metaDatamap.put( "totalTaxesAndSurcharges", (Double) quickQuoteResult.getTotalTaxesAndSurcharges() );

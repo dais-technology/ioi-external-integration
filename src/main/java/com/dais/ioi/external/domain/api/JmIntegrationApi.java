@@ -30,7 +30,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 
@@ -96,12 +95,4 @@ public interface JmIntegrationApi
                      method = RequestMethod.POST )
     @ApiOperation( value = "Register Portal User" )
     RegisterUserResponse registerPortalUser( @RequestBody @Valid final RegisterUserRequest registerUserRequest );
-
-    @ResponseStatus( HttpStatus.OK )
-    @RequestMapping( value = "/mixpanel/{clientId}",
-                     method = RequestMethod.GET )
-    @ApiOperation( value = "Get Mixpanel data for clientId" )
-    Map<String, Object> getMixpanelValues( @PathVariable final UUID clientId,
-                                           @RequestParam( value = "jmSource",
-                                                          required = false ) final JmSource jmSource ); //TODO: make this field required when FE is ready
 }
