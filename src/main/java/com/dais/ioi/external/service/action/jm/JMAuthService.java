@@ -36,12 +36,6 @@ public class JMAuthService
     @SneakyThrows
     public JMAuthData getAuthData( JmSource jmSource )
     {
-        //TODO: delete this when the FE is ready to support JM SOURCE
-        if ( jmSource == null )
-        {
-            jmSource = JmSource.CUSTOMER_CARE;
-        }
-
         IntegrationEntity authEntity = externalIntegrationRepository.getIntegrationEntityByUsageAndType( jmSource.toString(), IntegrationType.JM_AUTH );
 
         final JmApiSpec jmApiSpec = objectMapper.convertValue( authEntity.getSpec(), JmApiSpec.class );

@@ -1,11 +1,11 @@
-package com.dais.ioi.external.domain.dto;
+package com.dais.ioi.external.domain.dto.jm;
 
 import com.dais.common.ioi.dto.answer.ClientAnswerDto;
-import com.dais.ioi.external.domain.dto.internal.enums.IntegrationType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.LinkedHashMap;
@@ -17,7 +17,9 @@ import java.util.UUID;
 @Data
 @Builder
 @JsonIgnoreProperties( ignoreUnknown = true )
+@EqualsAndHashCode( callSuper = true )
 public class GetQuoteDto
+      extends JmBaseDto
 {
     private UUID lineId;
 
@@ -25,11 +27,5 @@ public class GetQuoteDto
 
     private UUID organizationId;
 
-    private IntegrationType externalIntegrationType;
-
-    private AgentInfoDto agentInfo;
-
     private LinkedHashMap<String, ClientAnswerDto> intake;
-
-    private String effectiveDate;
 }

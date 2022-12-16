@@ -98,7 +98,6 @@ public class JmIntegrationServiceImpl
 
         UUID trace = UUID.randomUUID();
         log.info( "(" + trace + ") IMPORTANT: Begin JM createAccount" );
-        log.info( "(" + trace + ") IMPORTANT: JmApiSpec parsed from Integration" );
         final JMAuthData jmAuthData = jmAuthService.getAuthData( createAccountRequest.getJmSource() );
         log.info( "(" + trace + ") IMPORTANT: Jm Api authentication complete" );
         log.info( "(" + trace + ") IMPORTANT: JM createAccount request: " + objectMapper.writeValueAsString( createAccountRequest ) );
