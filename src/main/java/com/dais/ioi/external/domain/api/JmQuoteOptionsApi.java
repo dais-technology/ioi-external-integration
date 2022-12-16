@@ -49,4 +49,5 @@ public interface JmQuoteOptionsApi
     @RequestMapping( value = "/latest/{clientId}",
                      method = RequestMethod.GET )
     QuoteDto getMostRecentQuoteOptions( @PathVariable final UUID clientId );
+
 }
