@@ -54,27 +54,27 @@ public interface JmIntegrationApi
     AddPaymentPlanResponseDto addPaymentPlan( @RequestBody @Valid final AddPaymentPlanRequestDto addPaymentPlanRequest );
 
     @ResponseStatus( HttpStatus.OK )
-    @RequestMapping( value = "/submit/application/{lineId}",
+    @RequestMapping( value = "/submit/application",
                      method = RequestMethod.POST )
     @ApiOperation( value = "Submit application" )
     SubmitApplicationResponse submit( @RequestBody @Valid final SubmitApplicationRequest submitApplicationRequest )
           throws IllegalAccessException;
 
     @ResponseStatus( HttpStatus.OK )
-    @RequestMapping( value = "/create/account/{lineId}",
+    @RequestMapping( value = "/create/account",
                      method = RequestMethod.POST )
     @ApiOperation( value = "create account" )
     CreateAccountResponse create( @RequestBody @Valid final CreateAccountRequest createAccountRequest )
           throws IllegalAccessException;
 
     @ResponseStatus( HttpStatus.OK )
-    @RequestMapping( value = "/download/application/{lineId}",
+    @RequestMapping( value = "/download/application",
                      method = RequestMethod.POST )
     @ApiOperation( value = "Download Application PDF" )
     ResponseEntity<Resource> downloadApplication( @RequestBody @Valid final DownloadApplicationRequest downloadApplicationRequest );
 
     @ResponseStatus( HttpStatus.OK )
-    @RequestMapping( value = "/getpolicynumber/{lineId}",
+    @RequestMapping( value = "/getpolicynumber",
                      method = RequestMethod.GET )
     @ApiOperation( value = "Get Policy Number" )
     GetPolicyNumberResponse getPolicyNumber( @RequestParam( value = "accountNumber" ) final String accountNumber,
