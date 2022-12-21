@@ -668,11 +668,11 @@ public class JMAddQuoteHelperImpl
             }
             else if ( "no".equalsIgnoreCase( value ) )
             {
-                final String itemsNotInPossession = getValue( () -> intake.get( actionJMSQuoteSpecDto.getItemsNotInPossession() ).getAnswer(), null );
+                final String itemsNotInPossession = getValue( () -> intake.get( actionJMSQuoteSpecDto.getItemsNotInPossession() ).getAnswer(), "" );
 
                 for ( int i = 1; i <= iterations.size(); i++ )
                 {
-                    if ( true )
+                    if ( itemsNotInPossession.contains( String.format( "(optionIndex: %d)", i - 1 ) ) )
                     {
                         possessionAnswers.put( i, "No" );
                     }
@@ -684,13 +684,13 @@ public class JMAddQuoteHelperImpl
             }
             else if ( "no - items shipped".equalsIgnoreCase( value ) )
             {
-                final String itemsShipped = getValue( () -> intake.get( actionJMSQuoteSpecDto.getItemsShipped() ).getAnswer(), null );
+                final String itemsShipped = getValue( () -> intake.get( actionJMSQuoteSpecDto.getItemsShipped() ).getAnswer(), "" );
 
                 for ( int i = 1; i <= iterations.size(); i++ )
                 {
-                    if ( true )
+                    if ( itemsShipped.contains( String.format( "(optionIndex: %d)", i - 1 ) ) )
                     {
-                        possessionAnswers.put( i, "no - items shipped" );
+                        possessionAnswers.put( i, "No - items shipped" );
                     }
                     else
                     {
