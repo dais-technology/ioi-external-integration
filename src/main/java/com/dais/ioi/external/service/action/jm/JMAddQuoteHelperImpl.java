@@ -656,7 +656,7 @@ public class JMAddQuoteHelperImpl
                                                        final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
     {
         final Map<Integer, String> possessionAnswers = new HashMap<>();
-        final Optional<String> possessionOfAllItems = Optional.of( getValue( () -> intake.get( actionJMSQuoteSpecDto.getItemPossession() ).getAnswer(), null ) );
+        final Optional<String> possessionOfAllItems = Optional.ofNullable( getValue( () -> intake.get( actionJMSQuoteSpecDto.getItemPossession() ).getAnswer(), null ) );
         possessionOfAllItems.ifPresent( value -> {
             final List<ClientLoopIterationDto> iterations = intake.get( actionJMSQuoteSpecDto.getItemLoop() ).getIterations();
             if ( "yes".equalsIgnoreCase( value ) )
