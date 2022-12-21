@@ -1032,16 +1032,7 @@ public class JMAddQuoteHelperImpl
             item.setGender(
                   getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemGender() ).getAnswer(), "" )
             );
-          /*  item.setItemDamage(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemDamage() ).getAnswer(), "" ).toString()
-            );
-            item.setItemPossession(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemPossession() ).getAnswer(), "" ).toString()
-            );*/
-            // Remove after questions answered
-            // item.setItemDamage( "no" );
-            //   item.setItemPossession( "yes" );
-            //
+
             AddQuoteRequest.PrimaryWearer primaryWearer;
 
             String wearerId = getValue( () -> clientLoopIterationDto.getAnswers().get( "wearerValue" ).getAnswer(), "primary" );
