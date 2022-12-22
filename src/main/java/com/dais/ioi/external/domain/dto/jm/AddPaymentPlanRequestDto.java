@@ -2,6 +2,7 @@ package com.dais.ioi.external.domain.dto.jm;
 
 import com.dais.common.ioi.dto.answer.ClientAnswerDto;
 import com.dais.ioi.external.domain.dto.AgentInfoDto;
+import com.dais.ioi.external.domain.dto.BaseSourceDto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,6 +19,7 @@ import java.util.UUID;
 @Builder
 @JsonIgnoreProperties( ignoreUnknown = true )
 public class AddPaymentPlanRequestDto
+      extends BaseSourceDto
 {
     private UUID lineId;
 

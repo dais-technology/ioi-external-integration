@@ -1,5 +1,6 @@
 package com.dais.ioi.external.domain.dto.jm;
 
+import com.dais.ioi.external.domain.dto.BaseSourceDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RegisterUserRequest
+      extends BaseSourceDto
 {
     @JsonProperty( "AccountNumber" )
     private Long accountNumber;

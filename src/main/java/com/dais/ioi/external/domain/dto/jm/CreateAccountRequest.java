@@ -1,5 +1,6 @@
 package com.dais.ioi.external.domain.dto.jm;
 
+import com.dais.ioi.external.domain.dto.BaseSourceDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,6 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateAccountRequest
+      extends BaseSourceDto
 {
     //JM quoteId
     @NonNull

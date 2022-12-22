@@ -5,9 +5,11 @@ import com.dais.common.ioi.dto.answer.ClientAnswerDto;
 import com.dais.common.ioi.dto.answer.FileReferenceDto;
 import com.dais.file.storage.FileReference;
 import com.dais.file.storage.cms.CmsFiles;
+import com.dais.ioi.action.domain.dto.internal.enums.ActionType;
 import com.dais.ioi.external.config.client.JMApplicationClient;
 import com.dais.ioi.external.config.client.JMAuthClient;
 import com.dais.ioi.external.domain.dto.ExternalQuoteDataDto;
+import com.dais.ioi.external.domain.dto.LoggingDto;
 import com.dais.ioi.external.domain.dto.count.CountForClient;
 import com.dais.ioi.external.domain.dto.internal.enums.IntegrationType;
 import com.dais.ioi.external.domain.dto.internal.enums.JmMixpanelLabel;
@@ -30,7 +32,11 @@ import com.dais.ioi.external.repository.ExternalIntegrationRepository;
 import com.dais.ioi.external.service.CounterService;
 import com.dais.ioi.external.service.ExternalQuoteDataService;
 import com.dais.ioi.external.service.jm.JmQuoteOptionsService;
+import com.dais.ioi.external.service.logger.ActivityLoggerService;
 import com.dais.ioi.external.util.JsonPathPropertiesMapperUtil;
+import com.dais.ioi.log.domain.dto.Category;
+import com.dais.ioi.log.domain.dto.LogDto;
+import com.dais.ioi.log.domain.dto.LogLevel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
@@ -99,6 +105,9 @@ public class JmIntegrationServiceImpl
     @Autowired
     private CmsFiles cmsFiles;
 
+    @Autowired
+    private final ActivityLoggerService devLog;
+
     private JsonPathPropertiesMapperUtil jsonPathMapper = new JsonPathPropertiesMapperUtil();
 
 
@@ -121,6 +130,25 @@ public class JmIntegrationServiceImpl
         CreateAccountResponse createAccountResponse = getCreateAccountResponse( createAccountRequest, jmApiSpec, jmAuthResult, uri );
         log.info( "(" + trace + ") IMPORTANT: JM createAccount response: " + objectMapper.writeValueAsString( createAccountResponse ) );
         log.info( "(" + trace + ") IMPORTANT: End JM createAccount" );
+        if ( createAccountRequest.getSource().getOrganizationId() != null )
+        {
+            LoggingDto loggingDto = LoggingDto.builder()
+                                              .name( "CREATE ACCOUNT" )
+                                              .description( "Create account request and response" )
+                                              .input( objectMapper.convertValue( createAccountRequest, Map.class ) )
+                                              .output( objectMapper.convertValue( createAccountResponse, Map.class ) )
+                                              .build();
+
+            devLog.logActivity( LogDto.builder()
+                                      .organizationId( createAccountRequest.getSource().getOrganizationId() )
+                                      .lineId( lineId )
+                                      .category( Category.EXTERNAL_OUTBOUND )
+                                      .action( String.valueOf( ActionType.EXTERNAL_INTEGRATION ) )
+                                      .trigger( "JM_CREATE_ACCOUNT" )
+                                      .level( LogLevel.INFO )
+                                      .message( objectMapper.convertValue( loggingDto, Map.class ) )
+                                      .build() );
+        }
         return createAccountResponse;
     }
 
@@ -171,6 +199,28 @@ public class JmIntegrationServiceImpl
         log.info( "(" + trace + ") IMPORTANT: JM DownloadApplication RESPONSE file name: {}.", response.getBody().getFilename() );
         log.info( "(" + trace + ") IMPORTANT: JM DownloadApplication call Successful." );
         log.info( "(" + trace + ") IMPORTANT: End JM DownloadApplication" );
+
+        if ( downloadApplicationRequest.getSource().getOrganizationId() != null )
+        {
+            Map<String, Object> output = new HashMap<>();
+            output.put("Download Response FileName", response.getBody().getFilename());
+            LoggingDto loggingDto = LoggingDto.builder()
+                                              .name( "DOWNLOAD APPLICATION" )
+                                              .description( "Download application request and response" )
+                                              .input( objectMapper.convertValue( downloadApplicationRequest, Map.class ) )
+                                              .output( output )
+                                              .build();
+
+            devLog.logActivity( LogDto.builder()
+                                      .organizationId( downloadApplicationRequest.getSource().getOrganizationId() )
+                                      .lineId( lineId )
+                                      .category( Category.EXTERNAL_OUTBOUND )
+                                      .action( String.valueOf( ActionType.EXTERNAL_INTEGRATION ) )
+                                      .trigger( "JM_DOWNLOAD" )
+                                      .level( LogLevel.INFO )
+                                      .message( objectMapper.convertValue( loggingDto, Map.class ) )
+                                      .build() );
+        }
 
         return response;
     }
@@ -256,6 +306,28 @@ public class JmIntegrationServiceImpl
         log.info( "(" + trace + ") IMPORTANT: JM UploadAppraisal call Successful." );
         log.info( "(" + trace + ") IMPORTANT: End JM UploadAppraisal" );
 
+        if ( requestDto.getSource().getOrganizationId() != null )
+        {
+            Map<String, Object> output = new HashMap<>();
+            output.put("Appraisal response list", responses);
+            LoggingDto loggingDto = LoggingDto.builder()
+                                              .name( "APPRAISAL UPLOAD EVENT" )
+                                              .description( "Upload appraisal request and response" )
+                                              .input( objectMapper.convertValue( requestDto, Map.class ) )
+                                              .output( output )
+                                              .build();
+
+            devLog.logActivity( LogDto.builder()
+                                      .organizationId( requestDto.getSource().getOrganizationId() )
+                                      .clientId( requestDto.getClientId() )
+                                      .category( Category.EXTERNAL_OUTBOUND )
+                                      .action( String.valueOf( ActionType.EXTERNAL_INTEGRATION ) )
+                                      .trigger( "JM_APPRAISAL" )
+                                      .level( LogLevel.INFO )
+                                      .message( objectMapper.convertValue( loggingDto, Map.class ) )
+                                      .build() );
+        }
+
         return responses;
     }
 
@@ -329,6 +401,25 @@ public class JmIntegrationServiceImpl
 
         log.info( "(" + trace + ") IMPORTANT: JM RegisterPortalUser call Successful." );
         log.info( "(" + trace + ") IMPORTANT: End JM RegisterPortalUser" );
+        if ( registerUserRequest.getSource().getOrganizationId() != null )
+        {
+            LoggingDto loggingDto = LoggingDto.builder()
+                                              .name( "REGISTER PORTAL USER" )
+                                              .description( "Register user request and response" )
+                                              .input( objectMapper.convertValue( registerUserRequest, Map.class ) )
+                                              .output( objectMapper.convertValue( registerPortalUserResponse, Map.class ) )
+                                              .build();
+
+            devLog.logActivity( LogDto.builder()
+                                      .organizationId( registerUserRequest.getSource().getOrganizationId() )
+                                      .lineId( lineId )
+                                      .category( Category.EXTERNAL_OUTBOUND )
+                                      .action( String.valueOf( ActionType.EXTERNAL_INTEGRATION ) )
+                                      .trigger( "JM_REGISTER_USER" )
+                                      .level( LogLevel.INFO )
+                                      .message( objectMapper.convertValue( loggingDto, Map.class ) )
+                                      .build() );
+        }
         return registerPortalUserResponse;
     }
 
