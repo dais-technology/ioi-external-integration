@@ -4,7 +4,8 @@ on:
     types: [opened, reopened]
   push:
     branches:
-      - 'blah*'
+      - '*'
+  workflow_dispatch:
 jobs:
   java-gradle-build:
     uses: dais-technology/workflow-templates/.github/workflows/java-gradle.yml@main

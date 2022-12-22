@@ -32,7 +32,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 
@@ -223,12 +222,5 @@ public class JmIntegrationController
             log.error( e.getMessage(), e );
             throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage() );
         }
-    }
-
-
-    @Override
-    public Map<String, Object> getMixpanelValues( final UUID clientId )
-    {
-        return jmIntegrationService.getMixpanelValues( clientId );
     }
 }

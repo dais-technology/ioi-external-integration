@@ -201,6 +201,10 @@ public class ActionJMSQuoteSpecDto
 
     private String itemPossession;
 
+    private String itemsNotInPossession;
+
+    private String itemsShipped;
+
     private String itemDescription;
 
     private String lastAppraisalDate;

@@ -18,7 +18,6 @@ import com.dais.ioi.external.domain.dto.jm.JmQuoteOptionDto;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
 import com.dais.ioi.external.domain.dto.spec.JmApiSpec;
 import com.dais.ioi.external.domain.exception.ExternalApiException;
-import com.dais.ioi.external.service.CounterService;
 import com.dais.ioi.external.service.ExternalQuoteDataService;
 import com.dais.ioi.external.service.jm.JmQuoteOptionsService;
 import com.dais.ioi.external.util.NormalizedPremium;
@@ -62,6 +61,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -91,24 +91,18 @@ public class JMAddQuoteHelperImpl
 
     private final JMAuthClient jmAuthClient;
 
-    private CounterService counterService;
-
-    ;
-
 
     public JMAddQuoteHelperImpl( @Autowired final JMQuoteClient jmQuoteClient,
                                  @Autowired final ObjectMapper objectMapper,
                                  @Autowired final ExternalQuoteDataService externalQuoteDataService,
                                  @Autowired final JmQuoteOptionsService jmQuoteOptionsService,
-                                 @Autowired final JMAuthClient jmAuthClient,
-                                 @Autowired final CounterService counterService )
+                                 @Autowired final JMAuthClient jmAuthClient )
     {
         this.jmQuoteClient = jmQuoteClient;
         this.objectMapper = objectMapper;
         this.externalQuoteDataService = externalQuoteDataService;
         this.jmQuoteOptionsService = jmQuoteOptionsService;
         this.jmAuthClient = jmAuthClient;
-        this.counterService = counterService;
     }
 
 
@@ -646,13 +640,71 @@ public class JMAddQuoteHelperImpl
 
         List<ClientLoopIterationDto> jewerlyWearers = intake.get( "jewelryWearers" ).getIterations();
 
+        final Map<Integer, String> possessionAnswersByItemNumber = mapPossessionAnswers( intake, actionJMSQuoteSpecDto );
+
         List<ClientLoopIterationDto> appraisalIterations = getValue( () -> intake.get( actionJMSQuoteSpecDto.getAppraisalForm() ).getIterations(), Collections.emptyList() );
 
-        processAddQuoteIteration( addQuoteRequest, intake.get( actionJMSQuoteSpecDto.getItemLoop() ).getIterations(), actionJMSQuoteSpecDto, jewerlyWearers, pluginFields, appraisalIterations );
+        processAddQuoteIteration( addQuoteRequest, intake.get( actionJMSQuoteSpecDto.getItemLoop() ).getIterations(), actionJMSQuoteSpecDto, jewerlyWearers, pluginFields, appraisalIterations, possessionAnswersByItemNumber );
 
         setCanadianParameters( addQuoteRequest, intake, actionJMSQuoteSpecDto );
 
         return addQuoteRequest;
+    }
+
+
+    private Map<Integer, String> mapPossessionAnswers( final Map<String, ClientAnswerDto> intake,
+                                                       final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
+    {
+        final Map<Integer, String> possessionAnswers = new HashMap<>();
+        final Optional<String> possessionOfAllItems = Optional.ofNullable( getValue( () -> intake.get( actionJMSQuoteSpecDto.getItemPossession() ).getAnswer(), null ) );
+        possessionOfAllItems.ifPresent( value -> {
+            final List<ClientLoopIterationDto> iterations = intake.get( actionJMSQuoteSpecDto.getItemLoop() ).getIterations();
+            if ( "yes".equalsIgnoreCase( value ) )
+            {
+                for ( int i = 1; i <= iterations.size(); i++ )
+                {
+                    possessionAnswers.put( i, "Yes" );
+                }
+            }
+            else if ( "no".equalsIgnoreCase( value ) )
+            {
+                final String itemsNotInPossession = getValue( () -> intake.get( actionJMSQuoteSpecDto.getItemsNotInPossession() ).getAnswer(), "" );
+
+                for ( int i = 1; i <= iterations.size(); i++ )
+                {
+                    if ( itemsNotInPossession.contains( String.format( "(optionIndex: %d)", i - 1 ) ) )
+                    {
+                        possessionAnswers.put( i, "No" );
+                    }
+                    else
+                    {
+                        possessionAnswers.put( i, "Yes" );
+                    }
+                }
+            }
+            else if ( "no - items shipped".equalsIgnoreCase( value ) )
+            {
+                final String itemsShipped = getValue( () -> intake.get( actionJMSQuoteSpecDto.getItemsShipped() ).getAnswer(), "" );
+
+                for ( int i = 1; i <= iterations.size(); i++ )
+                {
+                    if ( itemsShipped.contains( String.format( "(optionIndex: %d)", i - 1 ) ) )
+                    {
+                        possessionAnswers.put( i, "No - items shipped" );
+                    }
+                    else
+                    {
+                        possessionAnswers.put( i, "Yes" );
+                    }
+                }
+            }
+            else
+            {
+                log.error( "ItemPossession value found but NOT recognized! Value: {}", value );
+            }
+        } );
+
+        return possessionAnswers;
     }
 
 
@@ -882,18 +934,6 @@ public class JMAddQuoteHelperImpl
         alarmId.setKey( "AlarmId" );
 
         String alarmText = getValue( () -> intake.get( actionJMSQuoteSpecDto.getAlarmId() ).getAnswer().toString(), "" );
-       /* String alarmIdValue = "";
-        if ( alarmText.equalsIgnoreCase( "Monitored Alarm System" )) {
-            alarmIdValue = "1";
-        }
-        else if (alarmText.equalsIgnoreCase( "Local Alarm" )) {
-            alarmIdValue = "2";
-
-        }
-        else {
-            alarmIdValue = "No Alarm";
-
-        }*/
 
         alarmId.setValue( alarmText );
         underwritingInfo.getUnderwritingQuestions().add( alarmId );
@@ -945,7 +985,8 @@ public class JMAddQuoteHelperImpl
                                            ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
                                            List<ClientLoopIterationDto> jewerlyWearers,
                                            Map<String, String> pluginFields,
-                                           final List<ClientLoopIterationDto> appraisalIterations )
+                                           final List<ClientLoopIterationDto> appraisalIterations,
+                                           final Map<Integer, String> possessionAnswersByItemNumber )
     {
         ArrayList<AddQuoteRequest.JeweleryItem> jeweleryItems = new ArrayList<>();
         int itemNumber = 1;
@@ -972,12 +1013,16 @@ public class JMAddQuoteHelperImpl
                   getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemDescription() ).getAnswer(), "" )
             );
 
-            item.setItemDamage(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemDamage() ).getAnswer(), null )
-            );
+            final String itemDamage = getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemDamage() ).getAnswer(), null );
 
+            if ( itemDamage != null )
+            {
+                item.setItemDamage( ("none".equalsIgnoreCase( itemDamage ) || itemDamage.isEmpty()) ? "no" : "yes" );
+            }
+
+            final int finalItemNumber = itemNumber;
             item.setItemPossession(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemPossession() ).getAnswer(), null )
+                  getValue( () -> possessionAnswersByItemNumber.get( finalItemNumber ), null )
             );
 
             item.setSerialNumber(
@@ -987,16 +1032,7 @@ public class JMAddQuoteHelperImpl
             item.setGender(
                   getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemGender() ).getAnswer(), "" )
             );
-          /*  item.setItemDamage(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemDamage() ).getAnswer(), "" ).toString()
-            );
-            item.setItemPossession(
-                  getValue( () -> clientLoopIterationDto.getAnswers().get( actionJMSQuoteSpecDto.getItemPossession() ).getAnswer(), "" ).toString()
-            );*/
-            // Remove after questions answered
-            // item.setItemDamage( "no" );
-            //   item.setItemPossession( "yes" );
-            //
+
             AddQuoteRequest.PrimaryWearer primaryWearer;
 
             String wearerId = getValue( () -> clientLoopIterationDto.getAnswers().get( "wearerValue" ).getAnswer(), "primary" );

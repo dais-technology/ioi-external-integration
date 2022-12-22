@@ -1,6 +1,7 @@
 package com.dais.ioi.external.domain.api;
 
 import com.dais.ioi.external.domain.dto.jm.JmQuoteOptionDto;
+import com.dais.ioi.quote.domain.dto.QuoteDto;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,4 +44,10 @@ public interface JmQuoteOptionsApi
                      method = RequestMethod.DELETE )
     void deleteByClientIdLineId( @PathVariable final UUID clientId,
                                  @PathVariable final UUID lineId );
+
+    @ResponseStatus( HttpStatus.OK )
+    @RequestMapping( value = "/latest/{clientId}",
+                     method = RequestMethod.GET )
+    QuoteDto getMostRecentQuoteOptions( @PathVariable final UUID clientId );
+
 }
