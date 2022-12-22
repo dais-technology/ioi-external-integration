@@ -18,7 +18,7 @@ public interface ExternalIntegrationRepository
     IntegrationEntity getIntegrationEntityByLineIdAndType( UUID lineId,
                                                            IntegrationType type );
 
-    IntegrationEntity getIntegrationEntityByUsageAndType( String useage,
+    IntegrationEntity getIntegrationEntityByUsageAndType( String usage,
                                                           IntegrationType type );
 
     List<IntegrationEntity> getIntegrationEntityByType( IntegrationType type );

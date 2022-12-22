@@ -3,14 +3,12 @@ package com.dais.ioi.external.service.action.jm;
 import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.internal.enums.ActionType;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
-import com.dais.ioi.external.config.client.JMAuthClient;
-import com.dais.ioi.external.domain.dto.GetQuoteDto;
 import com.dais.ioi.external.domain.dto.LoggingDto;
 import com.dais.ioi.external.domain.dto.internal.enums.IntegrationType;
 import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanRequestDto;
 import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
+import com.dais.ioi.external.domain.dto.jm.GetQuoteDto;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
-import com.dais.ioi.external.domain.dto.spec.JmApiSpec;
 import com.dais.ioi.external.entity.IntegrationEntity;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
 import com.dais.ioi.external.service.logger.ActivityLoggerService;
@@ -35,9 +33,6 @@ import static com.dais.ioi.external.service.action.jm.JMUtils.getValue;
 @RequiredArgsConstructor
 public class JMQuoteServiceImpl
 {
-    @Autowired
-    JMAuthClient jmAuthClient;
-
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -64,11 +59,9 @@ public class JMQuoteServiceImpl
 
         ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( entity.getSpec(), ActionJMSQuoteSpecDto.class );
 
-        final JmApiSpec jmApiSpec = getApiSpec();
-
         TriggerResponseDto triggerResponseDto;
 
-        triggerResponseDto = jmAddQuoteHelper.processAddQuote( ap, jmApiSpec, actionJMSQuoteSpecDto );
+        triggerResponseDto = jmAddQuoteHelper.processAddQuote( ap, actionJMSQuoteSpecDto );
 
         String externalQuoteId = (String) ap.getPayload().get( "externalQuoteId" );
 
@@ -94,9 +87,7 @@ public class JMQuoteServiceImpl
         IntegrationEntity entity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( paymentPlan.getLineId(), IntegrationType.JM_ADDQUOTE );
         ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( entity.getSpec(), ActionJMSQuoteSpecDto.class );
 
-        final JmApiSpec jmApiSpec = getApiSpec();
-
-        AddPaymentPlanResponseDto addPaymentPlanResponseDto = jmAddQuoteHelper.addPaymentPlan( paymentPlan.getExternalQuoteId(), paymentPlan.getAgent(), paymentPlan.getIntake(), paymentPlan.getSelectedPaymentPlan(), jmApiSpec, actionJMSQuoteSpecDto );
+        AddPaymentPlanResponseDto addPaymentPlanResponseDto = jmAddQuoteHelper.addPaymentPlan( paymentPlan.getExternalQuoteId(), paymentPlan.getAgent(), paymentPlan.getIntake(), paymentPlan.getSelectedPaymentPlan(), paymentPlan.getJmSource(), actionJMSQuoteSpecDto );
         if ( paymentPlan.getSource().getOrganizationId() != null )
         {
             LoggingDto loggingDto = LoggingDto.builder()
@@ -127,21 +118,6 @@ public class JMQuoteServiceImpl
         IntegrationEntity entity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( ap.getLineId(), IntegrationType.JM_QUICKQUOTE );
         ActionJMSQuoteSpecDto actionJMSQuoteSpecDto = objectMapper.convertValue( entity.getSpec(), ActionJMSQuoteSpecDto.class );
 
-        final JmApiSpec jmApiSpec = getApiSpec();
-
-        return jmQuickQuoteHelper.getQuickQuote( ap, jmApiSpec, actionJMSQuoteSpecDto );
-    }
-
-    public JmApiSpec getApiSpec()
-          throws Exception
-    {
-        List<IntegrationEntity> authEntity = externalIntegrationRepository.getIntegrationEntityByType( IntegrationType.JM_AUTH );
-
-        if ( authEntity.size() > 1 )
-        {
-            throw new Exception( "Misconfiguration of JM AUTH entity!! Only single JM_AUTH entity allowed but found multiple" );
-        }
-
-        return objectMapper.convertValue( authEntity.get( 0 ).getSpec(), JmApiSpec.class );
+        return jmQuickQuoteHelper.getQuickQuote( ap, actionJMSQuoteSpecDto );
     }
 }

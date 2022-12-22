@@ -5,7 +5,6 @@ import com.dais.common.ioi.dto.answer.ClientLoopIterationDto;
 import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.internal.spec.QuoteRequestSpecDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
-import com.dais.ioi.external.config.client.JMAuthClient;
 import com.dais.ioi.external.config.client.JMQuoteClient;
 import com.dais.ioi.external.domain.dto.AgentInfoDto;
 import com.dais.ioi.external.domain.dto.ExternalQuoteDataDto;
@@ -13,10 +12,10 @@ import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
 import com.dais.ioi.external.domain.dto.jm.AddQuoteRequest;
 import com.dais.ioi.external.domain.dto.jm.AddQuoteResult;
 import com.dais.ioi.external.domain.dto.jm.AdditionalItemInfoDto;
-import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
+import com.dais.ioi.external.domain.dto.jm.JMAuthData;
 import com.dais.ioi.external.domain.dto.jm.JmQuoteOptionDto;
+import com.dais.ioi.external.domain.dto.jm.enums.JmSource;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
-import com.dais.ioi.external.domain.dto.spec.JmApiSpec;
 import com.dais.ioi.external.domain.exception.ExternalApiException;
 import com.dais.ioi.external.service.ExternalQuoteDataService;
 import com.dais.ioi.external.service.jm.JmQuoteOptionsService;
@@ -47,7 +46,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -65,7 +63,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.dais.ioi.external.service.action.jm.JMAuth.getAuth;
 import static com.dais.ioi.external.service.action.jm.JMUtils.convertDateTimeToDate;
 import static com.dais.ioi.external.service.action.jm.JMUtils.getValue;
 
@@ -89,25 +86,24 @@ public class JMAddQuoteHelperImpl
 
     private final JmQuoteOptionsService jmQuoteOptionsService;
 
-    private final JMAuthClient jmAuthClient;
+    private final JMAuthService jmAuthService;
 
 
     public JMAddQuoteHelperImpl( @Autowired final JMQuoteClient jmQuoteClient,
                                  @Autowired final ObjectMapper objectMapper,
                                  @Autowired final ExternalQuoteDataService externalQuoteDataService,
                                  @Autowired final JmQuoteOptionsService jmQuoteOptionsService,
-                                 @Autowired final JMAuthClient jmAuthClient )
+                                 @Autowired final JMAuthService jmAuthService )
     {
         this.jmQuoteClient = jmQuoteClient;
         this.objectMapper = objectMapper;
         this.externalQuoteDataService = externalQuoteDataService;
         this.jmQuoteOptionsService = jmQuoteOptionsService;
-        this.jmAuthClient = jmAuthClient;
+        this.jmAuthService = jmAuthService;
     }
 
 
     public TriggerResponseDto processAddQuote( FiredTriggerDto firedTriggerDto,
-                                               JmApiSpec jmApiSpec,
                                                ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
           throws Exception
     {
@@ -130,7 +126,9 @@ public class JMAddQuoteHelperImpl
 
         final LocalDateTime effectiveDate = OffsetDateTime.parse( effectiveDateAnswer ).toLocalDateTime().with( LocalTime.MIDNIGHT );
 
-        final JMAuthResult jmAuthResult = getAuth( jmApiSpec, jmAuthClient );
+        final JmSource jmSource = JmSource.valueOf( String.valueOf( triggerSpec.getMetadata().get( "jmSource" ) ) );
+
+        final JMAuthData jmAuthData = jmAuthService.getAuthData( jmSource );
 
         try
         {
@@ -147,8 +145,6 @@ public class JMAddQuoteHelperImpl
             {
                 log.info( "(" + requestId.toString() + ") IMPORTANT: Entering Depricated updateQuoteCall" );
 
-                URI determinedBasePathUri = URI.create( jmApiSpec.getBaseUrl() );
-
                 addQuoteRequest.setQuoteId( externalQuoteId );
 
                 String planName = getValue( () -> ( (Map) firedTriggerDto.getPayload().get( "selectedPaymentPlan" ) ).get( "name" ).toString(), "" );
@@ -160,10 +156,10 @@ public class JMAddQuoteHelperImpl
                     addPaymentPlan( addQuoteRequest, planName, numberOfInstallments );
                 }
 
-                log.info( "(" + requestId.toString() + ") IMPORTANT: DEPRICATED JM ADDQUOTE request uri: " + determinedBasePathUri.toString() );
+                log.info( "(" + requestId.toString() + ") IMPORTANT: DEPRICATED JM ADDQUOTE request uri: " + jmAuthData.getBaseUri().toString() );
                 log.info( "(" + requestId.toString() + ") IMPORTANT: DEPRICATED JM ADDQUOTE request body: " + objectMapper.writeValueAsString( addQuoteRequest ) );
 
-                AddQuoteResult updQuoteResult = getUpdateQuoteResponse( jmAuthResult, actionJMSQuoteSpecDto, addQuoteRequest, determinedBasePathUri );
+                AddQuoteResult updQuoteResult = getUpdateQuoteResponse( jmAuthData, addQuoteRequest );
 
                 log.info( "(" + requestId.toString() + ") IMPORTANT: DEPRICATED JM ADDQUOTE request response: " + objectMapper.writeValueAsString( updQuoteResult ) );
 
@@ -192,11 +188,9 @@ public class JMAddQuoteHelperImpl
                 return triggerResponseDto;
             }
 
-            URI determinedBasePathUri = URI.create( jmApiSpec.getBaseUrl() );
-
-            log.info( "(" + requestId.toString() + ") IMPORTANT: JM ADDQUOTE request uri: " + determinedBasePathUri.toString() );
+            log.info( "(" + requestId.toString() + ") IMPORTANT: JM ADDQUOTE request uri: " + jmAuthData.getBaseUri().toString() );
             log.info( "(" + requestId.toString() + ") IMPORTANT: JM ADDQUOTE request body: " + objectMapper.writeValueAsString( addQuoteRequest ) );
-            AddQuoteResult addQuoteResult = getAddQuoteResult( jmAuthResult, actionJMSQuoteSpecDto, addQuoteRequest, determinedBasePathUri );
+            AddQuoteResult addQuoteResult = getAddQuoteResult( jmAuthData, addQuoteRequest );
             log.info( "(" + requestId.toString() + ") IMPORTANT: JM ADDQUOTE request response: " + objectMapper.writeValueAsString( addQuoteResult ) );
 
 
@@ -243,11 +237,9 @@ public class JMAddQuoteHelperImpl
 
             addQuoteRequest.setQuoteId( externalQuoteId );
 
-            determinedBasePathUri = URI.create( jmApiSpec.getBaseUrl() );
-
-            log.info( "(" + requestId.toString() + ") IMPORTANT: JM UPDATEQUOTE request uri: " + determinedBasePathUri.toString() );
+            log.info( "(" + requestId.toString() + ") IMPORTANT: JM UPDATEQUOTE request uri: " + jmAuthData.getBaseUri().toString() );
             log.info( "(" + requestId.toString() + ") IMPORTANT: JM UPDATEQUOTE request body: " + objectMapper.writeValueAsString( addQuoteRequest ) );
-            AddQuoteResult updateQuoteResult = getJmUpdateQuoteResult( jmAuthResult, actionJMSQuoteSpecDto, addQuoteRequest, determinedBasePathUri );
+            AddQuoteResult updateQuoteResult = getJmUpdateQuoteResult( jmAuthData, addQuoteRequest );
             log.info( "(" + requestId.toString() + ") IMPORTANT: JM UPDATEQUOTE request response: " + objectMapper.writeValueAsString( updateQuoteResult ) );
 
 
@@ -320,7 +312,7 @@ public class JMAddQuoteHelperImpl
                                                      final AgentInfoDto agentInfoDto,
                                                      final Map<String, ClientAnswerDto> intake,
                                                      final Map<String, Object> selectedPaymentPlan,
-                                                     final JmApiSpec jmApiSpec,
+                                                     final JmSource jmSource,
                                                      final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
           throws Exception
     {
@@ -338,7 +330,6 @@ public class JMAddQuoteHelperImpl
         addQuoteRequest.setEffectiveDate( formattedEffectiveDateForJmRequest );
         addUserInfo( addQuoteRequest, objectMapper.convertValue( agentInfoDto, Map.class ) );
 
-        URI determinedBasePathUri = URI.create( jmApiSpec.getBaseUrl() );
         addQuoteRequest.setQuoteId( externalQuoteId );
 
         if ( !selectedPaymentPlan.isEmpty() )
@@ -348,12 +339,11 @@ public class JMAddQuoteHelperImpl
             addPaymentPlan( addQuoteRequest, planName, numberOfInstallments );
         }
 
-        log.info( "(" + trace.toString() + ") IMPORTANT: Update Quote URI for add Payment Plan: " + determinedBasePathUri.toString() );
         log.info( "(" + trace.toString() + ") IMPORTANT: Update Quote Request going to JM for add Payment Plan: " + objectMapper.writeValueAsString( addQuoteRequest ) );
 
-        final JMAuthResult jmAuthResult = getAuth( actionJMSQuoteSpecDto, jmAuthClient );
+        final JMAuthData jmAuthData = jmAuthService.getAuthData( jmSource );
 
-        AddQuoteResult updQuoteResult = getUpdateQuoteResponse( jmAuthResult, actionJMSQuoteSpecDto, addQuoteRequest, determinedBasePathUri );
+        AddQuoteResult updQuoteResult = getUpdateQuoteResponse( jmAuthData, addQuoteRequest );
         log.info( "(" + trace.toString() + ") IMPORTANT: Update Quote Response from JM for add Payment Plan: " + objectMapper.writeValueAsString( updQuoteResult ) );
 
         if ( getValue( () -> updQuoteResult.getErrorMessages().size(), 0 ) > 0 )
@@ -367,27 +357,25 @@ public class JMAddQuoteHelperImpl
     }
 
 
-    private AddQuoteResult getUpdateQuoteResponse( final JMAuthResult jmAuthResult,
-                                                   final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
-                                                   final AddQuoteRequest addQuoteRequest,
-                                                   final URI determinedBasePathUri )
+    private AddQuoteResult getUpdateQuoteResponse( final JMAuthData jmAuthData,
+                                                   final AddQuoteRequest addQuoteRequest )
     {
         try
         {
-            return jmQuoteClient.updateQuote( determinedBasePathUri,
-                                              "Bearer " + jmAuthResult.getAccess_token(),
-                                              actionJMSQuoteSpecDto.getApiSubscriptionkey(),
+            return jmQuoteClient.updateQuote( jmAuthData.getBaseUri(),
+                                              "Bearer " + jmAuthData.getAccessToken(),
+                                              jmAuthData.getApiSubscriptionKey(),
                                               addQuoteRequest );
         }
         catch ( FeignException e )
         {
             log.error( "IMPORTANT: An exception occurred when attempting to get a UpdateQuote response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
-            throw new ExternalApiException( "Unable to get response from URL: " + determinedBasePathUri.toString() + " Message: " + e.getMessage(), e );
+            throw new ExternalApiException( "Unable to get response from URL: " + jmAuthData.getBaseUri().toString() + " Message: " + e.getMessage(), e );
         }
         catch ( Exception e )
         {
             log.error( "IMPORTANT: An exception occurred when attempting to get a UpdateQuote response from JM: " + e.getMessage(), e );
-            throw new ExternalApiException( "Unable to get response from URL: " + determinedBasePathUri.toString() + " Message: " + e.getMessage(), e );
+            throw new ExternalApiException( "Unable to get response from URL: " + jmAuthData.getBaseUri().toString() + " Message: " + e.getMessage(), e );
         }
     }
 
@@ -416,16 +404,14 @@ public class JMAddQuoteHelperImpl
     }
 
 
-    private AddQuoteResult getJmUpdateQuoteResult( final JMAuthResult jmAuthResult,
-                                                   final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
-                                                   final AddQuoteRequest addQuoteRequest,
-                                                   final URI determinedBasePathUri )
+    private AddQuoteResult getJmUpdateQuoteResult( final JMAuthData jmAuthData,
+                                                   final AddQuoteRequest addQuoteRequest )
     {
         try
         {
-            return jmQuoteClient.updateQuote( determinedBasePathUri,
-                                              "Bearer " + jmAuthResult.getAccess_token(),
-                                              actionJMSQuoteSpecDto.getApiSubscriptionkey(),
+            return jmQuoteClient.updateQuote( jmAuthData.getBaseUri(),
+                                              "Bearer " + jmAuthData.getAccessToken(),
+                                              jmAuthData.getApiSubscriptionKey(),
                                               addQuoteRequest );
         }
         catch ( FeignException e )
@@ -444,16 +430,14 @@ public class JMAddQuoteHelperImpl
     }
 
 
-    private AddQuoteResult getAddQuoteResult( final JMAuthResult jmAuthResult,
-                                              final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
-                                              final AddQuoteRequest addQuoteRequest,
-                                              final URI determinedBasePathUri )
+    private AddQuoteResult getAddQuoteResult( final JMAuthData jmAuthData,
+                                              final AddQuoteRequest addQuoteRequest )
     {
         try
         {
-            AddQuoteResult addQuoteResult = jmQuoteClient.addQuote( determinedBasePathUri,
-                                                                    "Bearer " + jmAuthResult.getAccess_token(),
-                                                                    actionJMSQuoteSpecDto.getApiSubscriptionkey(),
+            AddQuoteResult addQuoteResult = jmQuoteClient.addQuote( jmAuthData.getBaseUri(),
+                                                                    "Bearer " + jmAuthData.getAccessToken(),
+                                                                    jmAuthData.getApiSubscriptionKey(),
                                                                     addQuoteRequest );
             return addQuoteResult;
         }

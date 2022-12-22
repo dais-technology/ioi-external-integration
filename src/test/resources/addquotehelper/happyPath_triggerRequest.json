@@ -511,7 +511,10 @@
         "type": "LOOP"
       }
     },
-    "effectiveDate": "2022-09-22"
+    "effectiveDate": "2022-09-22",
+    "metadata": {
+      "jmSource": "ECOMM"
+    }
   },
   "triggerRequestId": "c5213585-ea28-4ce2-bf76-f9c402aa7489"
 }
