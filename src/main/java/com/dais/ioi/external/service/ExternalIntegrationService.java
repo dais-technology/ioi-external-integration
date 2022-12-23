@@ -2,21 +2,11 @@ package com.dais.ioi.external.service;
 
 import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
-import com.dais.ioi.external.domain.dto.GetQuoteDto;
+import com.dais.ioi.external.domain.dto.jm.GetQuoteDto;
 import com.dais.ioi.external.domain.dto.IntegrationDto;
 import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanRequestDto;
 import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
-import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
-import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
-import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
-import com.dais.ioi.external.domain.dto.jm.GetPolicyNumberResponse;
-import com.dais.ioi.external.domain.dto.jm.RegisterUserRequest;
-import com.dais.ioi.external.domain.dto.jm.RegisterUserResponse;
-import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
-import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ResponseEntity;
 
 import java.util.UUID;
 
@@ -35,6 +25,7 @@ public interface ExternalIntegrationService
     AddPaymentPlanResponseDto addPaymentPlan( final AddPaymentPlanRequestDto paymentPlan )
           throws Exception;
 
+    @Deprecated
     QuoteDto getQuickQuote( GetQuoteDto firedTriggerDto )
           throws Exception;
 
@@ -44,20 +35,6 @@ public interface ExternalIntegrationService
     TriggerResponseDto processSynchronous( final FiredTriggerDto firedTriggerDto )
           throws Exception;
 
-    SubmitApplicationResponse submitApplication( final SubmitApplicationRequest submitApplicationRequest,
-                                                 final UUID lineId );
-
-    CreateAccountResponse createAccount( final CreateAccountRequest createAccountRequest,
-                                         final UUID lineId );
-
     void deleteById( UUID integrationId );
 
-    ResponseEntity<Resource> downloadApplication( final DownloadApplicationRequest createAccountRequest,
-                                                  final UUID lineId );
-
-    GetPolicyNumberResponse getPolicyNumber( final String accountNumber,
-                                             final UUID lineId );
-
-    RegisterUserResponse registerPortalUser( final RegisterUserRequest registerUserRequest,
-                                             final UUID lineId );
 }

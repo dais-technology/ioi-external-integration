@@ -2,15 +2,13 @@ package com.dais.ioi.external.service.action.jm;
 
 import com.dais.common.ioi.dto.answer.ClientAnswerDto;
 import com.dais.common.ioi.dto.answer.ClientLoopIterationDto;
-import com.dais.ioi.external.config.client.JMAuthClient;
 import com.dais.ioi.external.config.client.JMQuoteClient;
-import com.dais.ioi.external.domain.dto.GetQuoteDto;
 import com.dais.ioi.external.domain.dto.jm.AdditionalItemInfoDto;
-import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
+import com.dais.ioi.external.domain.dto.jm.GetQuoteDto;
+import com.dais.ioi.external.domain.dto.jm.JMAuthData;
 import com.dais.ioi.external.domain.dto.jm.QuickQuoteRequest;
 import com.dais.ioi.external.domain.dto.jm.QuickQuoteResult;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
-import com.dais.ioi.external.domain.dto.spec.JmApiSpec;
 import com.dais.ioi.external.domain.exception.ExternalApiException;
 import com.dais.ioi.external.util.NormalizedPremium;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
@@ -30,7 +28,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.net.URI;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -43,7 +40,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.dais.ioi.external.service.action.jm.JMAuth.getAuth;
 import static com.dais.ioi.external.service.action.jm.JMUtils.getValue;
 import static com.dais.ioi.external.service.action.jm.JMUtils.isCanadianZipcode;
 
@@ -59,11 +55,10 @@ public class JMQuickQuoteHelperImpl
     private ObjectMapper objectMapper;
 
     @Autowired
-    private JMAuthClient jmAuthClient;
+    private JMAuthService jmAuthService;
 
 
     public QuoteDto getQuickQuote( GetQuoteDto getQuickQuote,
-                                   JmApiSpec jmApiSpec,
                                    ActionJMSQuoteSpecDto actionJMSQuoteSpecDto )
           throws Exception
     {
@@ -73,12 +68,10 @@ public class JMQuickQuoteHelperImpl
             log.info( "(" + trace.toString() + ") IMPORTANT: Received getQuickQuote request with GetQuoteDto: " + objectMapper.writeValueAsString( getQuickQuote ) );
             QuickQuoteRequest quickQuoteRequest = createQuickQuoteRequest( getQuickQuote.getIntake(), actionJMSQuoteSpecDto );
 
-            URI determinedBasePathUri = URI.create( jmApiSpec.getBaseUrl() );
-
-            final JMAuthResult jmAuthResult = getAuth( jmApiSpec, jmAuthClient );
+            final JMAuthData jmAuthData = jmAuthService.getAuthData( getQuickQuote.getJmSource() );
 
             log.info( "(" + trace.toString() + ") IMPORTANT: requesting JM QUICK QUOTE with body: " + objectMapper.writeValueAsString( quickQuoteRequest ) );
-            QuickQuoteResult quickQuoteResult = getQuickQuoteResult( jmAuthResult, actionJMSQuoteSpecDto, quickQuoteRequest, determinedBasePathUri );
+            QuickQuoteResult quickQuoteResult = getQuickQuoteResult( jmAuthData, quickQuoteRequest );
 
             log.info( "(" + trace.toString() + ") IMPORTANT: JM QUICK QUOTE response: " + objectMapper.writeValueAsString( quickQuoteRequest ) );
 
@@ -115,27 +108,25 @@ public class JMQuickQuoteHelperImpl
     }
 
 
-    private QuickQuoteResult getQuickQuoteResult( final JMAuthResult jmAuthResult,
-                                                  final ActionJMSQuoteSpecDto actionJMSQuoteSpecDto,
-                                                  final QuickQuoteRequest quickQuoteRequest,
-                                                  final URI determinedBasePathUri )
+    private QuickQuoteResult getQuickQuoteResult( final JMAuthData jmAuthData,
+                                                  final QuickQuoteRequest quickQuoteRequest )
     {
         try
         {
-            return jmQuoteClient.getQuickQuote( determinedBasePathUri,
-                                                "Bearer " + jmAuthResult.getAccess_token(),
-                                                actionJMSQuoteSpecDto.getApiSubscriptionkey(),
+            return jmQuoteClient.getQuickQuote( jmAuthData.getBaseUri(),
+                                                "Bearer " + jmAuthData.getAccessToken(),
+                                                jmAuthData.getApiSubscriptionKey(),
                                                 quickQuoteRequest );
         }
         catch ( FeignException e )
         {
             log.error( "IMPORTANT: An exception occurred when attempting to get a quickQuote response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
-            throw new ExternalApiException( "Unable to get response from URL: " + determinedBasePathUri.toString() + " Message: " + e.getMessage(), e );
+            throw new ExternalApiException( "Unable to get response from URL: " + jmAuthData.getBaseUri().toString() + " Message: " + e.getMessage(), e );
         }
         catch ( Exception e )
         {
             log.error( "IMPORTANT: An exception occurred when attempting to get a quickQuote response from JM: " + e.getMessage(), e );
-            throw new ExternalApiException( "Unable to get response from URL: " + determinedBasePathUri.toString() + " Message: " + e.getMessage(), e );
+            throw new ExternalApiException( "Unable to get response from URL: " + jmAuthData.getBaseUri().toString() + " Message: " + e.getMessage(), e );
         }
     }
 

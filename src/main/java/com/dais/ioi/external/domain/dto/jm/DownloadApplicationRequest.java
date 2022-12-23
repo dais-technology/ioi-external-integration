@@ -3,6 +3,7 @@ package com.dais.ioi.external.domain.dto.jm;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
@@ -11,7 +12,8 @@ import lombok.NonNull;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DownloadApplicationRequest
+@EqualsAndHashCode(callSuper = true)
+public class DownloadApplicationRequest extends JmBaseDto
 {
     @NonNull
     private String accountNumber;

@@ -3,7 +3,7 @@ package com.dais.ioi.external.controller;
 import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.domain.api.JmIntegrationApi;
-import com.dais.ioi.external.domain.dto.GetQuoteDto;
+import com.dais.ioi.external.domain.dto.jm.GetQuoteDto;
 import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanRequestDto;
 import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
@@ -16,6 +16,7 @@ import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import com.dais.ioi.external.domain.dto.jm.UploadAppraisalRequestDto;
 import com.dais.ioi.external.domain.dto.jm.UploadAppraisalResponse;
+import com.dais.ioi.external.domain.dto.jm.enums.JmSource;
 import com.dais.ioi.external.service.ExternalIntegrationService;
 import com.dais.ioi.external.service.action.jm.JmIntegrationServiceImpl;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
@@ -32,7 +33,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.UUID;
 
 
 @Slf4j
@@ -82,7 +82,6 @@ public class JmIntegrationController
     {
         try
         {
-
             QuoteDto quoteDto = externalIntegrationService.getCachedQuickQuote( getQuoteDto );
             return quoteDto;
         }
@@ -118,13 +117,12 @@ public class JmIntegrationController
 
 
     @Override
-    public CreateAccountResponse create( final CreateAccountRequest createAccountRequest,
-                                         final UUID lineId )
+    public CreateAccountResponse create( final CreateAccountRequest createAccountRequest )
           throws IllegalAccessException
     {
         try
         {
-            return externalIntegrationService.createAccount( createAccountRequest, lineId );
+            return jmIntegrationService.createAccount( createAccountRequest );
         }
         catch ( FeignException e )
         {
@@ -139,12 +137,11 @@ public class JmIntegrationController
 
 
     @Override
-    public SubmitApplicationResponse submit( final SubmitApplicationRequest submitApplicationRequest,
-                                             final UUID lineId )
+    public SubmitApplicationResponse submit( final SubmitApplicationRequest submitApplicationRequest )
     {
         try
         {
-            return externalIntegrationService.submitApplication( submitApplicationRequest, lineId );
+            return jmIntegrationService.submitApplication( submitApplicationRequest );
         }
         catch ( FeignException e )
         {
@@ -159,12 +156,11 @@ public class JmIntegrationController
 
 
     @Override
-    public ResponseEntity<Resource> downloadApplication( final DownloadApplicationRequest downloadApplicationRequest,
-                                                         final UUID lineId )
+    public ResponseEntity<Resource> downloadApplication( final DownloadApplicationRequest downloadApplicationRequest )
     {
         try
         {
-            return externalIntegrationService.downloadApplication( downloadApplicationRequest, lineId );
+            return jmIntegrationService.downloadApplication( downloadApplicationRequest );
         }
         catch ( FeignException e )
         {
@@ -180,11 +176,11 @@ public class JmIntegrationController
 
     @Override
     public GetPolicyNumberResponse getPolicyNumber( final String accountNumber,
-                                                    final UUID lineId )
+                                                    final JmSource jmSource )
     {
         try
         {
-            return externalIntegrationService.getPolicyNumber( accountNumber, lineId );
+            return jmIntegrationService.getPolicyNumber( accountNumber, jmSource );
         }
         catch ( FeignException e )
         {
@@ -206,12 +202,11 @@ public class JmIntegrationController
 
 
     @Override
-    public RegisterUserResponse registerPortalUser( final RegisterUserRequest registerUserRequest,
-                                                    final UUID lineId )
+    public RegisterUserResponse registerPortalUser( final RegisterUserRequest registerUserRequest )
     {
         try
         {
-            return externalIntegrationService.registerPortalUser( registerUserRequest, lineId );
+            return jmIntegrationService.registerPortalUser( registerUserRequest );
         }
         catch ( FeignException e )
         {

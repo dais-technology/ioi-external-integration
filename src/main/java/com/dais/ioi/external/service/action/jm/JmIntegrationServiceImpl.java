@@ -6,21 +6,20 @@ import com.dais.common.ioi.dto.answer.FileReferenceDto;
 import com.dais.file.storage.FileReference;
 import com.dais.file.storage.cms.CmsFiles;
 import com.dais.ioi.external.config.client.JMApplicationClient;
-import com.dais.ioi.external.config.client.JMAuthClient;
 import com.dais.ioi.external.domain.dto.ExternalQuoteDataDto;
 import com.dais.ioi.external.domain.dto.internal.enums.IntegrationType;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.GetPolicyNumberResponse;
-import com.dais.ioi.external.domain.dto.jm.JMAuthResult;
+import com.dais.ioi.external.domain.dto.jm.JMAuthData;
 import com.dais.ioi.external.domain.dto.jm.RegisterUserRequest;
 import com.dais.ioi.external.domain.dto.jm.RegisterUserResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationResponse;
 import com.dais.ioi.external.domain.dto.jm.UploadAppraisalRequestDto;
 import com.dais.ioi.external.domain.dto.jm.UploadAppraisalResponse;
-import com.dais.ioi.external.domain.dto.spec.JmApiSpec;
+import com.dais.ioi.external.domain.dto.jm.enums.JmSource;
 import com.dais.ioi.external.domain.dto.spec.JmUploadAppraisalSpec;
 import com.dais.ioi.external.domain.exception.ExternalApiException;
 import com.dais.ioi.external.entity.IntegrationEntity;
@@ -47,7 +46,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import java.io.IOException;
-import java.net.URI;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -60,8 +58,6 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.dais.ioi.external.service.action.jm.JMAuth.getAuth;
-
 
 @Service
 @Slf4j
@@ -71,9 +67,6 @@ public class JmIntegrationServiceImpl
     private static Pattern PASSWORD_VALIDATION_REGEX = Pattern.compile( "^(?=.*[a-z])(?=.*[A-Z])(?=.*[\\d@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$" );
 
     private static final String ACCOUNT_NUMBER = "accountNumber";
-
-    @Autowired
-    JMAuthClient jmAuthClient;
 
     @Autowired
     JMApplicationClient jmApplicationClient;
@@ -93,26 +86,22 @@ public class JmIntegrationServiceImpl
     @Autowired
     private CmsFiles cmsFiles;
 
+    @Autowired
+    private JMAuthService jmAuthService;
+
     private JsonPathPropertiesMapperUtil jsonPathMapper = new JsonPathPropertiesMapperUtil();
 
 
     @SneakyThrows
-    public CreateAccountResponse createAccount( final CreateAccountRequest createAccountRequest,
-                                                final UUID lineId )
+    public CreateAccountResponse createAccount( final CreateAccountRequest createAccountRequest )
     {
 
         UUID trace = UUID.randomUUID();
         log.info( "(" + trace + ") IMPORTANT: Begin JM createAccount" );
-        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( lineId, IntegrationType.JM_CREATE_ACCOUNT );
-        log.info( "(" + trace + ") IMPORTANT: integrationEntity fetched" );
-        final JmApiSpec jmApiSpec = objectMapper.convertValue( integrationEntity.getSpec(), JmApiSpec.class );
-        log.info( "(" + trace + ") IMPORTANT: JmApiSpec parsed from Integration" );
-        final JMAuthResult jmAuthResult = getAuth( jmApiSpec, jmAuthClient );
+        final JMAuthData jmAuthData = jmAuthService.getAuthData( createAccountRequest.getJmSource() );
         log.info( "(" + trace + ") IMPORTANT: Jm Api authentication complete" );
-        final URI uri = URI.create( jmApiSpec.getBaseUrl() );
-        log.info( "(" + trace + ") IMPORTANT: JM createAccount URI: " + uri );
         log.info( "(" + trace + ") IMPORTANT: JM createAccount request: " + objectMapper.writeValueAsString( createAccountRequest ) );
-        CreateAccountResponse createAccountResponse = getCreateAccountResponse( createAccountRequest, jmApiSpec, jmAuthResult, uri );
+        CreateAccountResponse createAccountResponse = getCreateAccountResponse( createAccountRequest, jmAuthData );
         log.info( "(" + trace + ") IMPORTANT: JM createAccount response: " + objectMapper.writeValueAsString( createAccountResponse ) );
         log.info( "(" + trace + ") IMPORTANT: End JM createAccount" );
         return createAccountResponse;
@@ -121,21 +110,14 @@ public class JmIntegrationServiceImpl
 
 
     @SneakyThrows
-    public SubmitApplicationResponse submitApplication( final SubmitApplicationRequest submitApplicationRequest,
-                                                        final UUID lineId )
+    public SubmitApplicationResponse submitApplication( final SubmitApplicationRequest submitApplicationRequest )
     {
         UUID trace = UUID.randomUUID();
         log.info( "(" + trace + ") IMPORTANT: Begin JM SubmitApplication" );
-        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( lineId, IntegrationType.JM_SUBMIT_APPLICATION );
-
-        final JmApiSpec jmApiSpec = objectMapper.convertValue( integrationEntity.getSpec(), JmApiSpec.class );
-        final JMAuthResult jmAuthResult = getAuth( jmApiSpec, jmAuthClient );
-        final URI uri = URI.create( jmApiSpec.getBaseUrl() );
-
-        log.info( "(" + trace + ") IMPORTANT: JM submitApplication URI: " + uri );
+        final JMAuthData jmAuthData = jmAuthService.getAuthData( submitApplicationRequest.getJmSource() );
         log.info( "(" + trace + ") IMPORTANT: JM submitApplication request: " + objectMapper.writeValueAsString( submitApplicationRequest ) );
 
-        final SubmitApplicationResponse response = getSubmitApplicationResponse( submitApplicationRequest, jmApiSpec, jmAuthResult, uri );
+        final SubmitApplicationResponse response = getSubmitApplicationResponse( submitApplicationRequest, jmAuthData );
         log.info( "(" + trace + ") IMPORTANT: JM submitApplication response: " + objectMapper.writeValueAsString( response ) );
         persistExternalQuoteData( response, submitApplicationRequest.getQuoteId() );
         log.info( "(" + trace + ") IMPORTANT: End JM submitApplication" );
@@ -145,22 +127,16 @@ public class JmIntegrationServiceImpl
 
 
     @SneakyThrows
-    public ResponseEntity<Resource> downloadApplication( DownloadApplicationRequest downloadApplicationRequest,
-                                                         UUID lineId )
+    public ResponseEntity<Resource> downloadApplication( DownloadApplicationRequest downloadApplicationRequest )
     {
         UUID trace = UUID.randomUUID();
         log.info( "(" + trace + ") IMPORTANT: Begin JM DownloadApplication" );
-        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( lineId, IntegrationType.JM_DOWNLOAD_APPLICATION );
 
-        final JmApiSpec jmApiSpec = objectMapper.convertValue( integrationEntity.getSpec(), JmApiSpec.class );
+        final JMAuthData jmAuthData = jmAuthService.getAuthData( downloadApplicationRequest.getJmSource() );
 
-        final JMAuthResult jmAuthResult = getAuth( jmApiSpec, jmAuthClient );
-
-        final URI uri = URI.create( jmApiSpec.getBaseUrl() );
-        log.info( "(" + trace + ") IMPORTANT: Base URI: {}", uri );
         log.info( "(" + trace + ") IMPORTANT: JM DownloadApplication REQUEST: {}.", objectMapper.writeValueAsString( downloadApplicationRequest ) );
 
-        final ResponseEntity<Resource> response = downloadApplication( downloadApplicationRequest, jmApiSpec, jmAuthResult, uri );
+        final ResponseEntity<Resource> response = downloadApplication( downloadApplicationRequest, jmAuthData );
 
         log.info( "(" + trace + ") IMPORTANT: JM DownloadApplication RESPONSE file name: {}.", response.getBody().getFilename() );
         log.info( "(" + trace + ") IMPORTANT: JM DownloadApplication call Successful." );
@@ -172,20 +148,14 @@ public class JmIntegrationServiceImpl
 
     @SneakyThrows
     public GetPolicyNumberResponse getPolicyNumber( final String accountNumber,
-                                                    final UUID lineId )
+                                                    final JmSource jmSource )
     {
         UUID trace = UUID.randomUUID();
         log.info( "(" + trace + ") IMPORTANT: Begin JM GetPolicyNumber" );
-        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( lineId, IntegrationType.JM_GET_POLICY_NUMBER );
 
-        final JmApiSpec jmApiSpec = objectMapper.convertValue( integrationEntity.getSpec(), JmApiSpec.class );
+        final JMAuthData jmAuthData = jmAuthService.getAuthData( jmSource );
 
-        final JMAuthResult jmAuthResult = getAuth( jmApiSpec, jmAuthClient );
-
-        final URI uri = URI.create( jmApiSpec.getBaseUrl() );
-        log.info( "(" + trace + ") IMPORTANT: Base URI: {}, accountNumber: {}", uri, accountNumber );
-
-        final GetPolicyNumberResponse getPolicyNumberResponse = getPolicyNumber( accountNumber, jmApiSpec, jmAuthResult, uri );
+        final GetPolicyNumberResponse getPolicyNumberResponse = getPolicyNumber( accountNumber, jmAuthData );
 
         log.info( "(" + trace + ") IMPORTANT: JM GetPolicyNumber RESPONSE: {}.", objectMapper.writeValueAsString( getPolicyNumberResponse ) );
         log.info( "(" + trace + ") IMPORTANT: JM GetPolicyNumber call Successful." );
@@ -205,14 +175,9 @@ public class JmIntegrationServiceImpl
 
         final JmUploadAppraisalSpec jmUploadAppraisalSpec = getJmUploadAppraisalSpec();
 
-        final JmApiSpec jmApiSpec = getApiSpec();
-
         final String accountNumber = requestDto.getAccountNumber();
 
-        final JMAuthResult jmAuthResult = getAuth( jmApiSpec, jmAuthClient );
-
-        final URI uri = URI.create( jmApiSpec.getBaseUrl() );
-        log.info( "(" + trace + ") IMPORTANT: Base URI: {}, accountNumber: {}", uri, accountNumber );
+        final JMAuthData jmAuthData = jmAuthService.getAuthData( requestDto.getJmSource() );
 
         final ForwardingAuthorization cmsAuthorization = new ForwardingAuthorization();
 
@@ -235,7 +200,7 @@ public class JmIntegrationServiceImpl
 
                 final MultipartFile multipartFile = new CommonsMultipartFile( fileItem );
 
-                final UploadAppraisalResponse uploadAppraisalResponse = uploadAppraisal( accountNumber, multipartFile, jmApiSpec, jmAuthResult, uri );
+                final UploadAppraisalResponse uploadAppraisalResponse = uploadAppraisal( accountNumber, multipartFile, jmAuthData );
 
                 responses.add( uploadAppraisalResponse );
             }
@@ -294,8 +259,7 @@ public class JmIntegrationServiceImpl
 
 
     @SneakyThrows
-    public RegisterUserResponse registerPortalUser( final RegisterUserRequest registerUserRequest,
-                                                    final UUID lineId )
+    public RegisterUserResponse registerPortalUser( final RegisterUserRequest registerUserRequest )
     {
         UUID trace = UUID.randomUUID();
         log.info( "(" + trace + ") IMPORTANT: Begin JM RegisterPortalUser" );
@@ -310,16 +274,10 @@ public class JmIntegrationServiceImpl
                                         "• Number (1, 2, 3, etc.) or special character (#, $, ?, etc.)" );
         }
 
-        final IntegrationEntity integrationEntity = externalIntegrationRepository.getIntegrationEntityByLineIdAndType( lineId, IntegrationType.JM_REGISTER_PORTAL_USER );
+        final JMAuthData jmAuthData = jmAuthService.getAuthData( registerUserRequest.getJmSource() );
 
-        final JmApiSpec jmApiSpec = objectMapper.convertValue( integrationEntity.getSpec(), JmApiSpec.class );
-
-        final JMAuthResult jmAuthResult = getAuth( jmApiSpec, jmAuthClient );
-
-        final URI uri = URI.create( jmApiSpec.getBaseUrl() );
-
-        log.info( "(" + trace + ") IMPORTANT: Sending JM RegisterPortalUser request -> Base URI: {}, body: {}", uri, objectMapper.writeValueAsString( registerUserRequest ) );
-        final RegisterUserResponse registerPortalUserResponse = processRegisterPortalUser( registerUserRequest, jmApiSpec, jmAuthResult, uri );
+        log.info( "(" + trace + ") IMPORTANT: Sending JM RegisterPortalUser request -> body: {}", objectMapper.writeValueAsString( registerUserRequest ) );
+        final RegisterUserResponse registerPortalUserResponse = processRegisterPortalUser( registerUserRequest, jmAuthData );
 
         log.info( "(" + trace + ") IMPORTANT: JM RegisterPortalUser call Successful." );
         log.info( "(" + trace + ") IMPORTANT: End JM RegisterPortalUser" );
@@ -328,15 +286,13 @@ public class JmIntegrationServiceImpl
 
 
     private ResponseEntity<Resource> downloadApplication( final DownloadApplicationRequest downloadApplicationRequest,
-                                                          final JmApiSpec jmApiSpec,
-                                                          final JMAuthResult jmAuthResult,
-                                                          final URI uri )
+                                                          final JMAuthData jmAuthData )
     {
         try
         {
-            final ByteArrayResource byteArrayResource = jmApplicationClient.downloadApplication( uri,
-                                                                                                 "Bearer " + jmAuthResult.getAccess_token(),
-                                                                                                 jmApiSpec.getApiSubscriptionkey(),
+            final ByteArrayResource byteArrayResource = jmApplicationClient.downloadApplication( jmAuthData.getBaseUri(),
+                                                                                                 "Bearer " + jmAuthData.getAccessToken(),
+                                                                                                 jmAuthData.getApiSubscriptionKey(),
                                                                                                  downloadApplicationRequest );
             return ResponseEntity.ok()
                                  .contentLength( byteArrayResource.contentLength() )
@@ -351,38 +307,36 @@ public class JmIntegrationServiceImpl
                 return ResponseEntity.status( HttpStatus.NO_CONTENT ).body( new ByteArrayResource( e.content() ) );
             }
             log.error( "IMPORTANT: An exception occurred when attempting to get a downloadApplication response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
-            throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
+            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
         }
         catch ( Exception e )
         {
             log.error( "IMPORTANT: An exception occurred when attempting to get a downloadApplication response from JM: " + e.getMessage(), e );
-            throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
+            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
         }
     }
 
 
     private GetPolicyNumberResponse getPolicyNumber( final String accountNumber,
-                                                     final JmApiSpec jmApiSpec,
-                                                     final JMAuthResult jmAuthResult,
-                                                     final URI uri )
+                                                     final JMAuthData jmAuthData )
     {
         try
         {
-            final GetPolicyNumberResponse getPolicyNumberResponse = jmApplicationClient.getPolicyNumber( uri,
-                                                                                                         "Bearer " + jmAuthResult.getAccess_token(),
-                                                                                                         jmApiSpec.getApiSubscriptionkey(),
+            final GetPolicyNumberResponse getPolicyNumberResponse = jmApplicationClient.getPolicyNumber( jmAuthData.getBaseUri(),
+                                                                                                         "Bearer " + jmAuthData.getAccessToken(),
+                                                                                                         jmAuthData.getApiSubscriptionKey(),
                                                                                                          accountNumber );
             return getPolicyNumberResponse;
         }
         catch ( FeignException e )
         {
             log.error( "IMPORTANT: An exception occurred when attempting to get a policy number response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
-            throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
+            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
         }
         catch ( Exception e )
         {
             log.error( "IMPORTANT: An exception occurred when attempting to get a policy number response from JM: " + e.getMessage(), e );
-            throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
+            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
         }
     }
 
@@ -390,15 +344,13 @@ public class JmIntegrationServiceImpl
 
     private UploadAppraisalResponse uploadAppraisal( final String accountNumber,
                                                      final MultipartFile appraisalDocument,
-                                                     final JmApiSpec jmApiSpec,
-                                                     final JMAuthResult jmAuthResult,
-                                                     final URI uri )
+                                                     final JMAuthData jmAuthData )
     {
         try
         {
-            final UploadAppraisalResponse uploadAppraisalResponse = jmApplicationClient.uploadAppraisal( uri,
-                                                                                                         "Bearer " + jmAuthResult.getAccess_token(),
-                                                                                                         jmApiSpec.getApiSubscriptionkey(),
+            final UploadAppraisalResponse uploadAppraisalResponse = jmApplicationClient.uploadAppraisal( jmAuthData.getBaseUri(),
+                                                                                                         "Bearer " + jmAuthData.getAccessToken(),
+                                                                                                         jmAuthData.getApiSubscriptionKey(),
                                                                                                          accountNumber,
                                                                                                          appraisalDocument );
             return uploadAppraisalResponse;
@@ -406,38 +358,36 @@ public class JmIntegrationServiceImpl
         catch ( FeignException e )
         {
             log.error( "IMPORTANT: An exception occurred when attempting to get a UploadAppraisal response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
-            throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
+            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
         }
         catch ( Exception e )
         {
             log.error( "IMPORTANT: An exception occurred when attempting to get a UploadAppraisal response from JM: " + e.getMessage(), e );
-            throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
+            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
         }
     }
 
 
     private RegisterUserResponse processRegisterPortalUser( final RegisterUserRequest registerUserRequest,
-                                                            final JmApiSpec jmApiSpec,
-                                                            final JMAuthResult jmAuthResult,
-                                                            final URI uri )
+                                                            final JMAuthData jmAuthData )
     {
         try
         {
-            final RegisterUserResponse registerPortalUserResponse = jmApplicationClient.registerPortalUser( uri,
-                                                                                                            "Bearer " + jmAuthResult.getAccess_token(),
-                                                                                                            jmApiSpec.getApiSubscriptionkey(),
+            final RegisterUserResponse registerPortalUserResponse = jmApplicationClient.registerPortalUser( jmAuthData.getBaseUri(),
+                                                                                                            "Bearer " + jmAuthData.getAccessToken(),
+                                                                                                            jmAuthData.getApiSubscriptionKey(),
                                                                                                             registerUserRequest );
             return registerPortalUserResponse;
         }
         catch ( FeignException e )
         {
             log.error( "IMPORTANT: An exception occurred when attempting to get a registerPortalUser response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
-            throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
+            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
         }
         catch ( Exception e )
         {
             log.error( "IMPORTANT: An exception occurred when attempting to get a registerPortalUser response from JM: " + e.getMessage(), e );
-            throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
+            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
         }
     }
 
@@ -467,73 +417,55 @@ public class JmIntegrationServiceImpl
         quoteData.put( "accountNumber", response.getAccountNumber() );
         quoteData.put( "policyNumber", response.getPolicyNumber() );
 
-        log.info( "IMPORTATN: Persisting external quote data: " + objectMapper.writeValueAsString( externalQuoteData ) );
+        log.info( "IMPORTANT: Persisting external quote data: " + objectMapper.writeValueAsString( externalQuoteData ) );
         externalQuoteDataService.saveOrUpdate( externalQuoteData );
     }
 
 
     private CreateAccountResponse getCreateAccountResponse( final CreateAccountRequest createAccountRequest,
-                                                            final JmApiSpec jmApiSpec,
-                                                            final JMAuthResult jmAuthResult,
-                                                            final URI uri )
+                                                            final JMAuthData jmAuthData )
     {
         try
         {
-            CreateAccountResponse createAccountResponse = jmApplicationClient.createAccount( uri,
-                                                                                             "Bearer " + jmAuthResult.getAccess_token(),
-                                                                                             jmApiSpec.getApiSubscriptionkey(),
+            CreateAccountResponse createAccountResponse = jmApplicationClient.createAccount( jmAuthData.getBaseUri(),
+                                                                                             "Bearer " + jmAuthData.getAccessToken(),
+                                                                                             jmAuthData.getApiSubscriptionKey(),
                                                                                              createAccountRequest );
             return createAccountResponse;
         }
         catch ( FeignException e )
         {
             log.error( "IMPORTANT: An exception occurred when attempting to get a createAccount response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
-            throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
+            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
         }
         catch ( Exception e )
         {
             log.error( "IMPORTANT: An exception occurred when attempting to get a createAccount response from JM: " + e.getMessage(), e );
-            throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
+            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
         }
     }
 
 
     private SubmitApplicationResponse getSubmitApplicationResponse( final SubmitApplicationRequest submitApplicationRequest,
-                                                                    final JmApiSpec jmApiSpec,
-                                                                    final JMAuthResult jmAuthResult,
-                                                                    final URI uri )
+                                                                    final JMAuthData jmAuthData )
     {
         try
         {
-            final SubmitApplicationResponse response = jmApplicationClient.submitApplication( uri,
-                                                                                              "Bearer " + jmAuthResult.getAccess_token(),
-                                                                                              jmApiSpec.getApiSubscriptionkey(),
+            final SubmitApplicationResponse response = jmApplicationClient.submitApplication( jmAuthData.getBaseUri(),
+                                                                                              "Bearer " + jmAuthData.getAccessToken(),
+                                                                                              jmAuthData.getApiSubscriptionKey(),
                                                                                               submitApplicationRequest );
             return response;
         }
         catch ( FeignException e )
         {
             log.error( "IMPORTANT: An exception occurred when attempting to get a submitApplication response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
-            throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
+            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
         }
         catch ( Exception e )
         {
             log.error( "IMPORTANT: An exception occurred when attempting to get a submitApplication response from JM: " + e.getMessage(), e );
-            throw new ExternalApiException( "Unable to get response from URi: " + uri + " Message: " + e.getMessage(), e );
+            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
         }
-    }
-
-
-    public JmApiSpec getApiSpec()
-          throws Exception
-    {
-        List<IntegrationEntity> authEntity = externalIntegrationRepository.getIntegrationEntityByType( IntegrationType.JM_AUTH );
-
-        if ( authEntity.size() > 1 )
-        {
-            throw new Exception( "Misconfiguration of JM AUTH entity!! Only single JM_AUTH entity allowed but found multiple" );
-        }
-
-        return objectMapper.convertValue( authEntity.get( 0 ).getSpec(), JmApiSpec.class );
     }
 }

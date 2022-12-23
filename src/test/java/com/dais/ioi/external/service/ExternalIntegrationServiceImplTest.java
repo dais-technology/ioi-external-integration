@@ -1,6 +1,6 @@
 package com.dais.ioi.external.service;
 
-import com.dais.ioi.external.domain.dto.GetQuoteDto;
+import com.dais.ioi.external.domain.dto.jm.GetQuoteDto;
 import com.dais.ioi.external.domain.dto.jm.JmQuoteOptionDto;
 import com.dais.ioi.external.repository.ExternalIntegrationRepository;
 import com.dais.ioi.external.service.action.jm.JMQuoteServiceImpl;
