@@ -2,13 +2,14 @@ package com.dais.ioi.external.domain.api;
 
 import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
-import com.dais.ioi.external.domain.dto.jm.GetQuoteDto;
 import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanRequestDto;
 import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
+import com.dais.ioi.external.domain.dto.jm.GetEmbeddedQuoteResponse;
 import com.dais.ioi.external.domain.dto.jm.GetPolicyNumberResponse;
+import com.dais.ioi.external.domain.dto.jm.GetQuoteDto;
 import com.dais.ioi.external.domain.dto.jm.RegisterUserRequest;
 import com.dais.ioi.external.domain.dto.jm.RegisterUserResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.UUID;
 
 
 public interface JmIntegrationApi
@@ -93,4 +95,11 @@ public interface JmIntegrationApi
                      method = RequestMethod.POST )
     @ApiOperation( value = "Register Portal User" )
     RegisterUserResponse registerPortalUser( @RequestBody @Valid final RegisterUserRequest registerUserRequest );
+
+    @ResponseStatus( HttpStatus.OK )
+    @RequestMapping( value = "/embeddedquote",
+                     method = RequestMethod.GET )
+    @ApiOperation( value = "Get Embedded quote" )
+    GetEmbeddedQuoteResponse getEmbeddedQuote( @RequestParam( value = "quoteId" ) final UUID quoteId,
+                                               @RequestParam( value = "jmSource" ) final JmSource jmSource );
 }
