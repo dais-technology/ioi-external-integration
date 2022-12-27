@@ -3,13 +3,14 @@ package com.dais.ioi.external.controller;
 import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
 import com.dais.ioi.external.domain.api.JmIntegrationApi;
-import com.dais.ioi.external.domain.dto.jm.GetQuoteDto;
 import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanRequestDto;
 import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
+import com.dais.ioi.external.domain.dto.jm.GetEmbeddedQuoteResponse;
 import com.dais.ioi.external.domain.dto.jm.GetPolicyNumberResponse;
+import com.dais.ioi.external.domain.dto.jm.GetQuoteDto;
 import com.dais.ioi.external.domain.dto.jm.RegisterUserRequest;
 import com.dais.ioi.external.domain.dto.jm.RegisterUserResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
@@ -33,6 +34,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.UUID;
 
 
 @Slf4j
@@ -217,5 +219,13 @@ public class JmIntegrationController
             log.error( e.getMessage(), e );
             throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage() );
         }
+    }
+
+
+    @Override
+    public GetEmbeddedQuoteResponse getEmbeddedQuote( final UUID quoteId,
+                                                      final JmSource jmSource )
+    {
+        return jmIntegrationService.getEmbeddedQuote( quoteId, jmSource );
     }
 }
