@@ -11,6 +11,7 @@ import com.dais.ioi.external.domain.dto.internal.enums.IntegrationType;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
+import com.dais.ioi.external.domain.dto.jm.GetEmbeddedQuoteResponse;
 import com.dais.ioi.external.domain.dto.jm.GetPolicyNumberResponse;
 import com.dais.ioi.external.domain.dto.jm.JMAuthData;
 import com.dais.ioi.external.domain.dto.jm.RegisterUserRequest;
@@ -161,6 +162,24 @@ public class JmIntegrationServiceImpl
         log.info( "(" + trace + ") IMPORTANT: JM GetPolicyNumber call Successful." );
         log.info( "(" + trace + ") IMPORTANT: End JM GetPolicyNumber" );
         return getPolicyNumberResponse;
+    }
+
+
+    @SneakyThrows
+    public GetEmbeddedQuoteResponse getEmbeddedQuote( final UUID quoteId,
+                                                      final JmSource jmSource )
+    {
+        UUID trace = UUID.randomUUID();
+        log.info( "(" + trace + ") IMPORTANT: Begin JM GetEmbeddedQuote" );
+
+        final JMAuthData jmAuthData = jmAuthService.getAuthData( jmSource );
+
+        final GetEmbeddedQuoteResponse embeddedQuoteResponse = getEmbeddedQuoteResponse( quoteId, jmAuthData );
+
+        log.info( "(" + trace + ") IMPORTANT: JM GetEmbeddedQuote RESPONSE: {}.", objectMapper.writeValueAsString( embeddedQuoteResponse ) );
+        log.info( "(" + trace + ") IMPORTANT: JM GetEmbeddedQuote call Successful." );
+        log.info( "(" + trace + ") IMPORTANT: End JM GetEmbeddedQuote" );
+        return embeddedQuoteResponse;
     }
 
 
@@ -341,6 +360,15 @@ public class JmIntegrationServiceImpl
     }
 
 
+    private GetEmbeddedQuoteResponse getEmbeddedQuoteResponse( final UUID quoteId,
+                                                               final JMAuthData jmAuthData )
+    {
+        return jmApplicationClient.getEmbeddedQuote( jmAuthData.getBaseUri(),
+                                                     "Bearer " + jmAuthData.getAccessToken(),
+                                                     jmAuthData.getApiSubscriptionKey(),
+                                                     quoteId );
+    }
+
 
     private UploadAppraisalResponse uploadAppraisal( final String accountNumber,
                                                      final MultipartFile appraisalDocument,
@@ -446,8 +474,9 @@ public class JmIntegrationServiceImpl
     }
 
 
-    private SubmitApplicationResponse getSubmitApplicationResponse( final SubmitApplicationRequest submitApplicationRequest,
-                                                                    final JMAuthData jmAuthData )
+    private SubmitApplicationResponse getSubmitApplicationResponse(
+          final SubmitApplicationRequest submitApplicationRequest,
+          final JMAuthData jmAuthData )
     {
         try
         {
