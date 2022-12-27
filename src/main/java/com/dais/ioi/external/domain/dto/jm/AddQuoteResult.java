@@ -33,6 +33,8 @@ public class AddQuoteResult
 
     public List<String> respMessageList;
 
+    public String accountNumber;
+
     @Data
     @Builder
     @NoArgsConstructor

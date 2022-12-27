@@ -207,6 +207,7 @@ public class JMAddQuoteHelperImpl
                 metaDatamap.put( "isCoverageAvailable", addQuoteResult.isCoverageAvailable() );
                 metaDatamap.put( "errorMessages", addQuoteResult.getErrorMessages() );
                 metaDatamap.put( "messageList", addQuoteResult.getRespMessageList() );
+                metaDatamap.put( "accountNumber", addQuoteResult.getAccountNumber() );
 
 
                 log.info( "setting request Id to " + requestId );
