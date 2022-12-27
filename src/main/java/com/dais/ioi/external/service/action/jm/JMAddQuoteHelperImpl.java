@@ -576,6 +576,7 @@ public class JMAddQuoteHelperImpl
         residentialAddress.setPostalCode(
               JMUtils.formatZipCode( getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactResAddrPostalCode() ).getAnswer(), "" ) )
         );
+        addQuoteRequest.setIsMailingAddressSame( false );
 
         // Map mailing address
         if ( getValue( () -> intake.get( actionJMSQuoteSpecDto.getHasMailingAddr() ).getAnswer(), StringUtils.EMPTY ).equals( "[]" ) )
@@ -614,6 +615,11 @@ public class JMAddQuoteHelperImpl
                 }
                 primaryContact.setMailingAddress( mailingAddress );
             }
+        }
+        else if (getValue( () -> intake.get( actionJMSQuoteSpecDto.getHasMailingAddr() ).getAnswer(),
+                           StringUtils.EMPTY ).equals( "[\"Is this your Mailing Address?\"]" ))
+        {
+            addQuoteRequest.setIsMailingAddressSame( true );
         }
 
         primaryContact.setResidentialAddress( residentialAddress );
