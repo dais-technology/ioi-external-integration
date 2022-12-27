@@ -2,13 +2,13 @@ package com.dais.ioi.external.domain.api;
 
 import com.dais.ioi.action.domain.dto.FiredTriggerDto;
 import com.dais.ioi.action.domain.dto.pub.TriggerResponseDto;
-import com.dais.ioi.external.domain.dto.jm.GetQuoteDto;
 import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanRequestDto;
 import com.dais.ioi.external.domain.dto.jm.AddPaymentPlanResponseDto;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
 import com.dais.ioi.external.domain.dto.jm.GetPolicyNumberResponse;
+import com.dais.ioi.external.domain.dto.jm.GetQuoteDto;
 import com.dais.ioi.external.domain.dto.jm.RegisterUserRequest;
 import com.dais.ioi.external.domain.dto.jm.RegisterUserResponse;
 import com.dais.ioi.external.domain.dto.jm.SubmitApplicationRequest;
@@ -45,13 +45,17 @@ public interface JmIntegrationApi
     @RequestMapping( value = "/quote/jm/quickquote",
                      method = RequestMethod.POST )
     @ApiOperation( value = "Get JM quickQuote" )
-    QuoteDto getQuickQuote( @RequestBody @Valid GetQuoteDto firedTriggerDto );
+    QuoteDto getQuickQuote( @RequestBody @Valid GetQuoteDto firedTriggerDto )
+          throws Exception;
+
 
     @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/quote/jm/paymentplan",
                      method = RequestMethod.POST )
     @ApiOperation( value = "Get JM quickQuote" )
-    AddPaymentPlanResponseDto addPaymentPlan( @RequestBody @Valid final AddPaymentPlanRequestDto addPaymentPlanRequest );
+    AddPaymentPlanResponseDto addPaymentPlan( @RequestBody @Valid final AddPaymentPlanRequestDto addPaymentPlanRequest )
+          throws Exception;
+
 
     @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/submit/application",
@@ -78,8 +82,7 @@ public interface JmIntegrationApi
                      method = RequestMethod.GET )
     @ApiOperation( value = "Get Policy Number" )
     GetPolicyNumberResponse getPolicyNumber( @RequestParam( value = "accountNumber" ) final String accountNumber,
-                                             @RequestParam( value = "jmSource",
-                                                            required = false ) final JmSource jmSource ); //TODO: make this field required when FE is ready
+                                             @RequestParam( value = "jmSource" ) final JmSource jmSource );
 
 
     @ResponseStatus( HttpStatus.OK )
@@ -89,7 +92,7 @@ public interface JmIntegrationApi
     List<UploadAppraisalResponse> uploadAppraisal( @RequestBody final UploadAppraisalRequestDto request );
 
     @ResponseStatus( HttpStatus.OK )
-    @RequestMapping( value = "/register/user/{lineId}",
+    @RequestMapping( value = "/register/user",
                      method = RequestMethod.POST )
     @ApiOperation( value = "Register Portal User" )
     RegisterUserResponse registerPortalUser( @RequestBody @Valid final RegisterUserRequest registerUserRequest );

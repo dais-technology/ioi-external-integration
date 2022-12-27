@@ -307,37 +307,37 @@ public class JmIntegrationServiceImpl
                 return ResponseEntity.status( HttpStatus.NO_CONTENT ).body( new ByteArrayResource( e.content() ) );
             }
             log.error( "IMPORTANT: An exception occurred when attempting to get a downloadApplication response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
-            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
+            throw e;
         }
-        catch ( Exception e )
-        {
-            log.error( "IMPORTANT: An exception occurred when attempting to get a downloadApplication response from JM: " + e.getMessage(), e );
-            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
-        }
+        //        catch ( Exception e )
+        //        {
+        //            log.error( "IMPORTANT: An exception occurred when attempting to get a downloadApplication response from JM: " + e.getMessage(), e );
+        //            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
+        //        }
     }
 
 
     private GetPolicyNumberResponse getPolicyNumber( final String accountNumber,
                                                      final JMAuthData jmAuthData )
     {
-        try
-        {
-            final GetPolicyNumberResponse getPolicyNumberResponse = jmApplicationClient.getPolicyNumber( jmAuthData.getBaseUri(),
-                                                                                                         "Bearer " + jmAuthData.getAccessToken(),
-                                                                                                         jmAuthData.getApiSubscriptionKey(),
-                                                                                                         accountNumber );
-            return getPolicyNumberResponse;
-        }
-        catch ( FeignException e )
-        {
-            log.error( "IMPORTANT: An exception occurred when attempting to get a policy number response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
-            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
-        }
-        catch ( Exception e )
-        {
-            log.error( "IMPORTANT: An exception occurred when attempting to get a policy number response from JM: " + e.getMessage(), e );
-            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
-        }
+        //        try
+        //        {
+        final GetPolicyNumberResponse getPolicyNumberResponse = jmApplicationClient.getPolicyNumber( jmAuthData.getBaseUri(),
+                                                                                                     "Bearer " + jmAuthData.getAccessToken(),
+                                                                                                     jmAuthData.getApiSubscriptionKey(),
+                                                                                                     accountNumber );
+        return getPolicyNumberResponse;
+        //        }
+        //        catch ( FeignException e )
+        //        {
+        //            log.error( "IMPORTANT: An exception occurred when attempting to get a policy number response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
+        //            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
+        //        }
+        //        catch ( Exception e )
+        //        {
+        //            log.error( "IMPORTANT: An exception occurred when attempting to get a policy number response from JM: " + e.getMessage(), e );
+        //            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
+        //        }
     }
 
 
@@ -346,49 +346,48 @@ public class JmIntegrationServiceImpl
                                                      final MultipartFile appraisalDocument,
                                                      final JMAuthData jmAuthData )
     {
-        try
-        {
-            final UploadAppraisalResponse uploadAppraisalResponse = jmApplicationClient.uploadAppraisal( jmAuthData.getBaseUri(),
-                                                                                                         "Bearer " + jmAuthData.getAccessToken(),
-                                                                                                         jmAuthData.getApiSubscriptionKey(),
-                                                                                                         accountNumber,
-                                                                                                         appraisalDocument );
-            return uploadAppraisalResponse;
-        }
-        catch ( FeignException e )
-        {
-            log.error( "IMPORTANT: An exception occurred when attempting to get a UploadAppraisal response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
-            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
-        }
-        catch ( Exception e )
-        {
-            log.error( "IMPORTANT: An exception occurred when attempting to get a UploadAppraisal response from JM: " + e.getMessage(), e );
-            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
-        }
+        //        try
+        //        {
+        final UploadAppraisalResponse uploadAppraisalResponse = jmApplicationClient.uploadAppraisal( jmAuthData.getBaseUri(),
+                                                                                                     "Bearer " + jmAuthData.getAccessToken(),
+                                                                                                     jmAuthData.getApiSubscriptionKey(),
+                                                                                                     accountNumber,
+                                                                                                     appraisalDocument );
+        return uploadAppraisalResponse;
+        //        }
+        //        catch ( FeignException e )
+        //        {
+        //            log.error( "IMPORTANT: An exception occurred when attempting to get a UploadAppraisal response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
+        //            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
+        //        }
+        //        catch ( Exception e )
+        //        {
+        //            log.error( "IMPORTANT: An exception occurred when attempting to get a UploadAppraisal response from JM: " + e.getMessage(), e );
+        //            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
+        //        }
     }
 
 
     private RegisterUserResponse processRegisterPortalUser( final RegisterUserRequest registerUserRequest,
                                                             final JMAuthData jmAuthData )
     {
-        try
-        {
-            final RegisterUserResponse registerPortalUserResponse = jmApplicationClient.registerPortalUser( jmAuthData.getBaseUri(),
-                                                                                                            "Bearer " + jmAuthData.getAccessToken(),
-                                                                                                            jmAuthData.getApiSubscriptionKey(),
-                                                                                                            registerUserRequest );
-            return registerPortalUserResponse;
-        }
-        catch ( FeignException e )
-        {
-            log.error( "IMPORTANT: An exception occurred when attempting to get a registerPortalUser response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
-            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
-        }
-        catch ( Exception e )
-        {
-            log.error( "IMPORTANT: An exception occurred when attempting to get a registerPortalUser response from JM: " + e.getMessage(), e );
-            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
-        }
+        //        try
+        //        {
+        return jmApplicationClient.registerPortalUser( jmAuthData.getBaseUri(),
+                                                       "Bearer " + jmAuthData.getAccessToken(),
+                                                       jmAuthData.getApiSubscriptionKey(),
+                                                       registerUserRequest );
+        //        }
+        //        catch ( FeignException e )
+        //        {
+        //            log.error( "IMPORTANT: An exception occurred when attempting to get a registerPortalUser response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
+        //            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
+        //        }
+        //        catch ( Exception e )
+        //        {
+        //            log.error( "IMPORTANT: An exception occurred when attempting to get a registerPortalUser response from JM: " + e.getMessage(), e );
+        //            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
+        //        }
     }
 
 
@@ -425,47 +424,47 @@ public class JmIntegrationServiceImpl
     private CreateAccountResponse getCreateAccountResponse( final CreateAccountRequest createAccountRequest,
                                                             final JMAuthData jmAuthData )
     {
-        try
-        {
-            CreateAccountResponse createAccountResponse = jmApplicationClient.createAccount( jmAuthData.getBaseUri(),
-                                                                                             "Bearer " + jmAuthData.getAccessToken(),
-                                                                                             jmAuthData.getApiSubscriptionKey(),
-                                                                                             createAccountRequest );
-            return createAccountResponse;
-        }
-        catch ( FeignException e )
-        {
-            log.error( "IMPORTANT: An exception occurred when attempting to get a createAccount response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
-            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
-        }
-        catch ( Exception e )
-        {
-            log.error( "IMPORTANT: An exception occurred when attempting to get a createAccount response from JM: " + e.getMessage(), e );
-            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
-        }
+        //        try
+        //        {
+        CreateAccountResponse createAccountResponse = jmApplicationClient.createAccount( jmAuthData.getBaseUri(),
+                                                                                         "Bearer " + jmAuthData.getAccessToken(),
+                                                                                         jmAuthData.getApiSubscriptionKey(),
+                                                                                         createAccountRequest );
+        return createAccountResponse;
+        //        }
+        //        catch ( FeignException e )
+        //        {
+        //            log.error( "IMPORTANT: An exception occurred when attempting to get a createAccount response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
+        //            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
+        //        }
+        //        catch ( Exception e )
+        //        {
+        //            log.error( "IMPORTANT: An exception occurred when attempting to get a createAccount response from JM: " + e.getMessage(), e );
+        //            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
+        //        }
     }
 
 
     private SubmitApplicationResponse getSubmitApplicationResponse( final SubmitApplicationRequest submitApplicationRequest,
                                                                     final JMAuthData jmAuthData )
     {
-        try
-        {
+//        try
+//        {
             final SubmitApplicationResponse response = jmApplicationClient.submitApplication( jmAuthData.getBaseUri(),
                                                                                               "Bearer " + jmAuthData.getAccessToken(),
                                                                                               jmAuthData.getApiSubscriptionKey(),
                                                                                               submitApplicationRequest );
             return response;
-        }
-        catch ( FeignException e )
-        {
-            log.error( "IMPORTANT: An exception occurred when attempting to get a submitApplication response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
-            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
-        }
-        catch ( Exception e )
-        {
-            log.error( "IMPORTANT: An exception occurred when attempting to get a submitApplication response from JM: " + e.getMessage(), e );
-            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
-        }
+//        }
+//        catch ( FeignException e )
+//        {
+//            log.error( "IMPORTANT: An exception occurred when attempting to get a submitApplication response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
+//            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
+//        }
+//        catch ( Exception e )
+//        {
+//            log.error( "IMPORTANT: An exception occurred when attempting to get a submitApplication response from JM: " + e.getMessage(), e );
+//            throw new ExternalApiException( "Unable to get response from URi: " + jmAuthData.getBaseUri() + " Message: " + e.getMessage(), e );
+//        }
     }
 }
