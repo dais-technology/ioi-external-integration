@@ -89,7 +89,7 @@ public interface JmIntegrationApi
     @RequestMapping( value = "/upload/appraisal",
                      method = RequestMethod.POST )
     @ApiOperation( value = "Upload Appraisal Doc" )
-    List<UploadAppraisalResponse> uploadAppraisal( @RequestBody final UploadAppraisalRequestDto request );
+    List<UploadAppraisalResponse> uploadAppraisal( @RequestBody @Valid final UploadAppraisalRequestDto request );
 
     @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/register/user",
