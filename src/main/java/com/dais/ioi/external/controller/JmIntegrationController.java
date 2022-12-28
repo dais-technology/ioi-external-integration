@@ -22,15 +22,13 @@ import com.dais.ioi.external.service.ExternalIntegrationService;
 import com.dais.ioi.external.service.action.jm.JmIntegrationServiceImpl;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import feign.FeignException;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -51,70 +49,33 @@ public class JmIntegrationController
     private final ObjectMapper objectMapper;
 
 
+    @SneakyThrows
     @Override
     public TriggerResponseDto getQuote( @Valid final FiredTriggerDto firedTriggerDto )
     {
         TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
-        try
-        {
-            log.info( "Received {}", objectMapper.writeValueAsString( firedTriggerDto ) );
+        log.info( "Received {}", objectMapper.writeValueAsString( firedTriggerDto ) );
 
-            triggerResponseDto = externalIntegrationService.process( firedTriggerDto );
+        triggerResponseDto = externalIntegrationService.process( firedTriggerDto );
 
-            log.info( "Responded with {} ", objectMapper.writeValueAsString( triggerResponseDto ) );
-        }
-
-        catch ( FeignException e )
-        {
-            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, new String( e.content() ) );
-        }
-
-        catch ( Exception e )
-        {
-            log.error( e.getMessage(), e );
-            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage() );
-        }
-
+        log.info( "Responded with {} ", objectMapper.writeValueAsString( triggerResponseDto ) );
         return triggerResponseDto;
     }
 
 
     @Override
     public QuoteDto getQuickQuote( @Valid final GetQuoteDto getQuoteDto )
+          throws Exception
     {
-        try
-        {
-            QuoteDto quoteDto = externalIntegrationService.getCachedQuickQuote( getQuoteDto );
-            return quoteDto;
-        }
-        catch ( FeignException e )
-        {
-            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.contentUTF8() );
-        }
-        catch ( Exception e )
-        {
-            log.error( e.getMessage(), e );
-            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage() );
-        }
+        return externalIntegrationService.getCachedQuickQuote( getQuoteDto );
     }
 
 
     @Override
     public AddPaymentPlanResponseDto addPaymentPlan( @Valid final AddPaymentPlanRequestDto addPaymentPlanRequest )
+          throws Exception
     {
-        try
-        {
-            return externalIntegrationService.addPaymentPlan( addPaymentPlanRequest );
-        }
-        catch ( FeignException e )
-        {
-            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.contentUTF8() );
-        }
-        catch ( Exception e )
-        {
-            log.error( e.getMessage(), e );
-            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage() );
-        }
+        return externalIntegrationService.addPaymentPlan( addPaymentPlanRequest );
     }
 
 
@@ -122,57 +83,21 @@ public class JmIntegrationController
     public CreateAccountResponse create( final CreateAccountRequest createAccountRequest )
           throws IllegalAccessException
     {
-        try
-        {
-            return jmIntegrationService.createAccount( createAccountRequest );
-        }
-        catch ( FeignException e )
-        {
-            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.contentUTF8() );
-        }
-        catch ( Exception e )
-        {
-            log.error( e.getMessage(), e );
-            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage() );
-        }
+        return jmIntegrationService.createAccount( createAccountRequest );
     }
 
 
     @Override
     public SubmitApplicationResponse submit( final SubmitApplicationRequest submitApplicationRequest )
     {
-        try
-        {
-            return jmIntegrationService.submitApplication( submitApplicationRequest );
-        }
-        catch ( FeignException e )
-        {
-            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.contentUTF8() );
-        }
-        catch ( Exception e )
-        {
-            log.error( e.getMessage(), e );
-            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage() );
-        }
+        return jmIntegrationService.submitApplication( submitApplicationRequest );
     }
 
 
     @Override
     public ResponseEntity<Resource> downloadApplication( final DownloadApplicationRequest downloadApplicationRequest )
     {
-        try
-        {
-            return jmIntegrationService.downloadApplication( downloadApplicationRequest );
-        }
-        catch ( FeignException e )
-        {
-            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.contentUTF8() );
-        }
-        catch ( Exception e )
-        {
-            log.error( e.getMessage(), e );
-            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage() );
-        }
+        return jmIntegrationService.downloadApplication( downloadApplicationRequest );
     }
 
 
@@ -180,19 +105,7 @@ public class JmIntegrationController
     public GetPolicyNumberResponse getPolicyNumber( final String accountNumber,
                                                     final JmSource jmSource )
     {
-        try
-        {
-            return jmIntegrationService.getPolicyNumber( accountNumber, jmSource );
-        }
-        catch ( FeignException e )
-        {
-            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.contentUTF8() );
-        }
-        catch ( Exception e )
-        {
-            log.error( e.getMessage(), e );
-            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage() );
-        }
+        return jmIntegrationService.getPolicyNumber( accountNumber, jmSource );
     }
 
 
@@ -206,19 +119,7 @@ public class JmIntegrationController
     @Override
     public RegisterUserResponse registerPortalUser( final RegisterUserRequest registerUserRequest )
     {
-        try
-        {
-            return jmIntegrationService.registerPortalUser( registerUserRequest );
-        }
-        catch ( FeignException e )
-        {
-            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.contentUTF8() );
-        }
-        catch ( Exception e )
-        {
-            log.error( e.getMessage(), e );
-            throw new ResponseStatusException( HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage() );
-        }
+        return jmIntegrationService.registerPortalUser( registerUserRequest );
     }
 
 

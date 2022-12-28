@@ -1008,7 +1008,7 @@ public class JMAddQuoteHelperImpl
 
             if ( itemDamage != null )
             {
-                item.setItemDamage( ("none".equalsIgnoreCase( itemDamage ) || itemDamage.isEmpty()) ? "no" : "yes" );
+                item.setItemDamage( ( "none".equalsIgnoreCase( itemDamage ) || itemDamage.isEmpty() ) ? "no" : "yes" );
             }
 
             final int finalItemNumber = itemNumber;

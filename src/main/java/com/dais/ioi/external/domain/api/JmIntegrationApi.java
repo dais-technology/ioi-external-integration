@@ -47,13 +47,17 @@ public interface JmIntegrationApi
     @RequestMapping( value = "/quote/jm/quickquote",
                      method = RequestMethod.POST )
     @ApiOperation( value = "Get JM quickQuote" )
-    QuoteDto getQuickQuote( @RequestBody @Valid GetQuoteDto firedTriggerDto );
+    QuoteDto getQuickQuote( @RequestBody @Valid GetQuoteDto firedTriggerDto )
+          throws Exception;
+
 
     @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/quote/jm/paymentplan",
                      method = RequestMethod.POST )
     @ApiOperation( value = "Get JM quickQuote" )
-    AddPaymentPlanResponseDto addPaymentPlan( @RequestBody @Valid final AddPaymentPlanRequestDto addPaymentPlanRequest );
+    AddPaymentPlanResponseDto addPaymentPlan( @RequestBody @Valid final AddPaymentPlanRequestDto addPaymentPlanRequest )
+          throws Exception;
+
 
     @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/submit/application",
@@ -80,18 +84,17 @@ public interface JmIntegrationApi
                      method = RequestMethod.GET )
     @ApiOperation( value = "Get Policy Number" )
     GetPolicyNumberResponse getPolicyNumber( @RequestParam( value = "accountNumber" ) final String accountNumber,
-                                             @RequestParam( value = "jmSource",
-                                                            required = false ) final JmSource jmSource ); //TODO: make this field required when FE is ready
+                                             @RequestParam( value = "jmSource" ) final JmSource jmSource );
 
 
     @ResponseStatus( HttpStatus.OK )
     @RequestMapping( value = "/upload/appraisal",
                      method = RequestMethod.POST )
     @ApiOperation( value = "Upload Appraisal Doc" )
-    List<UploadAppraisalResponse> uploadAppraisal( @RequestBody final UploadAppraisalRequestDto request );
+    List<UploadAppraisalResponse> uploadAppraisal( @RequestBody @Valid final UploadAppraisalRequestDto request );
 
     @ResponseStatus( HttpStatus.OK )
-    @RequestMapping( value = "/register/user/{lineId}",
+    @RequestMapping( value = "/register/user",
                      method = RequestMethod.POST )
     @ApiOperation( value = "Register Portal User" )
     RegisterUserResponse registerPortalUser( @RequestBody @Valid final RegisterUserRequest registerUserRequest );
