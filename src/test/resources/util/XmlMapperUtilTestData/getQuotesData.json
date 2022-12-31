@@ -1,0 +1,183 @@
+{
+  "signonRq": {
+    "clientApp": {
+      "org": "1"
+    }
+  },
+  "insuranceSvcRq": {
+    "rqUID": "58155c74-ef16-4091-858d-51671558238a",
+    "workCompPolicyQuoteInqRq": {
+      "transactionRequestDt": "2022-10-27",
+      "producer": {
+        "itemIdInfo": {
+          "agencyId": "CW48619"
+        },
+        "generalPartyInfo": {
+          "nameInfo": {
+            "id": "ProducerName",
+            "personName": {
+              "surname": "ch",
+              "givenName": "Haala"
+            }
+          }
+        }
+      },
+      "insuredOrPrincipal": {
+        "id": "n0",
+        "generalPartyInfo": {
+          "nameInfo": {
+            "commlName": {
+              "commercialName": "WTest"
+            },
+            "legalEntityCd": "CORPORATION",
+            "taxIdentity": [
+              {
+                "taxId": "654979854"
+              }
+            ]
+          },
+          "addr": {
+            "addrTypeCd": "MailingAddress",
+            "addr1": "435 Tasso Street",
+            "city": "Palo Alto",
+            "stateProvCd": "CA",
+            "postalCode": "94301",
+            "countryCd": "US"
+          },
+          "communications": {
+            "phoneInfo": {
+              "phoneNumber": "2014497192"
+            },
+            "emailInfo": {
+              "emailAddr": "testops@webomates.com"
+            }
+          }
+        }
+      },
+      "commlPolicy": {
+        "controllingStateProvCd": "CA",
+        "comAfgTotalEmployees": 5,
+        "contractTerm": {
+          "effectiveDt": "2022-12-30",
+          "expirationDt": "2023-12-30"
+        },
+        "commlPolicySupplement": {
+          "operationsDesc": "WTest is a(n) Continuing Care Retirement Community company with operations primarily located in Palo Alto, CA.",
+          "lengthTimeInBusiness": {
+            "numUnits": 6
+          },
+          "lossDataAvailable": "N"
+        }
+      },
+      "location": [
+        {
+          "id": "l1",
+          "addr": {
+            "addr1": "435 Tasso Street",
+            "city": "Palo Alto",
+            "stateProvCd": "CA",
+            "postalCode": "94301"
+          }
+        },
+        {
+          "id": "l2",
+          "addr": {
+            "addr1": "144 Melrose Street",
+            "city": "Palo Alto",
+            "stateProvCd": "CA",
+            "postalCode": "94301"
+          }
+        }
+      ],
+      "workCompLineBusiness": {
+        "workCompRateState": [
+          {
+            "workCompLocInfo": [
+              {
+                "locationRef": "l1",
+                "workCompRateClass": [
+                  {
+                    "ratingClassificationCd": "9070",
+                    "ratingClassificationSubCd": "01",
+                    "exposure": "50000"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "workCompLocInfo": [
+              {
+                "locationRef": "l2",
+                "workCompRateClass": [
+                  {
+                    "ratingClassificationCd": "9070",
+                    "ratingClassificationLetter": null,
+                    "ratingClassificationSubCd": "01",
+                    "exposure": "50000",
+                    "classCodeQuestions": {
+                      "classCodeQuestion": [
+                        {
+                          "questionId": "r4:ml:349",
+                          "responseInd": "N",
+                          "percentageAnswerValue": "10",
+                          "optionResponse": [
+                            {
+                              "yesOptionResponse": "N"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "commlCoverage": {
+          "coverageCd": "WC7WorkersCompEmpLiabInsurancePolicyACov",
+          "coverageDesc": "Employers Liability",
+          "limit": [
+            {
+              "formatCurrencyAmt": {
+                "amt": "1000000"
+              },
+              "limitAppliesToCd": "EachClaim"
+            },
+            {
+              "formatCurrencyAmt": {
+                "amt": "1000000"
+              },
+              "limitAppliesToCd": "PolicyLimit"
+            }
+          ]
+        },
+        "ineligibility": {
+          "questionAnswer": [
+            {
+              "questionCd": "WC7Wrecking",
+              "yesNoCd": "N"
+            },
+            {
+              "questionCd": "WC7Asbestos_Ext",
+              "yesNoCd": "N"
+            }
+          ]
+        },
+        "statement": {
+          "questionAnswer": [
+            {
+              "questionCd": "WC7Sublet",
+              "yesNoCd": "N"
+            },
+            {
+              "questionCd": "WC7GroundTransport",
+              "yesNoCd": "N"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
