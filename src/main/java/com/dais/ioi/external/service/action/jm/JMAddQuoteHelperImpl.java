@@ -1574,12 +1574,8 @@ public class JMAddQuoteHelperImpl
 
         if ( addQuoteResult == null || CollectionUtils.isEmpty( addQuoteResult.getErrorMessages() ) )
         {
-            addQuoteResult = AddQuoteResult.builder().errorMessages( Arrays.asList( "An Error Occurred when calling JM UpdateQuote." ) )
+            addQuoteResult = AddQuoteResult.builder().errorMessages( Arrays.asList( GENERIC_FAILED_QUOTE_MESSSAGE ) )
                                            .respMessageList( Arrays.asList( GENERIC_FAILED_QUOTE_MESSSAGE ) ).build();
-        }
-        else if ( CollectionUtils.isEmpty( addQuoteResult.getRespMessageList() ) )
-        {
-            addQuoteResult.setRespMessageList( addQuoteResult.getErrorMessages() );
         }
 
         return addQuoteResult;
