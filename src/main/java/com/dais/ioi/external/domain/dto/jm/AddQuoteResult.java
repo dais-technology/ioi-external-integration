@@ -24,8 +24,7 @@ public class AddQuoteResult
 
     public boolean isCoverageAvailable;
 
-    //TODO: List<String>
-    public List<Object> errorMessages;
+    public List<String> errorMessages;
 
     public RatingInfo ratingInfo;
 

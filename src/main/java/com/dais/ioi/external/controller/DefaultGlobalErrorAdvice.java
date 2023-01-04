@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -31,7 +32,7 @@ public class DefaultGlobalErrorAdvice
 
         if ( ex.status() == 400 || ex.status() == 404 )
         {
-            ErrorResponseDto errorResponse;
+            ErrorResponseDto errorResponse = null;
             try
             {
                 errorResponse = objectMapper.readValue( ex.contentUTF8(), ErrorResponseDto.class );
@@ -39,6 +40,10 @@ public class DefaultGlobalErrorAdvice
             catch ( Exception e )
             {
                 log.error( "IMPORTANT: Error while parsing exception content to ErrorResponseDto. Content: {}", ex.contentUTF8() );
+            }
+
+            if ( errorResponse == null || CollectionUtils.isEmpty( errorResponse.getErrorList() ) )
+            {
                 errorResponse = ErrorResponseDto.builder().errorList( Arrays.asList( GENERIC_ERROR_RESPONSE ) ).build();
             }
 

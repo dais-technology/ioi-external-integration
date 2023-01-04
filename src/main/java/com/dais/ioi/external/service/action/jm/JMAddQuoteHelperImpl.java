@@ -43,6 +43,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -418,15 +419,8 @@ public class JMAddQuoteHelperImpl
         catch ( FeignException e )
         {
             log.error( "IMPORTANT: An exception occurred when attempting to get a UpdateQuote response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
-            log.error( "IMPORTANT: an error occured when calling JM UpdateQuote: " + e.getMessage() );
-            List<Object> errorMessages = new ArrayList<>();
-            errorMessages.add( "An Error Occured when calling JM UpdateQuote." );
-            //TODO: Parse out error message to extract cause
-            errorMessages.add( e.contentUTF8() );
-
-            List<String> respMessages = new ArrayList<>();
-            respMessages.add( GENERIC_FAILED_QUOTE_MESSSAGE );
-            return AddQuoteResult.builder().errorMessages( errorMessages ).respMessageList( respMessages ).build();
+            log.error( "IMPORTANT: an error occurred when calling JM UpdateQuote: " + e.getMessage() );
+            return processFeignException( e );
         }
     }
 
@@ -445,15 +439,8 @@ public class JMAddQuoteHelperImpl
         catch ( FeignException e )
         {
             log.error( "IMPORTANT: An exception occurred when attempting to get a AddQuote response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
-            log.error( "IMPORTANT: an error occured when calling JM AddQuote: " + e.getMessage() );
-            List<Object> errorMessages = new ArrayList<>();
-            errorMessages.add( "An Error Occured when calling JM AddQuote." );
-            //TODO: Parse out error message to extract cause
-            errorMessages.add( e.contentUTF8() );
-
-            List<String> respMessages = new ArrayList<>();
-            respMessages.add( GENERIC_FAILED_QUOTE_MESSSAGE );
-            return AddQuoteResult.builder().errorMessages( errorMessages ).respMessageList( respMessages ).build();
+            log.error( "IMPORTANT: an error occurred when calling JM AddQuote: " + e.getMessage() );
+            return processFeignException( e );
         }
     }
 
@@ -617,8 +604,8 @@ public class JMAddQuoteHelperImpl
                 primaryContact.setMailingAddress( mailingAddress );
             }
         }
-        else if (getValue( () -> intake.get( actionJMSQuoteSpecDto.getHasMailingAddr() ).getAnswer(),
-                           StringUtils.EMPTY ).equals( "[\"Is this your Mailing Address?\"]" ))
+        else if ( getValue( () -> intake.get( actionJMSQuoteSpecDto.getHasMailingAddr() ).getAnswer(),
+                            StringUtils.EMPTY ).equals( "[\"Is this your Mailing Address?\"]" ) )
         {
             addQuoteRequest.setIsMailingAddressSame( true );
         }
@@ -1567,5 +1554,34 @@ public class JMAddQuoteHelperImpl
         externalQuoteDataDto.setClientId( clientId );
 
         externalQuoteDataService.saveOrUpdate( externalQuoteDataDto );
+    }
+
+
+    private AddQuoteResult processFeignException( final FeignException e )
+    {
+        AddQuoteResult addQuoteResult = null;
+        if ( e.status() == 400 )
+        {
+            try
+            {
+                addQuoteResult = objectMapper.readValue( e.contentUTF8(), AddQuoteResult.class );
+            }
+            catch ( Exception ex )
+            {
+                log.error( "IMPORTANT: Error while parsing exception content to AddQuoteResult. Content: {}", e.contentUTF8() );
+            }
+        }
+
+        if ( addQuoteResult == null || CollectionUtils.isEmpty( addQuoteResult.getErrorMessages() ) )
+        {
+            addQuoteResult = AddQuoteResult.builder().errorMessages( Arrays.asList( "An Error Occurred when calling JM UpdateQuote." ) )
+                                           .respMessageList( Arrays.asList( GENERIC_FAILED_QUOTE_MESSSAGE ) ).build();
+        }
+        else if ( CollectionUtils.isEmpty( addQuoteResult.getRespMessageList() ) )
+        {
+            addQuoteResult.setRespMessageList( addQuoteResult.getErrorMessages() );
+        }
+
+        return addQuoteResult;
     }
 }
