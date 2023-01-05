@@ -79,6 +79,8 @@ public class JMAddQuoteHelperImpl
 
     private static final String GENERIC_FAILED_QUOTE_MESSSAGE = "We are unable to provide a quote at this time.";
 
+    private static final String GENERIC_ERROR_MESSSAGE = "An Error Occurred when calling JM Add or Update Quote.";
+
     private final JMQuoteClient jmQuoteClient;
 
     private final ObjectMapper objectMapper;
@@ -1574,7 +1576,7 @@ public class JMAddQuoteHelperImpl
 
             if ( addQuoteResult == null )
             {
-                addQuoteResult = AddQuoteResult.builder().errorMessages( Arrays.asList( "An Error Occurred when calling JM Add or Update Quote." ) )
+                addQuoteResult = AddQuoteResult.builder().errorMessages( Arrays.asList( GENERIC_ERROR_MESSSAGE ) )
                                                .respMessageList( Arrays.asList( GENERIC_FAILED_QUOTE_MESSSAGE ) ).build();
             }
             if ( CollectionUtils.isEmpty( addQuoteResult.getRespMessageList() ) )
@@ -1583,12 +1585,12 @@ public class JMAddQuoteHelperImpl
             }
             if ( CollectionUtils.isEmpty( addQuoteResult.getErrorMessages() ) )
             {
-                addQuoteResult.setErrorMessages( Arrays.asList( "An Error Occurred when calling JM Add or Update Quote." ) );
+                addQuoteResult.setErrorMessages( Arrays.asList( GENERIC_ERROR_MESSSAGE ) );
             }
         }
         else
         {
-            addQuoteResult = AddQuoteResult.builder().errorMessages( Arrays.asList( "An Error Occurred when calling JM Add or Update Quote." ) )
+            addQuoteResult = AddQuoteResult.builder().errorMessages( Arrays.asList( GENERIC_ERROR_MESSSAGE ) )
                                            .respMessageList( Arrays.asList( GENERIC_FAILED_QUOTE_MESSSAGE ) ).build();
         }
         return addQuoteResult;
