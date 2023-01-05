@@ -11,5 +11,6 @@ public enum IntegrationType
     JM_GET_POLICY_NUMBER,
     JM_UPLOAD_APPRAISAL,
     JM_REGISTER_PORTAL_USER,
-    JM_AUTH
+    JM_AUTH,
+    TRANSUNION_AUTH
 }

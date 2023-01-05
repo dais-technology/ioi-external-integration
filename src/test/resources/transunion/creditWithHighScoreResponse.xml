@@ -1,0 +1,555 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<creditBureau xmlns="http://www.transunion.com/namespace" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://www.transunion.com/namespace">
+    <document>response</document>
+    <version>2.31</version>
+    <transactionControl>
+        <userRefNumber>12345</userRefNumber>
+        <subscriber>
+            <industryCode>I</industryCode>
+            <memberCode>9007220</memberCode>
+            <inquirySubscriberPrefixCode>0622</inquirySubscriberPrefixCode>
+        </subscriber>
+        <options>
+            <country>us</country>
+            <language>en</language>
+            <productVersion>standard</productVersion>
+        </options>
+        <tracking>
+            <transactionTimeStamp>2022-02-15T15:00:51.969-06:00</transactionTimeStamp>
+        </tracking>
+    </transactionControl>
+    <product><code>07000</code>
+        <subject>
+            <number>1</number>
+            <subjectRecord>
+                <fileNumber>01</fileNumber>
+                <fileSummary>
+                    <fileHitIndicator>regularHit</fileHitIndicator>
+                    <ssnMatchIndicator>exact</ssnMatchIndicator>
+                    <consumerStatementIndicator>false</consumerStatementIndicator>
+                    <market>09</market>
+                    <submarket>MS</submarket>
+                    <creditDataStatus>
+                        <suppressed>false</suppressed>
+                        <doNotPromote>
+                            <indicator>false</indicator>
+                        </doNotPromote>
+                        <freeze>
+                            <indicator>false</indicator>
+                        </freeze>
+                        <minor>false</minor>
+                        <disputed>false</disputed>
+                    </creditDataStatus>
+                    <inFileSinceDate estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                     estimatedYear="false">1996-09-01</inFileSinceDate>
+                </fileSummary>
+                <indicative>
+                    <name source="file">
+                        <person>
+                            <first>ROBERT</first>
+                            <middle>G</middle>
+                            <last>LOZAN</last>
+                        </person>
+                    </name>
+                    <name source="file">
+                        <qualifier>alsoKnownAs</qualifier>
+                        <person>
+                            <unparsed>LOZANJR,ROBERT,G</unparsed>
+                        </person>
+                    </name>
+                    <address source="file">
+                        <status>current</status>
+                        <qualifier>personal</qualifier>
+                        <street>
+                            <number>1033</number>
+                            <name>INDIAN</name>
+                            <preDirectional>S</preDirectional>
+                            <type>TR</type>
+                        </street>
+                        <location>
+                            <city>AFTON</city>
+                            <state>MN</state>
+                            <zipCode>55001</zipCode>
+                        </location>
+                    </address>
+                    <address source="file">
+                        <status>previous</status>
+                        <qualifier>personal</qualifier>
+                        <street>
+                            <number>272</number>
+                            <name>WOODLAWN</name>
+                            <type>AV</type>
+                        </street>
+                        <location>
+                            <city>SAINT PAUL</city>
+                            <state>MN</state>
+                            <zipCode>55105</zipCode>
+                        </location>
+                        <dateReported estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                      estimatedYear="false">2014-10-31</dateReported>
+                    </address>
+                    <address source="file">
+                        <status>previous</status>
+                        <qualifier>personal</qualifier>
+                        <street>
+                            <number>1239</number>
+                            <name>BAYARD</name>
+                            <type>AV</type>
+                        </street>
+                        <location>
+                            <city>SAINT PAUL</city>
+                            <state>MN</state>
+                            <zipCode>55116</zipCode>
+                        </location>
+                    </address>
+                    <socialSecurity source="file">
+                        <number>666778421</number>
+                    </socialSecurity>
+                    <dateOfBirth estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                 estimatedYear="false" source="file">1993-09-01</dateOfBirth>
+                </indicative>
+                <custom>
+                    <credit>
+                        <trade>
+                            <subscriber>
+                                <industryCode>B</industryCode>
+                                <memberCode>024HX004</memberCode>
+                                <name>
+                                    <unparsed>LAKE ELMO BK</unparsed>
+                                </name>
+                            </subscriber>
+                            <portfolioType>lineOfCredit</portfolioType>
+                            <accountNumber>2X4</accountNumber>
+                            <ECOADesignator>participant</ECOADesignator>
+                            <dateOpened estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                        estimatedYear="false">2007-05-24</dateOpened>
+                            <dateEffective estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                           estimatedYear="false">2022-01-09</dateEffective>
+                            <currentBalance>000001000</currentBalance>
+                            <highCredit>000001000</highCredit>
+                            <creditLimit>000001000</creditLimit>
+                            <accountRating>01</accountRating>
+                            <terms>
+                                <paymentScheduleMonthCount>MIN</paymentScheduleMonthCount>
+                                <scheduledMonthlyPayment>000000025</scheduledMonthlyPayment>
+                            </terms>
+                            <account>
+                                <type>LC</type>
+                            </account>
+                            <pastDue>000000000</pastDue>
+                            <paymentHistory>
+                                <paymentPattern>
+                                    <startDate estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                               estimatedYear="false">2021-12-09</startDate>
+                                    <text>111111111111111111111111111111111111111111111111</text>
+                                </paymentPattern>
+                                <historicalCounters>
+                                    <monthsReviewedCount>48</monthsReviewedCount>
+                                    <late30DaysTotal>00</late30DaysTotal>
+                                    <late60DaysTotal>00</late60DaysTotal>
+                                    <late90DaysTotal>00</late90DaysTotal>
+                                </historicalCounters>
+                            </paymentHistory>
+                            <mostRecentPayment>
+                                <date estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                      estimatedYear="false">2021-11-30</date>
+                            </mostRecentPayment>
+                            <updateMethod>automated</updateMethod>
+                        </trade>
+                        <trade>
+                            <subscriber>
+                                <industryCode>B</industryCode>
+                                <memberCode>024HX004</memberCode>
+                                <name>
+                                    <unparsed>LAKE ELMO BK</unparsed>
+                                </name>
+                            </subscriber>
+                            <portfolioType>lineOfCredit</portfolioType>
+                            <accountNumber>8X0X</accountNumber>
+                            <ECOADesignator>individual</ECOADesignator>
+                            <dateOpened estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                        estimatedYear="false">2012-04-21</dateOpened>
+                            <dateEffective estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                           estimatedYear="false">2022-01-09</dateEffective>
+                            <datePaidOut estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                         estimatedYear="false">2017-08-07</datePaidOut>
+                            <currentBalance>000000000</currentBalance>
+                            <highCredit>000035081</highCredit>
+                            <creditLimit>000050000</creditLimit>
+                            <accountRating>01</accountRating>
+                            <account>
+                                <type>HE</type>
+                            </account>
+                            <pastDue>000000000</pastDue>
+                            <paymentHistory>
+                                <paymentPattern>
+                                    <startDate estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                               estimatedYear="false">2021-12-09</startDate>
+                                    <text>111111111111111111111111111111111111111111111111</text>
+                                </paymentPattern>
+                                <historicalCounters>
+                                    <monthsReviewedCount>48</monthsReviewedCount>
+                                    <late30DaysTotal>00</late30DaysTotal>
+                                    <late60DaysTotal>00</late60DaysTotal>
+                                    <late90DaysTotal>00</late90DaysTotal>
+                                </historicalCounters>
+                            </paymentHistory>
+                            <mostRecentPayment>
+                                <date estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                      estimatedYear="false">2017-08-07</date>
+                            </mostRecentPayment>
+                            <updateMethod>automated</updateMethod>
+                        </trade>
+                        <trade>
+                            <subscriber>
+                                <industryCode>B</industryCode>
+                                <memberCode>01DTV001</memberCode>
+                                <name>
+                                    <unparsed>CAPITAL ONE</unparsed>
+                                </name>
+                            </subscriber>
+                            <portfolioType>revolving</portfolioType>
+                            <accountNumber>400347610875</accountNumber>
+                            <ECOADesignator>individual</ECOADesignator>
+                            <dateOpened estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                        estimatedYear="false">2016-10-07</dateOpened>
+                            <dateEffective estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                           estimatedYear="false">2021-12-09</dateEffective>
+                            <currentBalance>000003992</currentBalance>
+                            <highCredit>000014990</highCredit>
+                            <creditLimit>000030000</creditLimit>
+                            <accountRating>01</accountRating>
+                            <terms>
+                                <paymentScheduleMonthCount>MIN</paymentScheduleMonthCount>
+                                <scheduledMonthlyPayment>000000039</scheduledMonthlyPayment>
+                            </terms>
+                            <account>
+                                <type>CC</type>
+                            </account>
+                            <pastDue>000000000</pastDue>
+                            <paymentHistory>
+                                <paymentPattern>
+                                    <startDate estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                               estimatedYear="false">2021-11-09</startDate>
+                                    <text>111111111111111111111111111111111111111111111111</text>
+                                </paymentPattern>
+                                <historicalCounters>
+                                    <monthsReviewedCount>48</monthsReviewedCount>
+                                    <late30DaysTotal>00</late30DaysTotal>
+                                    <late60DaysTotal>00</late60DaysTotal>
+                                    <late90DaysTotal>00</late90DaysTotal>
+                                </historicalCounters>
+                            </paymentHistory>
+                            <mostRecentPayment>
+                                <date estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                      estimatedYear="false">2021-11-20</date>
+                            </mostRecentPayment>
+                            <updateMethod>automated</updateMethod>
+                        </trade>
+                        <trade>
+                            <subscriber>
+                                <industryCode>Q</industryCode>
+                                <memberCode>03946020</memberCode>
+                                <name>
+                                    <unparsed>AMER HONDA</unparsed>
+                                </name>
+                            </subscriber>
+                            <portfolioType>installment</portfolioType>
+                            <accountNumber>1X1X4X0X2</accountNumber>
+                            <ECOADesignator>individual</ECOADesignator>
+                            <dateOpened estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                        estimatedYear="false">2021-09-30</dateOpened>
+                            <dateEffective estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                           estimatedYear="false">2021-11-22</dateEffective>
+                            <dateClosed estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                        estimatedYear="false">2021-11-22</dateClosed>
+                            <closedIndicator>normal</closedIndicator>
+                            <currentBalance>000000000</currentBalance>
+                            <highCredit>000017361</highCredit>
+                            <accountRating>01</accountRating>
+                            <remark><code>CLO</code>
+                                <type>affiliate</type>
+                            </remark>
+                            <terms>
+                                <paymentFrequency>monthly</paymentFrequency>
+                                <paymentScheduleMonthCount>025</paymentScheduleMonthCount>
+                                <scheduledMonthlyPayment>000000730</scheduledMonthlyPayment>
+                            </terms>
+                            <account>
+                                <type>AU</type>
+                            </account>
+                            <pastDue>000000000</pastDue>
+                            <paymentHistory />
+                            <mostRecentPayment>
+                                <date estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                      estimatedYear="false">2021-11-22</date>
+                            </mostRecentPayment>
+                            <updateMethod>automated</updateMethod>
+                        </trade>
+                        <trade>
+                            <subscriber>
+                                <industryCode>B</industryCode>
+                                <memberCode>024HX004</memberCode>
+                                <name>
+                                    <unparsed>LAKE ELMO BK</unparsed>
+                                </name>
+                            </subscriber>
+                            <portfolioType>lineOfCredit</portfolioType>
+                            <accountNumber>2X8</accountNumber>
+                            <ECOADesignator>participant</ECOADesignator>
+                            <dateOpened estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                        estimatedYear="false">2012-04-23</dateOpened>
+                            <dateEffective estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                           estimatedYear="false">2021-10-06</dateEffective>
+                            <dateClosed estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                        estimatedYear="false">2021-06-27</dateClosed>
+                            <closedIndicator>normal</closedIndicator>
+                            <datePaidOut estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                         estimatedYear="false">2021-06-26</datePaidOut>
+                            <currentBalance>000000000</currentBalance>
+                            <highCredit>000000600</highCredit>
+                            <creditLimit>000001000</creditLimit>
+                            <accountRating>01</accountRating>
+                            <remark><code>CLO</code>
+                                <type>affiliate</type>
+                            </remark>
+                            <account>
+                                <type>LC</type>
+                            </account>
+                            <pastDue>000000000</pastDue>
+                            <paymentHistory>
+                                <paymentPattern>
+                                    <startDate estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                               estimatedYear="false">2021-09-06</startDate>
+                                    <text>111111111111111111111111111111111111111111111111</text>
+                                </paymentPattern>
+                                <historicalCounters>
+                                    <monthsReviewedCount>48</monthsReviewedCount>
+                                    <late30DaysTotal>00</late30DaysTotal>
+                                    <late60DaysTotal>00</late60DaysTotal>
+                                    <late90DaysTotal>00</late90DaysTotal>
+                                </historicalCounters>
+                            </paymentHistory>
+                            <mostRecentPayment>
+                                <date estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                      estimatedYear="false">2021-06-26</date>
+                            </mostRecentPayment>
+                            <updateMethod>automated</updateMethod>
+                        </trade>
+                        <trade>
+                            <subscriber>
+                                <industryCode>A</industryCode>
+                                <memberCode>03835003</memberCode>
+                                <name>
+                                    <unparsed>CRDT FIRST</unparsed>
+                                </name>
+                            </subscriber>
+                            <portfolioType>revolving</portfolioType>
+                            <accountNumber>5X0X3</accountNumber>
+                            <ECOADesignator>individual</ECOADesignator>
+                            <dateOpened estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                        estimatedYear="false">2013-09-24</dateOpened>
+                            <dateEffective estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                           estimatedYear="false">2020-05-05</dateEffective>
+                            <datePaidOut estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                         estimatedYear="false">2020-04-30</datePaidOut>
+                            <currentBalance>000000000</currentBalance>
+                            <highCredit>000001677</highCredit>
+                            <creditLimit>000002800</creditLimit>
+                            <accountRating>01</accountRating>
+                            <account>
+                                <type>CH</type>
+                            </account>
+                            <pastDue>000000000</pastDue>
+                            <paymentHistory>
+                                <paymentPattern>
+                                    <startDate estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                               estimatedYear="false">2020-04-05</startDate>
+                                    <text>1XXXXXXXXX11XX111X1111111111111X11X111111XX11X11</text>
+                                </paymentPattern>
+                                <historicalCounters>
+                                    <monthsReviewedCount>48</monthsReviewedCount>
+                                    <late30DaysTotal>00</late30DaysTotal>
+                                    <late60DaysTotal>00</late60DaysTotal>
+                                    <late90DaysTotal>00</late90DaysTotal>
+                                </historicalCounters>
+                            </paymentHistory>
+                            <mostRecentPayment>
+                                <date estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                      estimatedYear="false">2020-04-30</date>
+                            </mostRecentPayment>
+                            <updateMethod>automated</updateMethod>
+                        </trade>
+                        <trade>
+                            <subscriber>
+                                <industryCode>Q</industryCode>
+                                <memberCode>0214M002</memberCode>
+                                <name>
+                                    <unparsed>SPIRE CU</unparsed>
+                                </name>
+                            </subscriber>
+                            <portfolioType>installment</portfolioType>
+                            <accountNumber>2X1X9X0X0X</accountNumber>
+                            <ECOADesignator>coSigner</ECOADesignator>
+                            <dateOpened estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                        estimatedYear="false">2014-08-08</dateOpened>
+                            <dateEffective estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                           estimatedYear="false">2018-01-15</dateEffective>
+                            <dateClosed estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                        estimatedYear="false">2018-01-15</dateClosed>
+                            <closedIndicator>normal</closedIndicator>
+                            <currentBalance>000000000</currentBalance>
+                            <highCredit>000016124</highCredit>
+                            <accountRating>01</accountRating>
+                            <remark><code>CLO</code>
+                                <type>affiliate</type>
+                            </remark>
+                            <terms>
+                                <paymentFrequency>monthly</paymentFrequency>
+                                <paymentScheduleMonthCount>060</paymentScheduleMonthCount>
+                                <scheduledMonthlyPayment>000000293</scheduledMonthlyPayment>
+                            </terms>
+                            <account>
+                                <type>AU</type>
+                            </account>
+                            <pastDue>000000000</pastDue>
+                            <paymentHistory>
+                                <paymentPattern>
+                                    <startDate estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                               estimatedYear="false">2017-12-15</startDate>
+                                    <text>1111111111111111111111111111111111111111</text>
+                                </paymentPattern>
+                                <historicalCounters>
+                                    <monthsReviewedCount>40</monthsReviewedCount>
+                                    <late30DaysTotal>00</late30DaysTotal>
+                                    <late60DaysTotal>00</late60DaysTotal>
+                                    <late90DaysTotal>00</late90DaysTotal>
+                                </historicalCounters>
+                            </paymentHistory>
+                            <mostRecentPayment>
+                                <date estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                      estimatedYear="false">2018-01-15</date>
+                            </mostRecentPayment>
+                            <updateMethod>automated</updateMethod>
+                        </trade>
+                        <trade>
+                            <subscriber>
+                                <industryCode>B</industryCode>
+                                <memberCode>021WB001</memberCode>
+                                <name>
+                                    <unparsed>AMEX</unparsed>
+                                </name>
+                            </subscriber>
+                            <portfolioType>revolving</portfolioType>
+                            <accountNumber>3499951209325093</accountNumber>
+                            <ECOADesignator>individual</ECOADesignator>
+                            <dateOpened estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                        estimatedYear="false">2016-04-01</dateOpened>
+                            <dateEffective estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                           estimatedYear="false">2017-11-11</dateEffective>
+                            <dateClosed estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                        estimatedYear="false">2017-10-11</dateClosed>
+                            <closedIndicator>normal</closedIndicator>
+                            <datePaidOut estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                         estimatedYear="false">2017-09-01</datePaidOut>
+                            <currentBalance>000000000</currentBalance>
+                            <highCredit>000008602</highCredit>
+                            <creditLimit>000020000</creditLimit>
+                            <accountRating>01</accountRating>
+                            <remark><code>CBC</code>
+                                <type>affiliate</type>
+                            </remark>
+                            <account>
+                                <type>CC</type>
+                            </account>
+                            <pastDue>000000000</pastDue>
+                            <paymentHistory>
+                                <paymentPattern>
+                                    <startDate estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                               estimatedYear="false">2017-10-11</startDate><text>11111111111111111</text>
+                                </paymentPattern>
+                                <historicalCounters>
+                                    <monthsReviewedCount>17</monthsReviewedCount>
+                                    <late30DaysTotal>00</late30DaysTotal>
+                                    <late60DaysTotal>00</late60DaysTotal>
+                                    <late90DaysTotal>00</late90DaysTotal>
+                                </historicalCounters>
+                            </paymentHistory>
+                            <mostRecentPayment>
+                                <date estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                      estimatedYear="false">2017-09-01</date>
+                            </mostRecentPayment>
+                            <updateMethod>automated</updateMethod>
+                        </trade>
+                        <trade>
+                            <subscriber>
+                                <industryCode>B</industryCode>
+                                <memberCode>09564005</memberCode>
+                                <name>
+                                    <unparsed>US BANK</unparsed>
+                                </name>
+                            </subscriber>
+                            <portfolioType>revolving</portfolioType>
+                            <accountNumber>419005374755</accountNumber>
+                            <ECOADesignator>jointContractLiability</ECOADesignator>
+                            <dateOpened estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                        estimatedYear="false">2005-11-01</dateOpened>
+                            <dateEffective estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                           estimatedYear="false">2021-03-31</dateEffective>
+                            <dateClosed estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                        estimatedYear="false">2017-01-01</dateClosed>
+                            <closedIndicator>normal</closedIndicator>
+                            <currentBalance>000000000</currentBalance>
+                            <highCredit>000000000</highCredit>
+                            <creditLimit>000028000</creditLimit>
+                            <accountRating>UR</accountRating>
+                            <account>
+                                <type>CC</type>
+                            </account>
+                            <pastDue>000000000</pastDue>
+                            <paymentHistory>
+                                <paymentPattern>
+                                    <startDate estimatedDay="false" estimatedMonth="false" estimatedCentury="false"
+                                               estimatedYear="false">2021-02-28</startDate><text>111111111111</text>
+                                </paymentPattern>
+                                <historicalCounters>
+                                    <monthsReviewedCount>12</monthsReviewedCount>
+                                    <late30DaysTotal>00</late30DaysTotal>
+                                    <late60DaysTotal>00</late60DaysTotal>
+                                    <late90DaysTotal>00</late90DaysTotal>
+                                </historicalCounters>
+                            </paymentHistory>
+                            <updateMethod>automated</updateMethod>
+                        </trade>
+                    </credit>
+                </custom>
+                <addOnProduct><code>00W52</code>
+                    <status>defaultDelivered</status>
+                    <scoreModel>
+                        <score>
+                            <results>+877</results>
+                            <derogatoryAlert>false</derogatoryAlert>
+                            <fileInquiriesImpactedScore>false</fileInquiriesImpactedScore>
+                            <factors>
+                                <factor>
+                                    <rank>1</rank><code>G52</code>
+                                </factor>
+                                <factor>
+                                    <rank>2</rank><code>GAQ</code>
+                                </factor>
+                                <factor>
+                                    <rank>3</rank><code>G46</code>
+                                </factor>
+                                <factor>
+                                    <rank>4</rank><code>U47</code>
+                                </factor>
+                            </factors>
+                            <scoreCard>01</scoreCard>
+                        </score>
+                    </scoreModel>
+                </addOnProduct>
+            </subjectRecord>
+        </subject>
+    </product>
+</creditBureau>

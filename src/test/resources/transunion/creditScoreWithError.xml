@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<creditBureau xmlns="http://www.transunion.com/namespace">
+    <document>response</document>
+    <version>2.31</version>
+    <transactionControl>
+        <subscriber />
+    </transactionControl>
+    <product><code/><error><code>101</code>
+        <description>FFI segment contains an invalid segment ID.</description>
+    </error>
+    </product>
+</creditBureau>
