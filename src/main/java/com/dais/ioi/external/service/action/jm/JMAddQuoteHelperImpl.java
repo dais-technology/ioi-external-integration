@@ -79,6 +79,8 @@ public class JMAddQuoteHelperImpl
 
     private static final String GENERIC_FAILED_QUOTE_MESSSAGE = "We are unable to provide a quote at this time.";
 
+    private static final String GENERIC_ERROR_MESSSAGE = "An Error Occurred when calling JM Add or Update Quote.";
+
     private final JMQuoteClient jmQuoteClient;
 
     private final ObjectMapper objectMapper;
@@ -196,16 +198,16 @@ public class JMAddQuoteHelperImpl
 
 
             // This block will be hit if there is no coverage and the http response is 200
-            if ( addQuoteResult.isCoverageAvailable == false )
+            if ( addQuoteResult.getIsCoverageAvailable() == null || addQuoteResult.getIsCoverageAvailable() == false )
             {
 
-                log.info( "(" + requestId.toString() + ") IMPORTANT: JM ADDQUOTE Has Been Rejected due to isCoverageAvailable flag is false.  Constructing Rejected QuoteDto" );
+                log.info( "(" + requestId.toString() + ") IMPORTANT: JM ADDQUOTE Has Been Rejected due to isCoverageAvailable flag is false or is null.  Constructing Rejected QuoteDto" );
                 TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
 
                 HashMap<String, Object> metaDatamap = new HashMap<>();
 
                 metaDatamap.put( "isUnderwritingNeeded", addQuoteResult.isUnderwritingNeeded() );
-                metaDatamap.put( "isCoverageAvailable", addQuoteResult.isCoverageAvailable() );
+                metaDatamap.put( "isCoverageAvailable", addQuoteResult.getIsCoverageAvailable() );
                 metaDatamap.put( "errorMessages", addQuoteResult.getErrorMessages() );
                 metaDatamap.put( "messageList", addQuoteResult.getRespMessageList() );
                 metaDatamap.put( "accountNumber", addQuoteResult.getAccountNumber() );
@@ -268,7 +270,7 @@ public class JMAddQuoteHelperImpl
             HashMap<String, Object> metaDatamap = new HashMap<>();
             metaDatamap.put( "ratePlans", updateQuoteResult.getPaymentPlans() );
             metaDatamap.put( "isUnderwritingNeeded", addQuoteResult.isUnderwritingNeeded() );
-            metaDatamap.put( "isCoverageAvailable", addQuoteResult.isCoverageAvailable() );
+            metaDatamap.put( "isCoverageAvailable", addQuoteResult.getIsCoverageAvailable() );
             metaDatamap.put( "minimumPremium", addQuoteResult.getRatingInfo().getMinimumPremium() );
             metaDatamap.put( "minimumTaxesAndSurcharges", addQuoteResult.getRatingInfo().getMinimumTaxesAndSurcharges() );
 
@@ -1570,18 +1572,27 @@ public class JMAddQuoteHelperImpl
             {
                 log.error( "IMPORTANT: Error while parsing exception content to AddQuoteResult. Content: {}", e.contentUTF8() );
             }
-        }
 
-        if ( addQuoteResult == null || CollectionUtils.isEmpty( addQuoteResult.getErrorMessages() ) )
+
+            if ( addQuoteResult == null )
+            {
+                addQuoteResult = AddQuoteResult.builder().errorMessages( Arrays.asList( GENERIC_ERROR_MESSSAGE ) )
+                                               .respMessageList( Arrays.asList( GENERIC_FAILED_QUOTE_MESSSAGE ) ).build();
+            }
+            if ( CollectionUtils.isEmpty( addQuoteResult.getRespMessageList() ) )
+            {
+                addQuoteResult.setRespMessageList( addQuoteResult.getErrorMessages() != null ? addQuoteResult.getErrorMessages() : Arrays.asList( GENERIC_FAILED_QUOTE_MESSSAGE ) );
+            }
+            if ( CollectionUtils.isEmpty( addQuoteResult.getErrorMessages() ) )
+            {
+                addQuoteResult.setErrorMessages( Arrays.asList( GENERIC_ERROR_MESSSAGE ) );
+            }
+        }
+        else
         {
-            addQuoteResult = AddQuoteResult.builder().errorMessages( Arrays.asList( "An Error Occurred when calling JM UpdateQuote." ) )
+            addQuoteResult = AddQuoteResult.builder().errorMessages( Arrays.asList( GENERIC_ERROR_MESSSAGE ) )
                                            .respMessageList( Arrays.asList( GENERIC_FAILED_QUOTE_MESSSAGE ) ).build();
         }
-        else if ( CollectionUtils.isEmpty( addQuoteResult.getRespMessageList() ) )
-        {
-            addQuoteResult.setRespMessageList( addQuoteResult.getErrorMessages() );
-        }
-
         return addQuoteResult;
     }
 }
