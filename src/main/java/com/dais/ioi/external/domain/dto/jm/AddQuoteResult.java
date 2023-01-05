@@ -22,7 +22,7 @@ public class AddQuoteResult
 
     public boolean isUnderwritingNeeded;
 
-    public boolean isCoverageAvailable;
+    public Boolean isCoverageAvailable;
 
     public List<String> errorMessages;
 
