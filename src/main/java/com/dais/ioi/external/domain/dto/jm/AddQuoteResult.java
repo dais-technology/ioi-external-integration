@@ -22,16 +22,17 @@ public class AddQuoteResult
 
     public boolean isUnderwritingNeeded;
 
-    public boolean isCoverageAvailable;
+    public Boolean isCoverageAvailable;
 
-    //TODO: List<String>
-    public List<Object> errorMessages;
+    public List<String> errorMessages;
 
     public RatingInfo ratingInfo;
 
     public List<PaymentPlan> paymentPlans;
 
     public List<String> respMessageList;
+
+    public String accountNumber;
 
     @Data
     @Builder

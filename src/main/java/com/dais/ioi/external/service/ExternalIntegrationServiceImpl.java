@@ -220,11 +220,11 @@ public class ExternalIntegrationServiceImpl
 
             return quickQuote;
         }
-        catch ( ExternalApiException e )
-        {
-            log.error( "IMPORTANT: An Exception occured when trying to reach the JM api" );
-            throw e;
-        }
+//        catch ( ExternalApiException e )
+//        {
+//            log.error( "IMPORTANT: An Exception occured when trying to reach the JM api" );
+//            throw e;
+//        }
     }
 
 

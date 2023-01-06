@@ -53,6 +53,9 @@ public class AddQuoteRequest
     @JsonProperty( "User" )
     public User user;
 
+    @JsonProperty( "IsMailingAddressSame" )
+    public Boolean isMailingAddressSame;
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor

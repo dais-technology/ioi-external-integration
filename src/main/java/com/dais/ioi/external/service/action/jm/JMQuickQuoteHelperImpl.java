@@ -9,7 +9,6 @@ import com.dais.ioi.external.domain.dto.jm.JMAuthData;
 import com.dais.ioi.external.domain.dto.jm.QuickQuoteRequest;
 import com.dais.ioi.external.domain.dto.jm.QuickQuoteResult;
 import com.dais.ioi.external.domain.dto.spec.ActionJMSQuoteSpecDto;
-import com.dais.ioi.external.domain.exception.ExternalApiException;
 import com.dais.ioi.external.util.NormalizedPremium;
 import com.dais.ioi.quote.domain.dto.QuoteDto;
 import com.dais.ioi.quote.domain.dto.enums.AmountType;
@@ -21,7 +20,6 @@ import com.dais.ioi.quote.domain.dto.pub.PubExternalDataDto;
 import com.dais.ioi.quote.domain.dto.pub.PubPremiumDto;
 import com.dais.ioi.quote.domain.dto.pub.PubQuoteDetailsDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,23 +109,10 @@ public class JMQuickQuoteHelperImpl
     private QuickQuoteResult getQuickQuoteResult( final JMAuthData jmAuthData,
                                                   final QuickQuoteRequest quickQuoteRequest )
     {
-        try
-        {
-            return jmQuoteClient.getQuickQuote( jmAuthData.getBaseUri(),
-                                                "Bearer " + jmAuthData.getAccessToken(),
-                                                jmAuthData.getApiSubscriptionKey(),
-                                                quickQuoteRequest );
-        }
-        catch ( FeignException e )
-        {
-            log.error( "IMPORTANT: An exception occurred when attempting to get a quickQuote response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
-            throw new ExternalApiException( "Unable to get response from URL: " + jmAuthData.getBaseUri().toString() + " Message: " + e.getMessage(), e );
-        }
-        catch ( Exception e )
-        {
-            log.error( "IMPORTANT: An exception occurred when attempting to get a quickQuote response from JM: " + e.getMessage(), e );
-            throw new ExternalApiException( "Unable to get response from URL: " + jmAuthData.getBaseUri().toString() + " Message: " + e.getMessage(), e );
-        }
+        return jmQuoteClient.getQuickQuote( jmAuthData.getBaseUri(),
+                                            "Bearer " + jmAuthData.getAccessToken(),
+                                            jmAuthData.getApiSubscriptionKey(),
+                                            quickQuoteRequest );
     }
 
 

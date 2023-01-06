@@ -4,6 +4,7 @@ import com.dais.ioi.external.config.HttpHeader;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountRequest;
 import com.dais.ioi.external.domain.dto.jm.CreateAccountResponse;
 import com.dais.ioi.external.domain.dto.jm.DownloadApplicationRequest;
+import com.dais.ioi.external.domain.dto.jm.GetEmbeddedQuoteResponse;
 import com.dais.ioi.external.domain.dto.jm.GetPolicyNumberResponse;
 import com.dais.ioi.external.domain.dto.jm.RegisterUserRequest;
 import com.dais.ioi.external.domain.dto.jm.RegisterUserResponse;
@@ -25,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.UUID;
 
 
 @FeignClient(
@@ -93,4 +95,14 @@ public interface JMApplicationClient
                                              @RequestHeader( HttpHeader.AUTHORIZATION ) String bearer,
                                              @RequestHeader( "Ocp-Apim-Subscription-Key" ) String subscriptionKey,
                                              @RequestBody @Valid final RegisterUserRequest registerUserRequest );
+
+
+    @RequestMapping(
+          value = "/quote/{quoteId}",
+          method = RequestMethod.GET )
+    @ResponseStatus( HttpStatus.OK )
+    GetEmbeddedQuoteResponse getEmbeddedQuote( URI baseUrl,
+                                               @RequestHeader( HttpHeader.AUTHORIZATION ) String bearer,
+                                               @RequestHeader( "Ocp-Apim-Subscription-Key" ) String subscriptionKey,
+                                               @PathVariable( value = "quoteId" ) UUID quoteId );
 }

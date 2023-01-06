@@ -43,6 +43,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -77,6 +78,8 @@ public class JMAddQuoteHelperImpl
     private static final String EXTERNAL_QUOTE_METADATA_KEY = "EXTERNAL_QUOTE";
 
     private static final String GENERIC_FAILED_QUOTE_MESSSAGE = "We are unable to provide a quote at this time.";
+
+    private static final String GENERIC_ERROR_MESSSAGE = "An Error Occurred when calling JM Add or Update Quote.";
 
     private final JMQuoteClient jmQuoteClient;
 
@@ -195,18 +198,19 @@ public class JMAddQuoteHelperImpl
 
 
             // This block will be hit if there is no coverage and the http response is 200
-            if ( addQuoteResult.isCoverageAvailable == false )
+            if ( addQuoteResult.getIsCoverageAvailable() == null || addQuoteResult.getIsCoverageAvailable() == false )
             {
 
-                log.info( "(" + requestId.toString() + ") IMPORTANT: JM ADDQUOTE Has Been Rejected due to isCoverageAvailable flag is false.  Constructing Rejected QuoteDto" );
+                log.info( "(" + requestId.toString() + ") IMPORTANT: JM ADDQUOTE Has Been Rejected due to isCoverageAvailable flag is false or is null.  Constructing Rejected QuoteDto" );
                 TriggerResponseDto triggerResponseDto = new TriggerResponseDto();
 
                 HashMap<String, Object> metaDatamap = new HashMap<>();
 
                 metaDatamap.put( "isUnderwritingNeeded", addQuoteResult.isUnderwritingNeeded() );
-                metaDatamap.put( "isCoverageAvailable", addQuoteResult.isCoverageAvailable() );
+                metaDatamap.put( "isCoverageAvailable", addQuoteResult.getIsCoverageAvailable() );
                 metaDatamap.put( "errorMessages", addQuoteResult.getErrorMessages() );
                 metaDatamap.put( "messageList", addQuoteResult.getRespMessageList() );
+                metaDatamap.put( "accountNumber", addQuoteResult.getAccountNumber() );
 
 
                 log.info( "setting request Id to " + requestId );
@@ -266,7 +270,7 @@ public class JMAddQuoteHelperImpl
             HashMap<String, Object> metaDatamap = new HashMap<>();
             metaDatamap.put( "ratePlans", updateQuoteResult.getPaymentPlans() );
             metaDatamap.put( "isUnderwritingNeeded", addQuoteResult.isUnderwritingNeeded() );
-            metaDatamap.put( "isCoverageAvailable", addQuoteResult.isCoverageAvailable() );
+            metaDatamap.put( "isCoverageAvailable", addQuoteResult.getIsCoverageAvailable() );
             metaDatamap.put( "minimumPremium", addQuoteResult.getRatingInfo().getMinimumPremium() );
             metaDatamap.put( "minimumTaxesAndSurcharges", addQuoteResult.getRatingInfo().getMinimumTaxesAndSurcharges() );
 
@@ -417,15 +421,8 @@ public class JMAddQuoteHelperImpl
         catch ( FeignException e )
         {
             log.error( "IMPORTANT: An exception occurred when attempting to get a UpdateQuote response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
-            log.error( "IMPORTANT: an error occured when calling JM UpdateQuote: " + e.getMessage() );
-            List<Object> errorMessages = new ArrayList<>();
-            errorMessages.add( "An Error Occured when calling JM UpdateQuote." );
-            //TODO: Parse out error message to extract cause
-            errorMessages.add( e.contentUTF8() );
-
-            List<String> respMessages = new ArrayList<>();
-            respMessages.add( GENERIC_FAILED_QUOTE_MESSSAGE );
-            return AddQuoteResult.builder().errorMessages( errorMessages ).respMessageList( respMessages ).build();
+            log.error( "IMPORTANT: an error occurred when calling JM UpdateQuote: " + e.getMessage() );
+            return processFeignException( e );
         }
     }
 
@@ -444,15 +441,8 @@ public class JMAddQuoteHelperImpl
         catch ( FeignException e )
         {
             log.error( "IMPORTANT: An exception occurred when attempting to get a AddQuote response from JM. Message: {}. Content: {}", e.getMessage(), e.contentUTF8(), e );
-            log.error( "IMPORTANT: an error occured when calling JM AddQuote: " + e.getMessage() );
-            List<Object> errorMessages = new ArrayList<>();
-            errorMessages.add( "An Error Occured when calling JM AddQuote." );
-            //TODO: Parse out error message to extract cause
-            errorMessages.add( e.contentUTF8() );
-
-            List<String> respMessages = new ArrayList<>();
-            respMessages.add( GENERIC_FAILED_QUOTE_MESSSAGE );
-            return AddQuoteResult.builder().errorMessages( errorMessages ).respMessageList( respMessages ).build();
+            log.error( "IMPORTANT: an error occurred when calling JM AddQuote: " + e.getMessage() );
+            return processFeignException( e );
         }
     }
 
@@ -576,6 +566,7 @@ public class JMAddQuoteHelperImpl
         residentialAddress.setPostalCode(
               JMUtils.formatZipCode( getValue( () -> intake.get( actionJMSQuoteSpecDto.getPrimaryContactResAddrPostalCode() ).getAnswer(), "" ) )
         );
+        addQuoteRequest.setIsMailingAddressSame( false );
 
         // Map mailing address
         if ( getValue( () -> intake.get( actionJMSQuoteSpecDto.getHasMailingAddr() ).getAnswer(), StringUtils.EMPTY ).equals( "[]" ) )
@@ -614,6 +605,11 @@ public class JMAddQuoteHelperImpl
                 }
                 primaryContact.setMailingAddress( mailingAddress );
             }
+        }
+        else if ( getValue( () -> intake.get( actionJMSQuoteSpecDto.getHasMailingAddr() ).getAnswer(),
+                            StringUtils.EMPTY ).equals( "[\"Is this your Mailing Address?\"]" ) )
+        {
+            addQuoteRequest.setIsMailingAddressSame( true );
         }
 
         primaryContact.setResidentialAddress( residentialAddress );
@@ -1001,7 +997,7 @@ public class JMAddQuoteHelperImpl
 
             if ( itemDamage != null )
             {
-                item.setItemDamage( ("none".equalsIgnoreCase( itemDamage ) || itemDamage.isEmpty()) ? "no" : "yes" );
+                item.setItemDamage( ( "none".equalsIgnoreCase( itemDamage ) || itemDamage.isEmpty() ) ? "no" : "yes" );
             }
 
             final int finalItemNumber = itemNumber;
@@ -1560,5 +1556,43 @@ public class JMAddQuoteHelperImpl
         externalQuoteDataDto.setClientId( clientId );
 
         externalQuoteDataService.saveOrUpdate( externalQuoteDataDto );
+    }
+
+
+    private AddQuoteResult processFeignException( final FeignException e )
+    {
+        AddQuoteResult addQuoteResult = null;
+        if ( e.status() == 400 )
+        {
+            try
+            {
+                addQuoteResult = objectMapper.readValue( e.contentUTF8(), AddQuoteResult.class );
+            }
+            catch ( Exception ex )
+            {
+                log.error( "IMPORTANT: Error while parsing exception content to AddQuoteResult. Content: {}", e.contentUTF8() );
+            }
+
+
+            if ( addQuoteResult == null )
+            {
+                addQuoteResult = AddQuoteResult.builder().errorMessages( Arrays.asList( GENERIC_ERROR_MESSSAGE ) )
+                                               .respMessageList( Arrays.asList( GENERIC_FAILED_QUOTE_MESSSAGE ) ).build();
+            }
+            if ( CollectionUtils.isEmpty( addQuoteResult.getRespMessageList() ) )
+            {
+                addQuoteResult.setRespMessageList( addQuoteResult.getErrorMessages() != null ? addQuoteResult.getErrorMessages() : Arrays.asList( GENERIC_FAILED_QUOTE_MESSSAGE ) );
+            }
+            if ( CollectionUtils.isEmpty( addQuoteResult.getErrorMessages() ) )
+            {
+                addQuoteResult.setErrorMessages( Arrays.asList( GENERIC_ERROR_MESSSAGE ) );
+            }
+        }
+        else
+        {
+            addQuoteResult = AddQuoteResult.builder().errorMessages( Arrays.asList( GENERIC_ERROR_MESSSAGE ) )
+                                           .respMessageList( Arrays.asList( GENERIC_FAILED_QUOTE_MESSSAGE ) ).build();
+        }
+        return addQuoteResult;
     }
 }

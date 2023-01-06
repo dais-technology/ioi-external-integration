@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
 import java.util.Map;
 import java.util.UUID;
 
@@ -20,9 +21,12 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = true)
 public class UploadAppraisalRequestDto extends JmBaseDto
 {
+    @NotNull
     private UUID clientId;
 
+    @NotNull
     private String accountNumber;
 
+    @NotNull
     private Map<String, ClientAnswerDto> intake;
 }
