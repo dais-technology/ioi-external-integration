@@ -17,7 +17,7 @@ public interface SmartyStreetsClient
     List<com.smartystreets.api.international_street.Candidate> verifyInternationalAddress( InternationalAddressDto internationalAddressDto )
           throws Exception;
 
-    List<com.smartystreets.api.international_street.Candidate> verifyInternationalAddress( String formattedCode,
+    List<com.smartystreets.api.international_street.Candidate> verifyInternationalAddress( String formattedPostalCode,
                                                                                            String country )
           throws Exception;
 

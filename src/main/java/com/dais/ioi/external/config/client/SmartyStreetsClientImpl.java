@@ -90,11 +90,11 @@ public class SmartyStreetsClientImpl
 
 
     @Override
-    public List<com.smartystreets.api.international_street.Candidate> verifyInternationalAddress( final String formattedCode,
+    public List<com.smartystreets.api.international_street.Candidate> verifyInternationalAddress( final String formattedPostalCode,
                                                                                                   final String country )
           throws Exception
     {
-        return verifyInternationalAddress( InternationalAddressDto.builder().zipCode( formattedCode )
+        return verifyInternationalAddress( InternationalAddressDto.builder().zipCode( formattedPostalCode )
                                                                   .country( country )
                                                                   .address1( "address_not_available" )
                                                                   .locality( "locality_not_available" )
