@@ -1,6 +1,7 @@
 package com.dais.ioi.external.config.client;
 
 import com.dais.ioi.external.domain.dto.smarty.AddressVerificationRequest;
+import com.dais.ioi.external.domain.dto.smarty.InternationalAddressDto;
 import com.smartystreets.api.ClientBuilder;
 import com.smartystreets.api.StaticCredentials;
 import com.smartystreets.api.us_street.Batch;
@@ -70,28 +71,35 @@ public class SmartyStreetsClientImpl
 
 
     @Override
-    public List<com.smartystreets.api.international_street.Candidate> verifyInternationalAddress(
-          String postalCode,
-          String country,
-          String address1,
-          String address2,
-          String address3,
-          String locality,
-          String administrativeArea )
+    public List<com.smartystreets.api.international_street.Candidate> verifyInternationalAddress( InternationalAddressDto internationalAddressDto )
           throws Exception
     {
         StaticCredentials credentials = new StaticCredentials( authId, authToken );
         com.smartystreets.api.international_street.Client client = new ClientBuilder( credentials ).buildInternationalStreetApiClient();
 
         com.smartystreets.api.international_street.Lookup lookup = new com.smartystreets.api.international_street.Lookup();
-        lookup.setAddress1( address1 );
-        lookup.setAddress2( address2 );
-        lookup.setLocality( locality );
-        lookup.setAdministrativeArea( administrativeArea );
-        lookup.setCountry( country );
-        lookup.setPostalCode( postalCode );
+        lookup.setAddress1( internationalAddressDto.getAddress1() );
+        lookup.setAddress2( internationalAddressDto.getAddress2() );
+        lookup.setLocality( internationalAddressDto.getLocality() );
+        lookup.setAdministrativeArea( internationalAddressDto.getAdministrativeArea() );
+        lookup.setCountry( internationalAddressDto.getCountry() );
+        lookup.setPostalCode( internationalAddressDto.getZipCode() );
 
         return Arrays.asList( client.send( lookup ) );
+    }
+
+
+    @Override
+    public List<com.smartystreets.api.international_street.Candidate> verifyInternationalAddress( final String formattedCode,
+                                                                                                  final String country )
+          throws Exception
+    {
+        return verifyInternationalAddress( InternationalAddressDto.builder().zipCode( formattedCode )
+                                                                  .country( country )
+                                                                  .address1( "address_not_available" )
+                                                                  .locality( "locality_not_available" )
+                                                                  .administrativeArea( "administrative_area_not_available" )
+                                                                  .build() );
     }
 
 

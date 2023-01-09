@@ -5,6 +5,7 @@ import com.dais.ioi.external.config.client.SmartyStreetsClient;
 import com.dais.ioi.external.domain.dto.smarty.AddressVerificationRequest;
 import com.dais.ioi.external.domain.dto.smarty.AddressVerificationRequestDto;
 import com.dais.ioi.external.domain.dto.smarty.AddressVerificationResponseDto;
+import com.dais.ioi.external.domain.dto.smarty.InternationalAddressDto;
 import com.dais.ioi.external.domain.dto.smarty.ZipCodeAddressDto;
 import com.smartystreets.api.international_street.Candidate;
 import com.smartystreets.api.us_zipcode.AlternateCounty;
@@ -139,9 +140,7 @@ public class SmartyStreetsServiceImpl
         List<Candidate> candidates;
         try
         {
-            candidates = smartyStreetsClient.verifyInternationalAddress(
-                  formattedCode, "CA", "address_not_available", null, null,
-                  "locality_not_available", "administrative_area_not_available" );
+            candidates = smartyStreetsClient.verifyInternationalAddress( formattedCode, "CA" );
         }
         catch ( Exception e )
         {
@@ -251,8 +250,13 @@ public class SmartyStreetsServiceImpl
             List<Candidate> candidates;
             try
             {
-                candidates = smartyStreetsClient.verifyInternationalAddress( address.getZip(), address.getCountry(), address.getAddress1(),
-                                                                             address.getAddress2(), null, address.getCity(), address.getState() );
+                candidates = smartyStreetsClient.verifyInternationalAddress( InternationalAddressDto.builder().address1( address.getAddress1() )
+                                                                                                    .address2( address.getAddress2() )
+                                                                                                    .zipCode( address.getZip() )
+                                                                                                    .country( address.getCountry() )
+                                                                                                    .locality( address.getCity() )
+                                                                                                    .administrativeArea( address.getState() ).
+                                                                                                    build() );
             }
             catch ( Exception e )
             {

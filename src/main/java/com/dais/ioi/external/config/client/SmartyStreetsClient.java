@@ -1,6 +1,7 @@
 package com.dais.ioi.external.config.client;
 
 import com.dais.ioi.external.domain.dto.smarty.AddressVerificationRequest;
+import com.dais.ioi.external.domain.dto.smarty.InternationalAddressDto;
 import com.smartystreets.api.us_street.Candidate;
 import com.smartystreets.api.us_zipcode.Result;
 
@@ -13,15 +14,11 @@ public interface SmartyStreetsClient
     List<Candidate> verifyUsAddresses( List<AddressVerificationRequest> addresses )
           throws Exception;
 
-    List<com.smartystreets.api.international_street.Candidate>
-    verifyInternationalAddress(
-          String zipCode,
-          String country,
-          String address1,
-          String address2,
-          String address3,
-          String locality,
-          String administrativeArea )
+    List<com.smartystreets.api.international_street.Candidate> verifyInternationalAddress( InternationalAddressDto internationalAddressDto )
+          throws Exception;
+
+    List<com.smartystreets.api.international_street.Candidate> verifyInternationalAddress( String formattedCode,
+                                                                                           String country )
           throws Exception;
 
     Result getAddressByZipCode( String zipCode )
