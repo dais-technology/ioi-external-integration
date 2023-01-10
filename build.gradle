@@ -112,6 +112,8 @@ dependencies {
     implementation( "net.rakugakibox.spring.boot:orika-spring-boot-starter:1.8.0" )
     implementation( "org.apache.commons:commons-collections4:4.4" )
 
+    //smarty-streets
+    compile('com.smartystreets.api:smartystreets-java-sdk:3.7.2')
 
     implementation( 'com.dais:ioi-quote-service-domain:0.0.113' )
     compile( 'com.dais:dais-commons:7.1.+' )

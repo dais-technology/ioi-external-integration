@@ -75,6 +75,8 @@ serviceSecrets:
   - ioi-quote-service.ribbon.listOfServers
   - dais.count.aggregation.cron
   - content-management.ribbon.listOfServers
+  - smarty-streets.auth.id
+  - smarty-streets.auth.token
 
 environmentVariables:
   - name: SPRING_ENVIRONMENT_PROFILE
